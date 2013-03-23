@@ -41,6 +41,10 @@
 #define _IMPL_MIN _MIN
 #endif
 
+/* Define for the sanity checks */
+#define BIG_AMOUNT_OF_SAMPLES 256000000
+// Equals (8000 * 8) * (500 * 8)
+
 typedef const UINT8 CUINT8, *PCUINT8;
 
 //NOTE: signed or unsigned affects the result seriously
@@ -2911,12 +2915,30 @@ bool ScanLineData::ScanConvert(const PathData& path_data, const CSize& size)
     }
     mWidth = size.cx;
     mHeight = size.cy;
+
+    // Check that the size isn't completely crazy
+    // FIXME: Reminder that the rendering should be sane'ified one day to not
+    //        take a fuckload of memory with large things.
+    if (mWidth * mHeight > BIG_AMOUNT_OF_SAMPLES) {
+        TRACE(_T("Error in ScanLineData::ScanConvert: size (%dx%d) is too big"), mHeight, mWidth);
+        return false;
+    }
+
     // Initialize edge buffer.  We use edge 0 as a sentinel.
     mEdgeNext = 1;
     mEdgeHeapSize = 2048;
-    mpEdgeBuffer = (Edge*)malloc(sizeof(Edge)*mEdgeHeapSize);
+    mpEdgeBuffer = (Edge*)malloc(sizeof(Edge) * mEdgeHeapSize);
+    if (!mpEdgeBuffer) {
+        TRACE(_T("Error in ScanLineData::ScanConvert: mpEdgeBuffer is NULL"));
+        return false;
+    }
+
     // Initialize scanline list.
     mpScanBuffer = new unsigned int[mHeight];
+    if (!mpScanBuffer) {
+        TRACE(_T("Error in ScanLineData::ScanConvert: mpScanBuffer is NULL"));
+        return false;
+    }
     memset(mpScanBuffer, 0, mHeight*sizeof(unsigned int));
     // Scan convert the outline.  Yuck, Bezier curves....
     // Unfortunately, Windows 95/98 GDI has a bad habit of giving us text
