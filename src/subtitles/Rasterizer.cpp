@@ -2911,12 +2911,28 @@ bool ScanLineData::ScanConvert(const PathData& path_data, const CSize& size)
     }
     mWidth = size.cx;
     mHeight = size.cy;
+
+    // Check that the size isn't completely crazy
+    if (mWidth * mHeight > 8000000) {
+        TRACE(_T("Error in ScanLineData::ScanConvert: size (%dx%d) is too big"), mHeight, mWidth);
+        return false;
+    }
+
     // Initialize edge buffer.  We use edge 0 as a sentinel.
     mEdgeNext = 1;
     mEdgeHeapSize = 2048;
-    mpEdgeBuffer = (Edge*)malloc(sizeof(Edge)*mEdgeHeapSize);
+    mpEdgeBuffer = (Edge*)malloc(sizeof(Edge) * mEdgeHeapSize);
+    if (!mpEdgeBuffer) {
+        TRACE(_T("Error in ScanLineData::ScanConvert: mpEdgeBuffer is NULL"));
+        return false;
+    }
+
     // Initialize scanline list.
     mpScanBuffer = new unsigned int[mHeight];
+    if (!mpScanBuffer) {
+        TRACE(_T("Error in ScanLineData::ScanConvert: mpScanBuffer is NULL"));
+        return false;
+    }
     memset(mpScanBuffer, 0, mHeight*sizeof(unsigned int));
     // Scan convert the outline.  Yuck, Bezier curves....
     // Unfortunately, Windows 95/98 GDI has a bad habit of giving us text
