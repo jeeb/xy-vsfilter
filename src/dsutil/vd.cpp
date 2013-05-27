@@ -398,3 +398,99 @@ bool BitBltFromNV12ToNV12(int w, int h, BYTE* dst, int dstpitch, const BYTE* src
 
     return true;
 }
+
+bool BitBltFromNV12ToI420(int w, int h, BYTE* dsty, BYTE* dstu, BYTE* dstv, int dstpitch, BYTE* srcy, BYTE* srcuv, int srcpitch)
+{
+	if(srcpitch == 0) srcpitch = w;
+
+	VDPixmap srcbm = {0};
+
+	srcbm.data		= srcy;
+	srcbm.pitch		= srcpitch;
+	srcbm.w			= w;
+	srcbm.h			= h;
+	srcbm.format	= nsVDPixmap::kPixFormat_YUV420_NV12;
+	srcbm.data2		= srcuv;
+	srcbm.pitch2	= srcpitch;
+
+	VDPixmap dstpxm = {0};
+
+	dstpxm.data		= dsty;
+	dstpxm.pitch	= dstpitch;
+	dstpxm.w		= w;
+	dstpxm.h		= h;
+	dstpxm.format	= nsVDPixmap::kPixFormat_YUV420_Planar;
+	dstpxm.data2	= dstu;
+	dstpxm.pitch2	= dstpitch / 2;
+	dstpxm.data3	= dstv;
+	dstpxm.pitch3	= dstpitch / 2;
+
+	return VDPixmapBlt(dstpxm, srcbm);
+}
+
+bool BitBltFromNV12ToYUY2(int w, int h, BYTE* dst, int dstpitch, BYTE* srcy, BYTE* srcuv, int srcpitch)
+{
+	if(srcpitch == 0) srcpitch = w;
+
+	VDPixmap srcbm = {0};
+
+	srcbm.data		= srcy;
+	srcbm.pitch		= srcpitch;
+	srcbm.w			= w;
+	srcbm.h			= h;
+	srcbm.format	= nsVDPixmap::kPixFormat_YUV420_NV12;
+	srcbm.data2		= srcuv;
+	srcbm.pitch2	= srcpitch;
+
+	VDPixmap dstpxm = {
+		dst,
+		NULL,
+		w,
+		h,
+		dstpitch
+	};
+
+	dstpxm.format = nsVDPixmap::kPixFormat_YUV422_YUYV;
+
+	return VDPixmapBlt(dstpxm, srcbm);
+}
+
+bool BitBltFromNV12ToRGB(int w, int h, BYTE* dst, int dstpitch, int dbpp, BYTE* srcy, BYTE* srcuv, int srcpitch)
+{
+	if(srcpitch == 0) srcpitch = w;
+
+	VDPixmap srcbm = {0};
+
+	srcbm.data		= srcy;
+	srcbm.pitch		= srcpitch;
+	srcbm.w			= w;
+	srcbm.h			= h;
+	srcbm.format	= nsVDPixmap::kPixFormat_YUV420_NV12;
+	srcbm.data2		= srcuv;
+	srcbm.pitch2	= srcpitch;
+
+	VDPixmap dstpxm = {
+		(char *)dst + dstpitch * (h - 1),
+		NULL,
+		w,
+		h,
+		-dstpitch
+	};
+
+	switch(dbpp) {
+	case 16:
+		dstpxm.format = nsVDPixmap::kPixFormat_RGB565;
+		break;
+	case 24:
+		dstpxm.format = nsVDPixmap::kPixFormat_RGB888;
+		break;
+	case 32:
+		dstpxm.format = nsVDPixmap::kPixFormat_XRGB8888;
+		break;
+	default:
+		VDASSERT(false);
+	}
+
+	return VDPixmapBlt(dstpxm, srcbm);
+}
+

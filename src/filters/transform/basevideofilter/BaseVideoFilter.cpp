@@ -423,9 +423,47 @@ HRESULT CBaseVideoFilter::CopyBuffer(BYTE* pOut, BYTE** ppIn, int w, int h, int 
     }
     else if(subtype == MEDIASUBTYPE_NV12 || subtype == MEDIASUBTYPE_NV21) 
     {
-        if (bihOut.biCompression != subtype.Data1)
-            return VFW_E_TYPE_NOT_ACCEPTED;
-        BitBltFromNV12ToNV12(w, h, pOut, bihOut.biWidth, ppIn[0], pitchIn);
+	if (bihOut.biCompression == subtype.Data1)
+	{
+		BitBltFromNV12ToNV12(w, h, pOut, bihOut.biWidth, ppIn[0], pitchIn);
+	}
+	else if(subtype == MEDIASUBTYPE_NV12)
+	{
+		BYTE* pIn = ppIn[0];
+		BYTE* pInUV = ppIn[1];
+
+		BYTE* pOutU = pOut + bihOut.biWidth*h;
+		BYTE* pOutV = pOut + bihOut.biWidth*h*5/4;
+
+		if(bihOut.biCompression == '21VY') {BYTE* tmp = pOutU; pOutU = pOutV; pOutV = tmp;}
+
+		ASSERT(w <= abs(pitchIn));
+
+		if(bihOut.biCompression == '2YUY')
+		{
+			BitBltFromNV12ToYUY2(w, h, pOut, bihOut.biWidth*2, pIn, pInUV, pitchIn);
+		}
+		else if(bihOut.biCompression == '024I' || bihOut.biCompression == 'VUYI' || bihOut.biCompression == '21VY')
+		{
+			BitBltFromNV12ToI420(w, h, pOut, pOutU, pOutV, bihOut.biWidth, pIn, pInUV, pitchIn);
+		}
+		else if(bihOut.biCompression == BI_RGB || bihOut.biCompression == BI_BITFIELDS)
+		{
+			if(!BitBltFromNV12ToRGB(w, h, pOut, pitchOut, bihOut.biBitCount, pIn, pInUV, pitchIn))
+			{
+				for(int y = 0; y < h; y++, pOut += pitchOut)
+					memset(pOut, 0, pitchOut);
+			}
+		}
+		else
+		{
+			return VFW_E_TYPE_NOT_ACCEPTED;
+		}
+	}
+	else
+	{
+		return VFW_E_TYPE_NOT_ACCEPTED;
+	}
     }
     else if(subtype == MEDIASUBTYPE_YUY2)
     {
@@ -546,11 +584,23 @@ HRESULT CBaseVideoFilter::DoCheckTransform( const CMediaType* mtIn, const CMedia
     bool can_transform = true;
     if ( mtIn->subtype == MEDIASUBTYPE_P010 
         || mtIn->subtype == MEDIASUBTYPE_P016
-        || mtIn->subtype == MEDIASUBTYPE_NV12
         || mtIn->subtype == MEDIASUBTYPE_NV21
         || mtIn->subtype == MEDIASUBTYPE_AYUV )
     {
         if( mtOut->subtype!=mtIn->subtype )
+            can_transform = false;
+    }
+    else if( mtIn->subtype == MEDIASUBTYPE_NV12 )
+    {
+        if( mtOut->subtype != MEDIASUBTYPE_NV12
+            && mtOut->subtype != MEDIASUBTYPE_YV12
+            && mtOut->subtype != MEDIASUBTYPE_I420
+            && mtOut->subtype != MEDIASUBTYPE_IYUV
+            && mtOut->subtype != MEDIASUBTYPE_YUY2
+            && mtOut->subtype != MEDIASUBTYPE_ARGB32
+            && mtOut->subtype != MEDIASUBTYPE_RGB32
+            && mtOut->subtype != MEDIASUBTYPE_RGB24
+            && mtOut->subtype != MEDIASUBTYPE_RGB565)
             can_transform = false;
     }
     else if( mtIn->subtype == MEDIASUBTYPE_YV12 
