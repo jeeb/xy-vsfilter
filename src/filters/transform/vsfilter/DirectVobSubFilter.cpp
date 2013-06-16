@@ -635,6 +635,10 @@ HRESULT CDirectVobSubFilter::BreakConnect(PIN_DIRECTION dir)
 {
 	if(dir == PINDIR_INPUT)
 	{
+        if (m_pInput->IsConnected()) {
+            m_inputFmtCount = -1;
+            m_outputFmtCount = -1;
+        }
 		//if(m_pOutput->IsConnected())
 		//{
 		//	m_pOutput->GetConnected()->Disconnect();
@@ -643,6 +647,9 @@ HRESULT CDirectVobSubFilter::BreakConnect(PIN_DIRECTION dir)
 	}
 	else if(dir == PINDIR_OUTPUT)
 	{
+        if (m_pOutput->IsConnected()) {
+            m_outputFmtCount = -1;
+        }
 		// not really needed, but may free up a little memory
 		CAutoLock cAutoLock(&m_csQueueLock);
 		m_simple_provider = NULL;
