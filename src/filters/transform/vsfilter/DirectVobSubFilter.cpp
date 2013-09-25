@@ -35,6 +35,9 @@
 #include <initguid.h>
 #include "..\..\..\..\include\moreuuids.h"
 
+#include <d3d9.h>
+#include <dxva2api.h>
+
 #include "CAutoTiming.h"
 #include "xy_logger.h"
 
@@ -2286,6 +2289,9 @@ void CDirectVobSubFilter::SetYuvMatrix()
     ColorConvTable::YuvMatrixType yuv_matrix = ColorConvTable::BT601;
     ColorConvTable::YuvRangeType yuv_range = ColorConvTable::RANGE_TV;
 
+    DXVA2_ExtendedFormat extformat;
+    extformat.value = m_cf;
+
     if ( m_xy_int_opt[INT_COLOR_SPACE]==CDirectVobSub::YuvMatrix_AUTO )
     {
         if (m_video_yuv_matrix_decided_by_sub!=ColorConvTable::NONE)
@@ -2294,7 +2300,9 @@ void CDirectVobSubFilter::SetYuvMatrix()
         }
         else
         {
-            yuv_matrix = (m_xy_size_opt[SIZE_ORIGINAL_VIDEO].cx > m_bt601Width ||
+            yuv_matrix = (extformat.VideoTransferMatrix == DXVA2_VideoTransferMatrix_BT709 ||
+                          extformat.VideoTransferMatrix == DXVA2_VideoTransferMatrix_SMPTE240M ||
+                          m_xy_size_opt[SIZE_ORIGINAL_VIDEO].cx > m_bt601Width ||
                           m_xy_size_opt[SIZE_ORIGINAL_VIDEO].cy > m_bt601Height) ? ColorConvTable::BT709 : ColorConvTable::BT601;
         }
     }
@@ -2320,7 +2328,7 @@ void CDirectVobSubFilter::SetYuvMatrix()
         if (m_video_yuv_range_decided_by_sub!=ColorConvTable::RANGE_NONE)
             yuv_range = m_video_yuv_range_decided_by_sub;
         else
-            yuv_range = ColorConvTable::RANGE_TV;
+            yuv_range = (extformat.NominalRange == DXVA2_NominalRange_0_255) ? ColorConvTable::RANGE_PC : ColorConvTable::RANGE_TV;
     }
     else
     {
