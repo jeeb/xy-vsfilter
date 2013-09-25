@@ -2294,9 +2294,6 @@ void CDirectVobSubFilter::SetYuvMatrix()
         case CDirectVobSub::YuvRange_PC:
             yuv_range = ColorConvTable::RANGE_PC;
             break;
-        case CDirectVobSub::YuvRange_Auto:
-            yuv_range = ColorConvTable::RANGE_TV;
-            break;
         }
     }
 
