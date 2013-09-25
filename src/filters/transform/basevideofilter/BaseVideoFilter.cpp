@@ -481,7 +481,6 @@ HRESULT CBaseVideoFilter::CheckInputType(const CMediaType* mtIn)
 	return mtIn->majortype == MEDIATYPE_Video 
 		&& GetInputSubtypePosition(mtIn->subtype)!=-1        
 		&& (mtIn->formattype == FORMAT_VideoInfo || mtIn->formattype == FORMAT_VideoInfo2)
-		&& bih.biHeight > 0
 		? S_OK
 		: VFW_E_TYPE_NOT_ACCEPTED;
 }
