@@ -81,6 +81,7 @@ protected:
     HRESULT CombineOutputPriority( ColorSpaceId *preferredOrder, UINT *count );
     int GetInputSubtypePosition(const GUID& subtype);
     int GetOutputSubtypePosition( const GUID& subtype, int startPos =0 );    
+    bool ConnectedToWhitelistedFilter();
 public:
 	CBaseVideoFilter(TCHAR* pName, LPUNKNOWN lpunk, HRESULT* phr, REFCLSID clsid, long cBuffers = 1);
 	virtual ~CBaseVideoFilter();

@@ -729,6 +729,28 @@ int CBaseVideoFilter::GetOutputSubtypePosition( const GUID& subtype, int startPo
     return i<m_outputFmtCount ? i:-1;
 }
 
+// The whitelist for the colorimetry
+bool CBaseVideoFilter::ConnectedToWhitelistedFilter()
+{
+	CLSID clsid = GetCLSID(m_pOutput->GetConnected());
+	bool ret = false;
+
+	CLSID whitelist[] = {
+		CLSID_VSFilter,
+		CLSID_VideoMixingRenderer,
+		CLSID_VideoMixingRenderer9,
+		CLSID_EnhancedVideoRenderer,
+		CLSID_madVR
+	};
+
+	for (int i = 0; i < (sizeof(whitelist) / sizeof(*whitelist)); ++i) {
+		if (clsid == whitelist[i])
+			ret = true;
+	}
+
+	return ret;
+}
+
 HRESULT CBaseVideoFilter::SetMediaType(PIN_DIRECTION dir, const CMediaType* pmt)
 {
 	if(dir == PINDIR_INPUT)
@@ -742,7 +764,7 @@ HRESULT CBaseVideoFilter::SetMediaType(PIN_DIRECTION dir, const CMediaType* pmt)
 		GetOutputSize(m_w, m_h, m_arx, m_ary);
 
 		m_cf = 0;
-		if (pmt->formattype == FORMAT_VideoInfo2)
+		if (pmt->formattype == FORMAT_VideoInfo2 && ConnectedToWhitelistedFilter())
 		{
 			VIDEOINFOHEADER2* vih = (VIDEOINFOHEADER2*)pmt->Format();
 			if (vih->dwControlFlags & (AMCONTROL_USED | AMCONTROL_COLORINFO_PRESENT))
