@@ -1,20 +1,20 @@
-/* 
- *	Copyright (C) 2003-2006 Gabest
- *	http://www.gabest.org
+/*
+ *  Copyright (C) 2003-2006 Gabest
+ *  http://www.gabest.org
  *
  *  This Program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2, or (at your option)
  *  any later version.
- *   
+ *
  *  This Program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  *  GNU General Public License for more details.
- *   
+ *
  *  You should have received a copy of the GNU General Public License
  *  along with GNU Make; see the file COPYING.  If not, write to
- *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA. 
+ *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
  *  http://www.gnu.org/copyleft/gpl.html
  *
  */
@@ -107,80 +107,80 @@ extern LPCTSTR GetDXVAMode(const GUID* guidDecoder);
 extern void DumpBuffer(BYTE* pBuffer, int nSize);
 extern CString ReftimeToString(const REFERENCE_TIME& rtVal);
 extern CString ReftimeToString2(const REFERENCE_TIME& rtVal);
-extern CString DVDtimeToString(const DVD_HMSF_TIMECODE& rtVal, bool bAlwaysShowHours=false);
+extern CString DVDtimeToString(const DVD_HMSF_TIMECODE& rtVal, bool bAlwaysShowHours = false);
 REFERENCE_TIME StringToReftime(LPCTSTR strVal);
 extern COLORREF YCrCbToRGB_Rec601(BYTE Y, BYTE Cr, BYTE Cb);
 extern COLORREF YCrCbToRGB_Rec709(BYTE Y, BYTE Cr, BYTE Cb);
-extern DWORD	YCrCbToRGB_Rec601(BYTE A, BYTE Y, BYTE Cr, BYTE Cb);
-extern DWORD	YCrCbToRGB_Rec709(BYTE A, BYTE Y, BYTE Cr, BYTE Cb);
-extern void		TraceFilterInfo(IBaseFilter* pBF);
-extern void		TracePinInfo(IPin* pPin);
-extern void		SetThreadName( DWORD dwThreadID, LPCSTR szThreadName);
-extern void		HexDump(CString fName, BYTE* buf, int size);
-extern DWORD	GetDefChannelMask(WORD nChannels);
-extern void		CorrectComboListWidth(CComboBox& m_pComboBox);
+extern DWORD    YCrCbToRGB_Rec601(BYTE A, BYTE Y, BYTE Cr, BYTE Cb);
+extern DWORD    YCrCbToRGB_Rec709(BYTE A, BYTE Y, BYTE Cr, BYTE Cb);
+extern void     TraceFilterInfo(IBaseFilter* pBF);
+extern void     TracePinInfo(IPin* pPin);
+extern void     SetThreadName(DWORD dwThreadID, LPCSTR szThreadName);
+extern void     HexDump(CString fName, BYTE* buf, int size);
+extern DWORD    GetDefChannelMask(WORD nChannels);
+extern void     CorrectComboListWidth(CComboBox& m_pComboBox);
 
 class CPinInfo : public PIN_INFO
 {
 public:
-	CPinInfo() {pFilter = NULL;}
-	~CPinInfo() {if(pFilter) pFilter->Release();}
+    CPinInfo() {pFilter = NULL;}
+    ~CPinInfo() {if (pFilter) { pFilter->Release(); }}
 };
 
 class CFilterInfo : public FILTER_INFO
 {
 public:
-	CFilterInfo() {pGraph = NULL;}
-	~CFilterInfo() {if(pGraph) pGraph->Release();}
+    CFilterInfo() {pGraph = NULL;}
+    ~CFilterInfo() {if (pGraph) { pGraph->Release(); }}
 };
 
 #define BeginEnumFilters(pFilterGraph, pEnumFilters, pBaseFilter) \
-	{CComPtr<IEnumFilters> pEnumFilters; \
-	if(pFilterGraph && SUCCEEDED(pFilterGraph->EnumFilters(&pEnumFilters))) \
-	{ \
-		for(CComPtr<IBaseFilter> pBaseFilter; S_OK == pEnumFilters->Next(1, &pBaseFilter, 0); pBaseFilter = NULL) \
-		{ \
-
+    {CComPtr<IEnumFilters> pEnumFilters; \
+    if(pFilterGraph && SUCCEEDED(pFilterGraph->EnumFilters(&pEnumFilters))) \
+    { \
+        for(CComPtr<IBaseFilter> pBaseFilter; S_OK == pEnumFilters->Next(1, &pBaseFilter, 0); pBaseFilter = NULL) \
+        { \
+ 
 #define EndEnumFilters }}}
 
 #define BeginEnumCachedFilters(pGraphConfig, pEnumFilters, pBaseFilter) \
-	{CComPtr<IEnumFilters> pEnumFilters; \
-	if(pGraphConfig && SUCCEEDED(pGraphConfig->EnumCacheFilter(&pEnumFilters))) \
-	{ \
-		for(CComPtr<IBaseFilter> pBaseFilter; S_OK == pEnumFilters->Next(1, &pBaseFilter, 0); pBaseFilter = NULL) \
-		{ \
-
+    {CComPtr<IEnumFilters> pEnumFilters; \
+    if(pGraphConfig && SUCCEEDED(pGraphConfig->EnumCacheFilter(&pEnumFilters))) \
+    { \
+        for(CComPtr<IBaseFilter> pBaseFilter; S_OK == pEnumFilters->Next(1, &pBaseFilter, 0); pBaseFilter = NULL) \
+        { \
+ 
 #define EndEnumCachedFilters }}}
 
 #define BeginEnumPins(pBaseFilter, pEnumPins, pPin) \
-	{CComPtr<IEnumPins> pEnumPins; \
-	if(pBaseFilter && SUCCEEDED(pBaseFilter->EnumPins(&pEnumPins))) \
-	{ \
-		for(CComPtr<IPin> pPin; S_OK == pEnumPins->Next(1, &pPin, 0); pPin = NULL) \
-		{ \
-
+    {CComPtr<IEnumPins> pEnumPins; \
+    if(pBaseFilter && SUCCEEDED(pBaseFilter->EnumPins(&pEnumPins))) \
+    { \
+        for(CComPtr<IPin> pPin; S_OK == pEnumPins->Next(1, &pPin, 0); pPin = NULL) \
+        { \
+ 
 #define EndEnumPins }}}
 
 #define BeginEnumMediaTypes(pPin, pEnumMediaTypes, pMediaType) \
-	{CComPtr<IEnumMediaTypes> pEnumMediaTypes; \
-	if(pPin && SUCCEEDED(pPin->EnumMediaTypes(&pEnumMediaTypes))) \
-	{ \
-		AM_MEDIA_TYPE* pMediaType = NULL; \
-		for(; S_OK == pEnumMediaTypes->Next(1, &pMediaType, NULL); DeleteMediaType(pMediaType), pMediaType = NULL) \
-		{ \
-
+    {CComPtr<IEnumMediaTypes> pEnumMediaTypes; \
+    if(pPin && SUCCEEDED(pPin->EnumMediaTypes(&pEnumMediaTypes))) \
+    { \
+        AM_MEDIA_TYPE* pMediaType = NULL; \
+        for(; S_OK == pEnumMediaTypes->Next(1, &pMediaType, NULL); DeleteMediaType(pMediaType), pMediaType = NULL) \
+        { \
+ 
 #define EndEnumMediaTypes(pMediaType) } if(pMediaType) DeleteMediaType(pMediaType); }}
 
 #define BeginEnumSysDev(clsid, pMoniker) \
-	{CComPtr<ICreateDevEnum> pDevEnum4$##clsid; \
-	pDevEnum4$##clsid.CoCreateInstance(CLSID_SystemDeviceEnum); \
-	CComPtr<IEnumMoniker> pClassEnum4$##clsid; \
-	if(SUCCEEDED(pDevEnum4$##clsid->CreateClassEnumerator(clsid, &pClassEnum4$##clsid, 0)) \
-	&& pClassEnum4$##clsid) \
-	{ \
-		for(CComPtr<IMoniker> pMoniker; pClassEnum4$##clsid->Next(1, &pMoniker, 0) == S_OK; pMoniker = NULL) \
-		{ \
-
+    {CComPtr<ICreateDevEnum> pDevEnum4$##clsid; \
+    pDevEnum4$##clsid.CoCreateInstance(CLSID_SystemDeviceEnum); \
+    CComPtr<IEnumMoniker> pClassEnum4$##clsid; \
+    if(SUCCEEDED(pDevEnum4$##clsid->CreateClassEnumerator(clsid, &pClassEnum4$##clsid, 0)) \
+    && pClassEnum4$##clsid) \
+    { \
+        for(CComPtr<IMoniker> pMoniker; pClassEnum4$##clsid->Next(1, &pMoniker, 0) == S_OK; pMoniker = NULL) \
+        { \
+ 
 #define EndEnumSysDev }}}
 
 #define QI(i) (riid == __uuidof(i)) ? GetInterface((i*)this, ppv) :
@@ -197,25 +197,25 @@ template <typename T> __inline void INITDDSTRUCT(T& dd)
 template <class T>
 static CUnknown* WINAPI CreateInstance(LPUNKNOWN lpunk, HRESULT* phr)
 {
-	*phr = S_OK;
+    *phr = S_OK;
     CUnknown* punk = new T(lpunk, phr);
-    if(punk == NULL) *phr = E_OUTOFMEMORY;
-	return punk;
+    if (punk == NULL) { *phr = E_OUTOFMEMORY; }
+    return punk;
 }
 #define SAFE_DELETE(p)       { if(p) { delete (p);     (p)=NULL; } }
 #define SAFE_DELETE_ARRAY(p) { if(p) { delete[] (p);   (p)=NULL; } }
 #define SAFE_RELEASE(p)      { if(p) { (p)->Release(); (p)=NULL; } }
 inline int LNKO(int a, int b)
 {
-	if(a == 0 || b == 0) {
-		return(1);
-	}
-	while(a != b) {
-		if(a < b) {
-			b -= a;
-		} else if(a > b) {
-			a -= b;
-		}
-	}
-	return(a);
+    if (a == 0 || b == 0) {
+        return (1);
+    }
+    while (a != b) {
+        if (a < b) {
+            b -= a;
+        } else if (a > b) {
+            a -= b;
+        }
+    }
+    return (a);
 }

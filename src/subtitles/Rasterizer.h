@@ -1,6 +1,6 @@
 /*
- *	Copyright (C) 2003-2006 Gabest
- *	http://www.gabest.org
+ *  Copyright (C) 2003-2006 Gabest
+ *  http://www.gabest.org
  *
  *  This Program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -37,11 +37,10 @@
 typedef struct {
     int left, top;
     int w, h;                   // width, height
-    unsigned char *buffer;      // w x h buffer
+    unsigned char* buffer;      // w x h buffer
 } Bitmap;
 
-struct PathData
-{
+struct PathData {
 public:
     PathData();
     ~PathData();
@@ -55,8 +54,8 @@ public:
     bool EndPath(HDC hdc);
     bool PartialBeginPath(HDC hdc, bool bClearPath);
     bool PartialEndPath(HDC hdc, long dx, long dy);
-    
-    void AlignLeftTop(CPoint *left_top, CSize *size);
+
+    void AlignLeftTop(CPoint* left_top, CSize* size);
 
     BYTE* mpPathTypes;
     POINT* mpPathPoints;
@@ -83,7 +82,7 @@ private:
     struct Edge {
         int next;
         int posandflag;
-    } *mpEdgeBuffer;
+    }* mpEdgeBuffer;
     unsigned mEdgeHeapSize;
     unsigned mEdgeNext;
 
@@ -95,7 +94,7 @@ private:
     void _ReallocEdgeBuffer(int edges);
     void _EvaluateBezier(const PathData& path_data, int ptbase, bool fBSpline);
     void _EvaluateLine(const PathData& path_data, int pt1idx, int pt2idx);
-    void _EvaluateLine(int x0, int y0, int x1, int y1);	
+    void _EvaluateLine(int x0, int y0, int x1, int y1);
 
 public:
     ScanLineData();
@@ -114,22 +113,20 @@ typedef ::boost::shared_ptr<ScanLineData> SharedPtrScanLineData;
 class ScanLineData2
 {
 public:
-    ScanLineData2():mPathOffsetX(0),mPathOffsetY(0),mWideBorder(0){}
+    ScanLineData2(): mPathOffsetX(0), mPathOffsetY(0), mWideBorder(0) {}
     ScanLineData2(const CPoint& left_top, const SharedPtrConstScanLineData& scan_line_data)
-        :m_scan_line_data(scan_line_data)
-        ,mPathOffsetX(left_top.x)
-        ,mPathOffsetY(left_top.y)
-    {
+        : m_scan_line_data(scan_line_data)
+        , mPathOffsetX(left_top.x)
+        , mPathOffsetY(left_top.y) {
     }
-    void SetOffset(const CPoint& offset)
-    {
+    void SetOffset(const CPoint& offset) {
         mPathOffsetX = offset.x;
         mPathOffsetY = offset.y;
     }
     bool CreateWidenedRegion(int borderX, int borderY);
 private:
     SharedPtrConstScanLineData m_scan_line_data;
-    int mPathOffsetX, mPathOffsetY;	
+    int mPathOffsetX, mPathOffsetY;
     tSpanBuffer mWideOutline;
     int mWideBorder;
 
@@ -141,32 +138,28 @@ typedef ::boost::shared_ptr<ScanLineData2> SharedPtrScanLineData2;
 
 typedef ::boost::shared_ptr<BYTE> SharedPtrByte;
 
-struct Overlay
-{
+struct Overlay {
 public:
-    Overlay()
-    {
-        mOffsetX=mOffsetY=mWidth=mHeight=0;
-        mOverlayWidth=mOverlayHeight=mOverlayPitch=0;
+    Overlay() {
+        mOffsetX = mOffsetY = mWidth = mHeight = 0;
+        mOverlayWidth = mOverlayHeight = mOverlayPitch = 0;
         mfWideOutlineEmpty = false;
     }
-    ~Overlay()
-    {
-        CleanUp();       
+    ~Overlay() {
+        CleanUp();
     }
 
-    void CleanUp()
-    {
+    void CleanUp() {
         mBody.reset((BYTE*)NULL);
         mBorder.reset((BYTE*)NULL);
-        mOffsetX=mOffsetY=mWidth=mHeight=0;
-        mOverlayWidth=mOverlayHeight=mOverlayPitch=0;
+        mOffsetX = mOffsetY = mWidth = mHeight = 0;
+        mOverlayWidth = mOverlayHeight = mOverlayPitch = 0;
         mfWideOutlineEmpty = false;
     }
 
-    void FillAlphaMash(byte* outputAlphaMask, bool fBody, bool fBorder, 
-        int x, int y, int w, int h, 
-        const byte* pAlphaMask, int pitch, DWORD color_alpha);
+    void FillAlphaMash(byte* outputAlphaMask, bool fBody, bool fBorder,
+                       int x, int y, int w, int h,
+                       const byte* pAlphaMask, int pitch, DWORD color_alpha);
 
     Overlay* GetSubpixelVariance(unsigned int xshift, unsigned int yshift);
 public:
@@ -174,21 +167,20 @@ public:
     SharedPtrByte mBorder;
     int mOffsetX, mOffsetY;
     int mWidth, mHeight;
-        
+
     int mOverlayWidth, mOverlayHeight, mOverlayPitch;
 
     bool mfWideOutlineEmpty;//specially for blur
 private:
     void _DoFillAlphaMash(byte* outputAlphaMask, const byte* pBody, const byte* pBorder,
-        int x, int y, int w, int h,
-        const byte* pAlphaMask, int pitch, DWORD color_alpha);
-    void _DoFillAlphaMash_c(byte* outputAlphaMask, const byte* pBody, const byte* pBorder, int x, int y, int w, int h, const byte* pAlphaMask, int pitch, DWORD color_alpha );
+                          int x, int y, int w, int h,
+                          const byte* pAlphaMask, int pitch, DWORD color_alpha);
+    void _DoFillAlphaMash_c(byte* outputAlphaMask, const byte* pBody, const byte* pBorder, int x, int y, int w, int h, const byte* pAlphaMask, int pitch, DWORD color_alpha);
 };
 
 typedef ::boost::shared_ptr<Overlay> SharedPtrOverlay;
 
-struct GrayImage2
-{
+struct GrayImage2 {
 public:
     CPoint left_top;
     CSize size;
@@ -203,16 +195,14 @@ class Rasterizer
 {
 private:
     typedef unsigned char byte;
-    
-    struct DM
-    {
-        enum
-        {
+
+    struct DM {
+        enum {
             SSE2 = 1,
-            ALPHA_MASK = 1<<1,
-            SINGLE_COLOR = 1<<2,
-            BODY = 1<<3,
-            AYUV_PLANAR = 1<<4
+            ALPHA_MASK = 1 << 1,
+            SINGLE_COLOR = 1 << 2,
+            BODY = 1 << 3,
+            AYUV_PLANAR = 1 << 4
         };
     };
 public:
@@ -220,34 +210,34 @@ public:
 public:
 
     static bool Rasterize(const ScanLineData2& scan_line_data2, int xsub, int ysub, SharedPtrOverlay overlay);
-    
+
     static bool IsItReallyBlur(float be_strength, double gaussian_blur_strength);
-    static bool OldFixedPointBlur(const Overlay& input_overlay, float be_strength, double gaussian_blur_strength, 
-        double target_scale_x, double target_scale_y, SharedPtrOverlay output_overlay);
+    static bool OldFixedPointBlur(const Overlay& input_overlay, float be_strength, double gaussian_blur_strength,
+                                  double target_scale_x, double target_scale_y, SharedPtrOverlay output_overlay);
 
-    static bool Blur(const Overlay& input_overlay, float be_strength, double gaussian_blur_strength, 
-        double target_scale_x, double target_scale_y, SharedPtrOverlay output_overlay);
+    static bool Blur(const Overlay& input_overlay, float be_strength, double gaussian_blur_strength,
+                     double target_scale_x, double target_scale_y, SharedPtrOverlay output_overlay);
 
-    static bool BeBlur(const Overlay& input_overlay, float be_strength, float target_scale_x, float target_scale_y, 
-        SharedPtrOverlay output_overlay);
+    static bool BeBlur(const Overlay& input_overlay, float be_strength, float target_scale_x, float target_scale_y,
+                       SharedPtrOverlay output_overlay);
 
-    static bool GaussianBlur( const Overlay& input_overlay, double gaussian_blur_strength, 
-        double target_scale_x, double target_scale_y, 
-        SharedPtrOverlay output_overlay );
+    static bool GaussianBlur(const Overlay& input_overlay, double gaussian_blur_strength,
+                             double target_scale_x, double target_scale_y,
+                             SharedPtrOverlay output_overlay);
 
-    static SharedPtrByte CompositeAlphaMask(const SharedPtrOverlay& overlay, const CRect& clipRect, 
-        const GrayImage2* alpha_mask, 
-        int xsub, int ysub, const DWORD* switchpts, bool fBody, bool fBorder, 
-        CRect *outputDirtyRect, unsigned int* ret_val);
+    static SharedPtrByte CompositeAlphaMask(const SharedPtrOverlay& overlay, const CRect& clipRect,
+                                            const GrayImage2* alpha_mask,
+                                            int xsub, int ysub, const DWORD* switchpts, bool fBody, bool fBorder,
+                                            CRect* outputDirtyRect, unsigned int* ret_val);
 
-    static void Draw(XyBitmap* bitmap, 
-        SharedPtrOverlay overlay, 
-        const CRect& clipRect, 
-        byte* s_base, 
-        int xsub, int ysub, 
-        const DWORD* switchpts, bool fBody, bool fBorder);
-		
-	static void FillSolidRect(SubPicDesc& spd, int x, int y, int nWidth, int nHeight, DWORD lColor);
-	
+    static void Draw(XyBitmap* bitmap,
+                     SharedPtrOverlay overlay,
+                     const CRect& clipRect,
+                     byte* s_base,
+                     int xsub, int ysub,
+                     const DWORD* switchpts, bool fBody, bool fBorder);
+
+    static void FillSolidRect(SubPicDesc& spd, int x, int y, int nWidth, int nHeight, DWORD lColor);
+
 };
 

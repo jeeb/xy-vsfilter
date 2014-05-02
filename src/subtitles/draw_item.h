@@ -16,8 +16,7 @@ typedef ::boost::shared_ptr<CClipperPaintMachine> SharedPtrCClipperPaintMachine;
 class DrawItemHashKey;
 typedef ::boost::shared_ptr<DrawItemHashKey> SharedPtrDrawItemHashKey;
 
-struct DrawItem
-{
+struct DrawItem {
 public:
     SharedPtrOverlayPaintMachine overlay_paint_machine;
     CRect clip_rect;
@@ -31,14 +30,14 @@ public:
     SharedPtrDrawItemHashKey m_key;
 public:
     CRectCoor2 GetDirtyRect();
-    static CRectCoor2 Draw( XyBitmap *bitmap, DrawItem& draw_item, const CRectCoor2& clip_rect );
+    static CRectCoor2 Draw(XyBitmap* bitmap, DrawItem& draw_item, const CRectCoor2& clip_rect);
     const SharedPtrDrawItemHashKey& GetHashKey();
 
     static DrawItem* CreateDrawItem(const SharedPtrOverlayPaintMachine& overlay_paint_machine,
-        const CRect& clipRect,
-        const SharedPtrCClipperPaintMachine &clipper,
-        int xsub, int ysub,
-        const DWORD* switchpts, bool fBody, bool fBorder);
+                                    const CRect& clipRect,
+                                    const SharedPtrCClipperPaintMachine& clipper,
+                                    int xsub, int ysub,
+                                    const DWORD* switchpts, bool fBody, bool fBorder);
 };
 
 typedef ::boost::shared_ptr<DrawItem> SharedPtrDrawItem;
@@ -52,27 +51,25 @@ struct CompositeDrawItem;
 typedef CAtlList<CompositeDrawItem> CompositeDrawItemList;
 typedef CAtlList<CompositeDrawItemList> CompositeDrawItemListList;
 
-struct CompositeDrawItem
-{
+struct CompositeDrawItem {
 public:
     SharedPtrDrawItem shadow;
     SharedPtrDrawItem outline;
     SharedPtrDrawItem body;
-public:    
-    static CRectCoor2 GetDirtyRect( CompositeDrawItem& item );
+public:
+    static CRectCoor2 GetDirtyRect(CompositeDrawItem& item);
 
-    static void Draw(XySubRenderFrame**output, CompositeDrawItemListList& compDrawItemListList);
+    static void Draw(XySubRenderFrame** output, CompositeDrawItemListList& compDrawItemListList);
 };
 
-struct GroupedDrawItems
-{
+struct GroupedDrawItems {
 public:
     CAtlList<SharedPtrDrawItem> draw_item_list;
     CRectCoor2 clip_rect;
 public:
-    void Draw(SharedPtrXyBitmap *bitmap, int *bitmap_identity_num);
-	
-    void CreateHashKey(GroupedDrawItemsHashKey *key);
+    void Draw(SharedPtrXyBitmap* bitmap, int* bitmap_identity_num);
+
+    void CreateHashKey(GroupedDrawItemsHashKey* key);
 };
 
 #endif // __DRAW_ITEM_21D18040_C396_4CA5_BFCE_5616A63F2C56_H__

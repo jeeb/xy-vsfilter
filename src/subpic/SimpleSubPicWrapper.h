@@ -10,7 +10,7 @@
 class SimpleSubPicWrapper: public CUnknown, public ISimpleSubPic
 {
 public:
-    SimpleSubPicWrapper(ISubPicEx * inner_obj);
+    SimpleSubPicWrapper(ISubPicEx* inner_obj);
     SimpleSubPicWrapper(ISubPic* inner_obj);
 
     DECLARE_IUNKNOWN;

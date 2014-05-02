@@ -35,10 +35,10 @@ extern int g_log_once_id;
 }
 
 #define XY_DO_ONCE(expr) do {\
-	static bool entered=false;\
+    static bool entered=false;\
     if(!entered) { \
         entered = true;\
-	    {expr;}\
+        {expr;}\
     }\
 } while(0)
 
@@ -74,15 +74,15 @@ extern int g_log_once_id;
 namespace xy_logger
 {
 #ifdef __DO_LOG
-extern log4cplus::Logger g_logger;
+    extern log4cplus::Logger g_logger;
 #endif
 
-bool doConfigure(log4cplus::tistream& property_stream);
-bool doConfigure(const log4cplus::tstring& configFilename);
+    bool doConfigure(log4cplus::tistream& property_stream);
+    bool doConfigure(const log4cplus::tstring& configFilename);
 
-void write_file(const char * filename, const void * buff, int size);
+    void write_file(const char* filename, const void* buff, int size);
 
-void DumpPackBitmap2File(POINT pos, SIZE size, LPCVOID pixels, int pitch, const char *filename);
+    void DumpPackBitmap2File(POINT pos, SIZE size, LPCVOID pixels, int pitch, const char* filename);
 
 } //namespace xy
 

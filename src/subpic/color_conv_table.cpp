@@ -3,7 +3,7 @@
 #include <string.h>
 
 const int FRACTION_BITS = 16;
-const int FRACTION_SCALE = 1<<16;
+const int FRACTION_SCALE = 1 << 16;
 
 const int TV_Y_RANGE = 219;
 const int TV_Y_MIN = 16;
@@ -13,8 +13,8 @@ const int PC_Y_MIN = 0;
 
 inline int clip(int value, int upper_bound)
 {
-    value &= ~(value>>31);//value = value > 0 ? value : 0
-    return value^((value^upper_bound)&((upper_bound-value)>>31));//value = value < upper_bound ? value : upper_bound
+    value &= ~(value >> 31); //value = value > 0 ? value : 0
+    return value ^ ((value ^ upper_bound) & ((upper_bound - value) >> 31)); //value = value < upper_bound ? value : upper_bound
 }
 
 #define FLOAT_TO_FIXED(f, SCALE) int((f)*(SCALE)+0.5)
@@ -125,7 +125,7 @@ typedef ColorConvTable::YuvRangeType YuvRangeType;
 class ConvFunc
 {
 public:
-    ConvFunc(YuvMatrixType yuv_type, YuvRangeType range){ InitConvFunc(yuv_type, range); }
+    ConvFunc(YuvMatrixType yuv_type, YuvRangeType range) { InitConvFunc(yuv_type, range); }
     bool InitConvFunc(YuvMatrixType yuv_type, YuvRangeType range);
 
     typedef DWORD (*R8G8B8ToYuvFunc)(int r8, int g8, int b8);
@@ -149,8 +149,7 @@ bool ConvFunc::InitConvFunc(YuvMatrixType yuv_type, YuvRangeType range)
 {
     bool result = true;
 
-    if ( yuv_type==ColorConvTable::BT601 && range==ColorConvTable::RANGE_TV )
-    {
+    if (yuv_type == ColorConvTable::BT601 && range == ColorConvTable::RANGE_TV) {
         r8g8b8_to_yuv_func = RGBToYUV_TV_BT601;
         r8g8b8_to_uyv_func = RGBToUYV_TV_BT601;
         pre_mul_argb_to_ayuv_func = PREMUL_ARGB2AYUV_TV_BT601;
@@ -159,9 +158,7 @@ bool ConvFunc::InitConvFunc(YuvMatrixType yuv_type, YuvRangeType range)
 
         _yuv_type = yuv_type;
         _range_type = range;
-    }
-    else if ( yuv_type==ColorConvTable::BT709 && range==ColorConvTable::RANGE_TV )
-    {
+    } else if (yuv_type == ColorConvTable::BT709 && range == ColorConvTable::RANGE_TV) {
         r8g8b8_to_yuv_func = RGBToYUV_TV_BT709;
         r8g8b8_to_uyv_func = RGBToUYV_TV_BT709;
         pre_mul_argb_to_ayuv_func = PREMUL_ARGB2AYUV_TV_BT709;
@@ -170,9 +167,7 @@ bool ConvFunc::InitConvFunc(YuvMatrixType yuv_type, YuvRangeType range)
 
         _yuv_type = yuv_type;
         _range_type = range;
-    }
-    else if ( yuv_type==ColorConvTable::BT601 && range==ColorConvTable::RANGE_PC )
-    {
+    } else if (yuv_type == ColorConvTable::BT601 && range == ColorConvTable::RANGE_PC) {
         r8g8b8_to_yuv_func = RGBToYUV_PC_BT601;
         r8g8b8_to_uyv_func = RGBToUYV_PC_BT601;
         pre_mul_argb_to_ayuv_func = PREMUL_ARGB2AYUV_PC_BT601;
@@ -181,9 +176,7 @@ bool ConvFunc::InitConvFunc(YuvMatrixType yuv_type, YuvRangeType range)
 
         _yuv_type = yuv_type;
         _range_type = range;
-    }
-    else if ( yuv_type==ColorConvTable::BT709 && range==ColorConvTable::RANGE_PC )
-    {
+    } else if (yuv_type == ColorConvTable::BT709 && range == ColorConvTable::RANGE_PC) {
         r8g8b8_to_yuv_func = RGBToYUV_PC_BT709;
         r8g8b8_to_uyv_func = RGBToUYV_PC_BT709;
         pre_mul_argb_to_ayuv_func = PREMUL_ARGB2AYUV_PC_BT709;
@@ -192,9 +185,7 @@ bool ConvFunc::InitConvFunc(YuvMatrixType yuv_type, YuvRangeType range)
 
         _yuv_type = yuv_type;
         _range_type = range;
-    }
-    else
-    {
+    } else {
         r8g8b8_to_yuv_func = RGBToYUV_TV_BT601;
         r8g8b8_to_uyv_func = RGBToUYV_TV_BT601;
         pre_mul_argb_to_ayuv_func = PREMUL_ARGB2AYUV_TV_BT601;
@@ -218,15 +209,14 @@ ColorConvTable::YuvRangeType ColorConvTable::GetDefaultRangeType()
     return s_default_conv_set._range_type;
 }
 
-void ColorConvTable::SetDefaultConvType( YuvMatrixType yuv_type, YuvRangeType range )
+void ColorConvTable::SetDefaultConvType(YuvMatrixType yuv_type, YuvRangeType range)
 {
-    if( s_default_conv_set._yuv_type != yuv_type || s_default_conv_set._range_type != range )
-    {
+    if (s_default_conv_set._yuv_type != yuv_type || s_default_conv_set._range_type != range) {
         s_default_conv_set.InitConvFunc(yuv_type, range);
     }
 }
 
-DWORD ColorConvTable::Argb2Auyv( DWORD argb )
+DWORD ColorConvTable::Argb2Auyv(DWORD argb)
 {
     int r = (argb & 0x00ff0000) >> 16;
     int g = (argb & 0x0000ff00) >> 8;
@@ -234,7 +224,7 @@ DWORD ColorConvTable::Argb2Auyv( DWORD argb )
     return (argb & 0xff000000) | s_default_conv_set.r8g8b8_to_uyv_func(r, g, b);
 }
 
-DWORD ColorConvTable::Argb2Ayuv( DWORD argb )
+DWORD ColorConvTable::Argb2Ayuv(DWORD argb)
 {
     int r = (argb & 0x00ff0000) >> 16;
     int g = (argb & 0x0000ff00) >> 8;
@@ -242,24 +232,24 @@ DWORD ColorConvTable::Argb2Ayuv( DWORD argb )
     return (argb & 0xff000000) | s_default_conv_set.r8g8b8_to_yuv_func(r, g, b);
 }
 
-DWORD ColorConvTable::Ayuv2Auyv( DWORD ayuv )
+DWORD ColorConvTable::Ayuv2Auyv(DWORD ayuv)
 {
     int y = (ayuv & 0x00ff0000) >> 8;
     int u = (ayuv & 0x0000ff00) << 8;
-    return (ayuv & 0xff0000ff)| u | y;
+    return (ayuv & 0xff0000ff) | u | y;
 }
 
-DWORD ColorConvTable::PreMulArgb2Ayuv( int a8, int r8, int g8, int b8 )
+DWORD ColorConvTable::PreMulArgb2Ayuv(int a8, int r8, int g8, int b8)
 {
     return s_default_conv_set.pre_mul_argb_to_ayuv_func(a8, r8, g8, b8);
 }
 
-DWORD ColorConvTable::Rgb2Y( int r8, int g8, int b8 )
+DWORD ColorConvTable::Rgb2Y(int r8, int g8, int b8)
 {
     return s_default_conv_set.r8g8b8_to_y_func(r8, g8, b8);
 }
 
-DWORD ColorConvTable::Ayuv2Argb_TV_BT601( DWORD ayuv )
+DWORD ColorConvTable::Ayuv2Argb_TV_BT601(DWORD ayuv)
 {
     int y = (ayuv & 0x00ff0000) >> 16;
     int u = (ayuv & 0x0000ff00) >> 8;
@@ -267,7 +257,7 @@ DWORD ColorConvTable::Ayuv2Argb_TV_BT601( DWORD ayuv )
     return (ayuv & 0xff000000) | YUVToRGB_TV_BT601(y, u, v);
 }
 
-DWORD ColorConvTable::Ayuv2Argb_TV_BT709( DWORD ayuv )
+DWORD ColorConvTable::Ayuv2Argb_TV_BT709(DWORD ayuv)
 {
     int y = (ayuv & 0x00ff0000) >> 16;
     int u = (ayuv & 0x0000ff00) >> 8;
@@ -275,7 +265,7 @@ DWORD ColorConvTable::Ayuv2Argb_TV_BT709( DWORD ayuv )
     return (ayuv & 0xff000000) | YUVToRGB_TV_BT709(y, u, v);
 }
 
-DWORD ColorConvTable::Ayuv2Argb( DWORD ayuv )
+DWORD ColorConvTable::Ayuv2Argb(DWORD ayuv)
 {
     int y = (ayuv & 0x00ff0000) >> 16;
     int u = (ayuv & 0x0000ff00) >> 8;
@@ -283,52 +273,51 @@ DWORD ColorConvTable::Ayuv2Argb( DWORD ayuv )
     return (ayuv & 0xff000000) | s_default_conv_set.y8u8v8_to_rgb_func(y, u, v);
 }
 
-DWORD ColorConvTable::A8Y8U8V8_To_ARGB_TV_BT601( int a8, int y8, int u8, int v8 )
+DWORD ColorConvTable::A8Y8U8V8_To_ARGB_TV_BT601(int a8, int y8, int u8, int v8)
 {
-    return (a8<<24) | YUVToRGB_TV_BT601(y8, u8, v8);
+    return (a8 << 24) | YUVToRGB_TV_BT601(y8, u8, v8);
 }
 
-DWORD ColorConvTable::A8Y8U8V8_To_ARGB_PC_BT601( int a8, int y8, int u8, int v8 )
+DWORD ColorConvTable::A8Y8U8V8_To_ARGB_PC_BT601(int a8, int y8, int u8, int v8)
 {
-    return (a8<<24) | YUVToRGB_PC_BT601(y8, u8, v8);
+    return (a8 << 24) | YUVToRGB_PC_BT601(y8, u8, v8);
 }
 
-DWORD ColorConvTable::A8Y8U8V8_To_ARGB_TV_BT709( int a8, int y8, int u8, int v8 )
+DWORD ColorConvTable::A8Y8U8V8_To_ARGB_TV_BT709(int a8, int y8, int u8, int v8)
 {
-    return (a8<<24) | YUVToRGB_TV_BT709(y8, u8, v8);
+    return (a8 << 24) | YUVToRGB_TV_BT709(y8, u8, v8);
 }
 
-DWORD ColorConvTable::A8Y8U8V8_To_ARGB_PC_BT709( int a8, int y8, int u8, int v8 )
+DWORD ColorConvTable::A8Y8U8V8_To_ARGB_PC_BT709(int a8, int y8, int u8, int v8)
 {
-    return (a8<<24) | YUVToRGB_PC_BT709(y8, u8, v8);
+    return (a8 << 24) | YUVToRGB_PC_BT709(y8, u8, v8);
 }
 
-DWORD ColorConvTable::A8Y8U8V8_PC_To_TV( int a8, int y8, int u8, int v8 )
+DWORD ColorConvTable::A8Y8U8V8_PC_To_TV(int a8, int y8, int u8, int v8)
 {
-    const int FRACTION_SCALE = 1<<16;
+    const int FRACTION_SCALE = 1 << 16;
     const int YUV_MIN = 16;
-    const int cy = int(219.0/255*FRACTION_SCALE+0.5);
-    const int cuv = int(224.0/255*FRACTION_SCALE+0.5);/*Fixme: the RGBToYUVs we used doesnot seem to stretch chroma correctly*/
-    y8 = ((y8*cy)>>16) + YUV_MIN;
-    u8 = ((u8*cuv)>>16) + YUV_MIN;
-    v8 = ((v8*cuv)>>16) + YUV_MIN;
-    return (a8<<24) | (y8<<16) | (u8<<8) | v8;
+    const int cy = int(219.0 / 255 * FRACTION_SCALE + 0.5);
+    const int cuv = int(224.0 / 255 * FRACTION_SCALE + 0.5); /*Fixme: the RGBToYUVs we used doesnot seem to stretch chroma correctly*/
+    y8 = ((y8 * cy) >> 16) + YUV_MIN;
+    u8 = ((u8 * cuv) >> 16) + YUV_MIN;
+    v8 = ((v8 * cuv) >> 16) + YUV_MIN;
+    return (a8 << 24) | (y8 << 16) | (u8 << 8) | v8;
 }
 
-DWORD ColorConvTable::A8Y8U8V8_TV_To_PC( int a8, int y8, int u8, int v8 )
+DWORD ColorConvTable::A8Y8U8V8_TV_To_PC(int a8, int y8, int u8, int v8)
 {
-    const int FRACTION_SCALE = 1<<16;
+    const int FRACTION_SCALE = 1 << 16;
     const int YUV_MIN = 16;
-    const int cy = int(255/219.0*FRACTION_SCALE+0.5);
-    const int cuv = int(255/224.0*FRACTION_SCALE+0.5);/*Fixme: the RGBToYUVs we used doesnot seem to stretch chroma correctly*/
-    y8 = ((y8-YUV_MIN)*cy)>>16;
-    u8 = ((u8-YUV_MIN)*cuv)>>16;
-    v8 = ((v8-YUV_MIN)*cuv)>>16;
-    return (a8<<24) | (y8<<16) | (u8<<8) | v8;
+    const int cy = int(255 / 219.0 * FRACTION_SCALE + 0.5);
+    const int cuv = int(255 / 224.0 * FRACTION_SCALE + 0.5); /*Fixme: the RGBToYUVs we used doesnot seem to stretch chroma correctly*/
+    y8 = ((y8 - YUV_MIN) * cy) >> 16;
+    u8 = ((u8 - YUV_MIN) * cuv) >> 16;
+    v8 = ((v8 - YUV_MIN) * cuv) >> 16;
+    return (a8 << 24) | (y8 << 16) | (u8 << 8) | v8;
 }
 
-struct YuvPos
-{
+struct YuvPos {
     int y;
     int u;
     int v;

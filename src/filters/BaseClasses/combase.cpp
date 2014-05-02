@@ -19,7 +19,7 @@ LONG CBaseObject::m_cObjects = 0;
 
 /* Constructor */
 
-CBaseObject::CBaseObject(const TCHAR *pName)
+CBaseObject::CBaseObject(const TCHAR* pName)
 {
     /* Increment the number of active objects */
     InterlockedIncrement(&m_cObjects);
@@ -36,7 +36,7 @@ CBaseObject::CBaseObject(const TCHAR *pName)
 }
 
 #ifdef UNICODE
-CBaseObject::CBaseObject(const char *pName)
+CBaseObject::CBaseObject(const char* pName)
 {
     /* Increment the number of active objects */
     InterlockedIncrement(&m_cObjects);
@@ -47,7 +47,7 @@ CBaseObject::CBaseObject(const char *pName)
 }
 #endif
 
-HINSTANCE	hlibOLEAut32;
+HINSTANCE   hlibOLEAut32;
 
 /* Destructor */
 
@@ -55,11 +55,11 @@ CBaseObject::~CBaseObject()
 {
     /* Decrement the number of objects active */
     if (InterlockedDecrement(&m_cObjects) == 0) {
-	if (hlibOLEAut32) {
-	    FreeLibrary(hlibOLEAut32);
+        if (hlibOLEAut32) {
+            FreeLibrary(hlibOLEAut32);
 
-	    hlibOLEAut32 = 0;
-	}
+            hlibOLEAut32 = 0;
+        }
     };
 
 
@@ -74,7 +74,7 @@ HINSTANCE LoadOLEAut32()
 {
     if (hlibOLEAut32 == 0) {
 
-	hlibOLEAut32 = LoadLibrary(szOle32Aut);
+        hlibOLEAut32 = LoadLibrary(szOle32Aut);
     }
 
     return hlibOLEAut32;
@@ -85,44 +85,44 @@ HINSTANCE LoadOLEAut32()
 
 // We know we use "this" in the initialization list, we also know we don't modify *phr.
 #pragma warning( disable : 4355 4100 )
-CUnknown::CUnknown(const TCHAR *pName, LPUNKNOWN pUnk)
-: CBaseObject(pName)
+CUnknown::CUnknown(const TCHAR* pName, LPUNKNOWN pUnk)
+    : CBaseObject(pName)
 /* Start the object with a reference count of zero - when the      */
 /* object is queried for it's first interface this may be          */
 /* incremented depending on whether or not this object is          */
 /* currently being aggregated upon                                 */
-, m_cRef(0)
+    , m_cRef(0)
 /* Set our pointer to our IUnknown interface.                      */
 /* If we have an outer, use its, otherwise use ours.               */
 /* This pointer effectivly points to the owner of                  */
 /* this object and can be accessed by the GetOwner() method.       */
-, m_pUnknown( pUnk != 0 ? pUnk : reinterpret_cast<LPUNKNOWN>( static_cast<PNDUNKNOWN>(this) ) )
- /* Why the double cast?  Well, the inner cast is a type-safe cast */
- /* to pointer to a type from which we inherit.  The second is     */
- /* type-unsafe but works because INonDelegatingUnknown "behaves   */
- /* like" IUnknown. (Only the names on the methods change.)        */
+    , m_pUnknown(pUnk != 0 ? pUnk : reinterpret_cast<LPUNKNOWN>(static_cast<PNDUNKNOWN>(this)))
+/* Why the double cast?  Well, the inner cast is a type-safe cast */
+/* to pointer to a type from which we inherit.  The second is     */
+/* type-unsafe but works because INonDelegatingUnknown "behaves   */
+/* like" IUnknown. (Only the names on the methods change.)        */
 {
     // Everything we need to do has been done in the initializer list
 }
 
 // This does the same as above except it has a useless HRESULT argument
 // use the previous constructor, this is just left for compatibility...
-CUnknown::CUnknown(TCHAR *pName, LPUNKNOWN pUnk,HRESULT *phr) :
+CUnknown::CUnknown(TCHAR* pName, LPUNKNOWN pUnk, HRESULT* phr) :
     CBaseObject(pName),
     m_cRef(0),
-    m_pUnknown( pUnk != 0 ? pUnk : reinterpret_cast<LPUNKNOWN>( static_cast<PNDUNKNOWN>(this) ) )
+    m_pUnknown(pUnk != 0 ? pUnk : reinterpret_cast<LPUNKNOWN>(static_cast<PNDUNKNOWN>(this)))
 {
 }
 
 #ifdef UNICODE
-CUnknown::CUnknown(const CHAR *pName, LPUNKNOWN pUnk)
-: CBaseObject(pName), m_cRef(0),
-    m_pUnknown( pUnk != 0 ? pUnk : reinterpret_cast<LPUNKNOWN>( static_cast<PNDUNKNOWN>(this) ) )
+CUnknown::CUnknown(const CHAR* pName, LPUNKNOWN pUnk)
+    : CBaseObject(pName), m_cRef(0),
+      m_pUnknown(pUnk != 0 ? pUnk : reinterpret_cast<LPUNKNOWN>(static_cast<PNDUNKNOWN>(this)))
 { }
 
-CUnknown::CUnknown(CHAR *pName, LPUNKNOWN pUnk,HRESULT *phr) :
+CUnknown::CUnknown(CHAR* pName, LPUNKNOWN pUnk, HRESULT* phr) :
     CBaseObject(pName), m_cRef(0),
-    m_pUnknown( pUnk != 0 ? pUnk : reinterpret_cast<LPUNKNOWN>( static_cast<PNDUNKNOWN>(this) ) )
+    m_pUnknown(pUnk != 0 ? pUnk : reinterpret_cast<LPUNKNOWN>(static_cast<PNDUNKNOWN>(this)))
 { }
 
 #endif
@@ -132,15 +132,15 @@ CUnknown::CUnknown(CHAR *pName, LPUNKNOWN pUnk,HRESULT *phr) :
 
 /* QueryInterface */
 
-STDMETHODIMP CUnknown::NonDelegatingQueryInterface(REFIID riid, void ** ppv)
+STDMETHODIMP CUnknown::NonDelegatingQueryInterface(REFIID riid, void** ppv)
 {
-    CheckPointer(ppv,E_POINTER);
-    ValidateReadWritePtr(ppv,sizeof(PVOID));
+    CheckPointer(ppv, E_POINTER);
+    ValidateReadWritePtr(ppv, sizeof(PVOID));
 
     /* We know only about IUnknown */
 
     if (riid == IID_IUnknown) {
-        GetInterface((LPUNKNOWN) (PNDUNKNOWN) this, ppv);
+        GetInterface((LPUNKNOWN)(PNDUNKNOWN) this, ppv);
         return NOERROR;
     } else {
         *ppv = NULL;
@@ -153,7 +153,7 @@ STDMETHODIMP CUnknown::NonDelegatingQueryInterface(REFIID riid, void ** ppv)
 /* about concurrency, we can't afford to access the m_cRef twice since we can't  */
 /* afford to run the risk that its value having changed between accesses.        */
 
-template<class T> inline static T ourmax( const T & a, const T & b )
+template<class T> inline static T ourmax(const T& a, const T& b)
 {
     return a > b ? a : b;
 }
@@ -162,10 +162,10 @@ template<class T> inline static T ourmax( const T & a, const T & b )
 
 STDMETHODIMP_(ULONG) CUnknown::NonDelegatingAddRef()
 {
-    LONG lRef = InterlockedIncrement( &m_cRef );
+    LONG lRef = InterlockedIncrement(&m_cRef);
     ASSERT(lRef > 0);
-    DbgLog((LOG_MEMORY,3,TEXT("    Obj %d ref++ = %d"),
-           m_dwCookie, m_cRef));
+    DbgLog((LOG_MEMORY, 3, TEXT("    Obj %d ref++ = %d"),
+            m_dwCookie, m_cRef));
     return ourmax(ULONG(m_cRef), 1ul);
 }
 
@@ -176,11 +176,11 @@ STDMETHODIMP_(ULONG) CUnknown::NonDelegatingRelease()
 {
     /* If the reference count drops to zero delete ourselves */
 
-    LONG lRef = InterlockedDecrement( &m_cRef );
+    LONG lRef = InterlockedDecrement(&m_cRef);
     ASSERT(lRef >= 0);
 
-    DbgLog((LOG_MEMORY,3,TEXT("    Object %d ref-- = %d"),
-	    m_dwCookie, m_cRef));
+    DbgLog((LOG_MEMORY, 3, TEXT("    Object %d ref-- = %d"),
+            m_dwCookie, m_cRef));
     if (lRef == 0) {
 
         // COM rules say we must protect against re-entrancy.
@@ -208,7 +208,7 @@ STDMETHODIMP_(ULONG) CUnknown::NonDelegatingRelease()
 /* Return an interface pointer to a requesting client
    performing a thread safe AddRef as necessary */
 
-STDAPI GetInterface(LPUNKNOWN pUnk, void **ppv)
+STDAPI GetInterface(LPUNKNOWN pUnk, void** ppv)
 {
     CheckPointer(ppv, E_POINTER);
     *ppv = pUnk;
@@ -219,7 +219,7 @@ STDAPI GetInterface(LPUNKNOWN pUnk, void **ppv)
 
 /* Compares two interfaces and returns TRUE if they are on the same object */
 
-BOOL WINAPI IsEqualObject(IUnknown *pFirst, IUnknown *pSecond)
+BOOL WINAPI IsEqualObject(IUnknown* pFirst, IUnknown* pSecond)
 {
     /*  Different objects can't have the same interface pointer for
         any interface
@@ -239,11 +239,11 @@ BOOL WINAPI IsEqualObject(IUnknown *pFirst, IUnknown *pSecond)
 
     /* See if the IUnknown pointers match */
 
-    hr = pFirst->QueryInterface(IID_IUnknown,(void **) &pUnknown1);
+    hr = pFirst->QueryInterface(IID_IUnknown, (void**) &pUnknown1);
     ASSERT(SUCCEEDED(hr));
     ASSERT(pUnknown1);
 
-    hr = pSecond->QueryInterface(IID_IUnknown,(void **) &pUnknown2);
+    hr = pSecond->QueryInterface(IID_IUnknown, (void**) &pUnknown2);
     ASSERT(SUCCEEDED(hr));
     ASSERT(pUnknown2);
 

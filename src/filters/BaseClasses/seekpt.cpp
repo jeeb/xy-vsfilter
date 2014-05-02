@@ -17,21 +17,21 @@
 // and save it in a static variable so that forever after we can return that.
 //==================================================================
 
-CUnknown * CSeekingPassThru::CreateInstance(LPUNKNOWN pUnk, HRESULT *phr)
+CUnknown* CSeekingPassThru::CreateInstance(LPUNKNOWN pUnk, HRESULT* phr)
 {
-    return new CSeekingPassThru(NAME("Seeking PassThru"),pUnk, phr);
+    return new CSeekingPassThru(NAME("Seeking PassThru"), pUnk, phr);
 }
 
 
-STDMETHODIMP CSeekingPassThru::NonDelegatingQueryInterface(REFIID riid, void ** ppv)
+STDMETHODIMP CSeekingPassThru::NonDelegatingQueryInterface(REFIID riid, void** ppv)
 {
     if (riid == IID_ISeekingPassThru) {
-        return GetInterface((ISeekingPassThru *) this, ppv);
+        return GetInterface((ISeekingPassThru*) this, ppv);
     } else {
         if (m_pPosPassThru &&
-            (riid == IID_IMediaSeeking ||
-             riid == IID_IMediaPosition)) {
-            return m_pPosPassThru->NonDelegatingQueryInterface(riid,ppv);
+                (riid == IID_IMediaSeeking ||
+                 riid == IID_IMediaPosition)) {
+            return m_pPosPassThru->NonDelegatingQueryInterface(riid, ppv);
         } else {
             return CUnknown::NonDelegatingQueryInterface(riid, ppv);
         }
@@ -39,9 +39,9 @@ STDMETHODIMP CSeekingPassThru::NonDelegatingQueryInterface(REFIID riid, void ** 
 }
 
 
-CSeekingPassThru::CSeekingPassThru( TCHAR *pName, LPUNKNOWN pUnk, HRESULT *phr )
-                            : CUnknown(pName, pUnk, phr),
-                            m_pPosPassThru(NULL)
+CSeekingPassThru::CSeekingPassThru(TCHAR* pName, LPUNKNOWN pUnk, HRESULT* phr)
+    : CUnknown(pName, pUnk, phr),
+      m_pPosPassThru(NULL)
 {
 }
 
@@ -51,7 +51,7 @@ CSeekingPassThru::~CSeekingPassThru()
     delete m_pPosPassThru;
 }
 
-STDMETHODIMP CSeekingPassThru::Init(BOOL bRendererSeeking, IPin *pPin)
+STDMETHODIMP CSeekingPassThru::Init(BOOL bRendererSeeking, IPin* pPin)
 {
     HRESULT hr = NOERROR;
     if (m_pPosPassThru) {
@@ -59,16 +59,16 @@ STDMETHODIMP CSeekingPassThru::Init(BOOL bRendererSeeking, IPin *pPin)
     } else {
         m_pPosPassThru =
             bRendererSeeking ?
-                new CRendererPosPassThru(
-                    NAME("Render Seeking COM object"),
-                    (IUnknown *)this,
-                    &hr,
-                    pPin) :
-                new CPosPassThru(
-                    NAME("Render Seeking COM object"),
-                    (IUnknown *)this,
-                    &hr,
-                    pPin);
+            new CRendererPosPassThru(
+                NAME("Render Seeking COM object"),
+                (IUnknown*)this,
+                &hr,
+                pPin) :
+            new CPosPassThru(
+                NAME("Render Seeking COM object"),
+                (IUnknown*)this,
+                &hr,
+                pPin);
         if (!m_pPosPassThru) {
             hr = E_OUTOFMEMORY;
         } else {

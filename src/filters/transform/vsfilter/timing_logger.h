@@ -13,33 +13,29 @@ class TimingLogger
 {
 public:
     TimingLogger(const log4cplus::Logger& l, const log4cplus::tstring& _msg,
-        const char* _file=NULL, int _line=-1)
-        : logger(l), msg(_msg), file(_file), line(_line)
-    {
+                 const char* _file = NULL, int _line = -1)
+        : logger(l), msg(_msg), file(_file), line(_line) {
         using namespace log4cplus;
-        if(logger.isEnabledFor(TRACE_LOG_LEVEL))
-        {
+        if (logger.isEnabledFor(TRACE_LOG_LEVEL)) {
             std::wostringstream buff;
             _start = GetTickCount();
-            buff<<LOG4CPLUS_TEXT("ENTER at ")<<_start<<LOG4CPLUS_TEXT(" ms: ")<<msg;
-//            logger.forcedLog(TRACE_LOG_LEVEL, LOG4CPLUS_TEXT("ENTER at ")<<_start<<LOG4CPLUS_TEXT(" ms: ")<<msg, file, line);
+            buff << LOG4CPLUS_TEXT("ENTER at ") << _start << LOG4CPLUS_TEXT(" ms: ") << msg;
+            //            logger.forcedLog(TRACE_LOG_LEVEL, LOG4CPLUS_TEXT("ENTER at ")<<_start<<LOG4CPLUS_TEXT(" ms: ")<<msg, file, line);
             logger.forcedLog(TRACE_LOG_LEVEL, buff.str(), file, line);
         }
     }
 
-    ~TimingLogger()
-    {
+    ~TimingLogger() {
         using namespace log4cplus;
-        if(logger.isEnabledFor(TRACE_LOG_LEVEL))
-        {
+        if (logger.isEnabledFor(TRACE_LOG_LEVEL)) {
             std::wostringstream buff;
             _end = GetTickCount();
-//             logger.forcedLog(TRACE_LOG_LEVEL, LOG4CPLUS_TEXT("EXIT after ")<<_end-_start<<
-//                 LOG4CPLUS_TEXT(" at ")<<_end<<LOG4CPLUS_TEXT(" ms:  ")<<msg,
-//                 file, line);
-            buff<<LOG4CPLUS_TEXT("EXIT after ")<<_end-_start<<LOG4CPLUS_TEXT(" at ")<<_end<<LOG4CPLUS_TEXT(" ms:  ")<<msg;
+            //             logger.forcedLog(TRACE_LOG_LEVEL, LOG4CPLUS_TEXT("EXIT after ")<<_end-_start<<
+            //                 LOG4CPLUS_TEXT(" at ")<<_end<<LOG4CPLUS_TEXT(" ms:  ")<<msg,
+            //                 file, line);
+            buff << LOG4CPLUS_TEXT("EXIT after ") << _end - _start << LOG4CPLUS_TEXT(" at ") << _end << LOG4CPLUS_TEXT(" ms:  ") << msg;
             logger.forcedLog(TRACE_LOG_LEVEL, buff.str(),
-                file, line);
+                             file, line);
         }
     }
 private:

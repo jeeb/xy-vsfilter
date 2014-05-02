@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 // File: Transfrm.h
 //
-// Desc: DirectShow base classes - defines classes from which simple 
+// Desc: DirectShow base classes - defines classes from which simple
 //       transform codecs may be derived.
 //
 // Copyright (c) 1992-2002 Microsoft Corporation.  All rights reserved.
@@ -35,34 +35,33 @@ class CTransformInputPin : public CBaseInputPin
     friend class CTransformFilter;
 
 protected:
-    CTransformFilter *m_pTransformFilter;
+    CTransformFilter* m_pTransformFilter;
 
 
 public:
 
     CTransformInputPin(
-        TCHAR *pObjectName,
-        CTransformFilter *pTransformFilter,
-        HRESULT * phr,
+        TCHAR* pObjectName,
+        CTransformFilter* pTransformFilter,
+        HRESULT* phr,
         LPCWSTR pName);
 #ifdef UNICODE
     CTransformInputPin(
-        char *pObjectName,
-        CTransformFilter *pTransformFilter,
-        HRESULT * phr,
+        char* pObjectName,
+        CTransformFilter* pTransformFilter,
+        HRESULT* phr,
         LPCWSTR pName);
 #endif
 
-    STDMETHODIMP QueryId(LPWSTR * Id)
-    {
+    STDMETHODIMP QueryId(LPWSTR* Id) {
         return AMGetWideString(L"In", Id);
     }
 
     // Grab and release extra interfaces if required
 
-    HRESULT CheckConnect(IPin *pPin);
+    HRESULT CheckConnect(IPin* pPin);
     HRESULT BreakConnect();
-    HRESULT CompleteConnect(IPin *pReceivePin);
+    HRESULT CompleteConnect(IPin* pReceivePin);
 
     // check that we can support this output type
     HRESULT CheckMediaType(const CMediaType* mtIn);
@@ -75,7 +74,7 @@ public:
     // here's the next block of data from the stream.
     // AddRef it yourself if you need to hold it beyond the end
     // of this call.
-    STDMETHODIMP Receive(IMediaSample * pSample);
+    STDMETHODIMP Receive(IMediaSample* pSample);
 
     // provide EndOfStream that passes straight downstream
     // (there is no queued data)
@@ -88,9 +87,9 @@ public:
     STDMETHODIMP EndFlush(void);
 
     STDMETHODIMP NewSegment(
-                        REFERENCE_TIME tStart,
-                        REFERENCE_TIME tStop,
-                        double dRate);
+        REFERENCE_TIME tStart,
+        REFERENCE_TIME tStop,
+        double dRate);
 
     // Check if it's OK to process samples
     virtual HRESULT CheckStreaming();
@@ -110,60 +109,59 @@ class CTransformOutputPin : public CBaseOutputPin
     friend class CTransformFilter;
 
 protected:
-    CTransformFilter *m_pTransformFilter;
+    CTransformFilter* m_pTransformFilter;
 
 public:
 
     // implement IMediaPosition by passing upstream
-    IUnknown * m_pPosition;
+    IUnknown* m_pPosition;
 
     CTransformOutputPin(
-        TCHAR *pObjectName,
-        CTransformFilter *pTransformFilter,
-        HRESULT * phr,
+        TCHAR* pObjectName,
+        CTransformFilter* pTransformFilter,
+        HRESULT* phr,
         LPCWSTR pName);
 #ifdef UNICODE
     CTransformOutputPin(
-        CHAR *pObjectName,
-        CTransformFilter *pTransformFilter,
-        HRESULT * phr,
+        CHAR* pObjectName,
+        CTransformFilter* pTransformFilter,
+        HRESULT* phr,
         LPCWSTR pName);
 #endif
     ~CTransformOutputPin();
 
     // override to expose IMediaPosition
-    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void **ppv);
+    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
 
     // --- CBaseOutputPin ------------
 
-    STDMETHODIMP QueryId(LPWSTR * Id)
-    {
+    STDMETHODIMP QueryId(LPWSTR* Id) {
         return AMGetWideString(L"Out", Id);
     }
 
     // Grab and release extra interfaces if required
 
-    HRESULT CheckConnect(IPin *pPin);
+    HRESULT CheckConnect(IPin* pPin);
     HRESULT BreakConnect();
-    HRESULT CompleteConnect(IPin *pReceivePin);
+    HRESULT CompleteConnect(IPin* pReceivePin);
 
     // check that we can support this output type
     HRESULT CheckMediaType(const CMediaType* mtOut);
 
     // set the connection media type
-    HRESULT SetMediaType(const CMediaType *pmt);
+    HRESULT SetMediaType(const CMediaType* pmt);
 
     // called from CBaseOutputPin during connection to ask for
     // the count and size of buffers we need.
     HRESULT DecideBufferSize(
-                IMemAllocator * pAlloc,
-                ALLOCATOR_PROPERTIES *pProp);
+        IMemAllocator* pAlloc,
+        ALLOCATOR_PROPERTIES* pProp);
 
     // returns the preferred formats for a pin
-    HRESULT GetMediaType(int iPosition,CMediaType *pMediaType);
+    HRESULT GetMediaType(int iPosition, CMediaType* pMediaType);
 
     // inherited from IQualityControl via CBasePin
-    STDMETHODIMP Notify(IBaseFilter * pSender, Quality q);
+    STDMETHODIMP Notify(IBaseFilter* pSender, Quality q);
 
     // Media type
 public:
@@ -180,8 +178,8 @@ public:
     // override this to return more specialised pin objects
 
     virtual int GetPinCount();
-    virtual CBasePin * GetPin(int n);
-    STDMETHODIMP FindPin(LPCWSTR Id, IPin **ppPin);
+    virtual CBasePin* GetPin(int n);
+    STDMETHODIMP FindPin(LPCWSTR Id, IPin** ppPin);
 
     // override state changes to allow derived transform filter
     // to control streaming start/stop
@@ -190,9 +188,9 @@ public:
 
 public:
 
-    CTransformFilter(TCHAR *, LPUNKNOWN, REFCLSID clsid);
+    CTransformFilter(TCHAR*, LPUNKNOWN, REFCLSID clsid);
 #ifdef UNICODE
-    CTransformFilter(CHAR *, LPUNKNOWN, REFCLSID clsid);
+    CTransformFilter(CHAR*, LPUNKNOWN, REFCLSID clsid);
 #endif
     ~CTransformFilter();
 
@@ -202,7 +200,7 @@ public:
 
     // These must be supplied in a derived class
 
-    virtual HRESULT Transform(IMediaSample * pIn, IMediaSample *pOut);
+    virtual HRESULT Transform(IMediaSample* pIn, IMediaSample* pOut);
 
     // check if you can support mtIn
     virtual HRESULT CheckInputType(const CMediaType* mtIn) PURE;
@@ -215,11 +213,11 @@ public:
 
     // call the SetProperties function with appropriate arguments
     virtual HRESULT DecideBufferSize(
-                        IMemAllocator * pAllocator,
-                        ALLOCATOR_PROPERTIES *pprop) PURE;
+        IMemAllocator* pAllocator,
+        ALLOCATOR_PROPERTIES* pprop) PURE;
 
     // override to suggest OUTPUT pin media types
-    virtual HRESULT GetMediaType(int iPosition, CMediaType *pMediaType) PURE;
+    virtual HRESULT GetMediaType(int iPosition, CMediaType* pMediaType) PURE;
 
 
 
@@ -235,37 +233,37 @@ public:
     virtual HRESULT AlterQuality(Quality q);
 
     // override this to know when the media type is actually set
-    virtual HRESULT SetMediaType(PIN_DIRECTION direction,const CMediaType *pmt);
+    virtual HRESULT SetMediaType(PIN_DIRECTION direction, const CMediaType* pmt);
 
     // chance to grab extra interfaces on connection
-    virtual HRESULT CheckConnect(PIN_DIRECTION dir,IPin *pPin);
+    virtual HRESULT CheckConnect(PIN_DIRECTION dir, IPin* pPin);
     virtual HRESULT BreakConnect(PIN_DIRECTION dir);
-    virtual HRESULT CompleteConnect(PIN_DIRECTION direction,IPin *pReceivePin);
+    virtual HRESULT CompleteConnect(PIN_DIRECTION direction, IPin* pReceivePin);
 
     // chance to customize the transform process
-    virtual HRESULT Receive(IMediaSample *pSample);
+    virtual HRESULT Receive(IMediaSample* pSample);
 
     // Standard setup for output sample
-    HRESULT InitializeOutputSample(IMediaSample *pSample, IMediaSample **ppOutSample);
+    HRESULT InitializeOutputSample(IMediaSample* pSample, IMediaSample** ppOutSample);
 
     // if you override Receive, you may need to override these three too
     virtual HRESULT EndOfStream(void);
     virtual HRESULT BeginFlush(void);
     virtual HRESULT EndFlush(void);
     virtual HRESULT NewSegment(
-                        REFERENCE_TIME tStart,
-                        REFERENCE_TIME tStop,
-                        double dRate);
+        REFERENCE_TIME tStart,
+        REFERENCE_TIME tStop,
+        double dRate);
 
 #ifdef PERF
     // Override to register performance measurement with a less generic string
     // You should do this to avoid confusion with other filters
     virtual void RegisterPerfId()
-         {m_idTransform = MSR_REGISTER(TEXT("Transform"));}
+    {m_idTransform = MSR_REGISTER(TEXT("Transform"));}
 #endif // PERF
 
 
-// implementation details
+    // implementation details
 
 protected:
 
@@ -295,8 +293,8 @@ protected:
 
     friend class CTransformInputPin;
     friend class CTransformOutputPin;
-    CTransformInputPin *m_pInput;
-    CTransformOutputPin *m_pOutput;
+    CTransformInputPin* m_pInput;
+    CTransformOutputPin* m_pOutput;
 };
 
 #endif /* __TRANSFRM__ */

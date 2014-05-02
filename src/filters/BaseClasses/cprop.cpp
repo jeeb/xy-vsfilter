@@ -16,11 +16,11 @@
 // we call SetPageSite(NULL) and SetObjects(0,NULL) to release interfaces
 // previously obtained by the property page when it had SetObjects called
 
-CBasePropertyPage::CBasePropertyPage(TCHAR *pName,      // Debug only name
+CBasePropertyPage::CBasePropertyPage(TCHAR* pName,      // Debug only name
                                      LPUNKNOWN pUnk,    // COM Delegator
                                      int DialogId,      // Resource ID
                                      int TitleId) :     // To get tital
-    CUnknown(pName,pUnk),
+    CUnknown(pName, pUnk),
     m_DialogId(DialogId),
     m_TitleId(TitleId),
     m_hwnd(NULL),
@@ -32,11 +32,11 @@ CBasePropertyPage::CBasePropertyPage(TCHAR *pName,      // Debug only name
 }
 
 #ifdef UNICODE
-CBasePropertyPage::CBasePropertyPage(CHAR *pName,      // Debug only name
+CBasePropertyPage::CBasePropertyPage(CHAR* pName,      // Debug only name
                                      LPUNKNOWN pUnk,    // COM Delegator
                                      int DialogId,      // Resource ID
                                      int TitleId) :     // To get tital
-    CUnknown(pName,pUnk),
+    CUnknown(pName, pUnk),
     m_DialogId(DialogId),
     m_TitleId(TitleId),
     m_hwnd(NULL),
@@ -54,7 +54,7 @@ STDMETHODIMP_(ULONG) CBasePropertyPage::NonDelegatingAddRef()
 {
     LONG lRef = InterlockedIncrement(&m_cRef);
     ASSERT(lRef > 0);
-    return max(ULONG(m_cRef),1ul);
+    return max(ULONG(m_cRef), 1ul);
 }
 
 
@@ -67,11 +67,11 @@ STDMETHODIMP_(ULONG) CBasePropertyPage::NonDelegatingRelease()
     if (InterlockedDecrement(&m_cRef) == 0) {
         m_cRef++;
         SetPageSite(NULL);
-        SetObjects(0,NULL);
+        SetObjects(0, NULL);
         delete this;
         return ULONG(0);
     } else {
-        return max(ULONG(m_cRef),1ul);
+        return max(ULONG(m_cRef), 1ul);
     }
 }
 
@@ -79,12 +79,12 @@ STDMETHODIMP_(ULONG) CBasePropertyPage::NonDelegatingRelease()
 // Expose our IPropertyPage interface
 
 STDMETHODIMP
-CBasePropertyPage::NonDelegatingQueryInterface(REFIID riid,void **ppv)
+CBasePropertyPage::NonDelegatingQueryInterface(REFIID riid, void** ppv)
 {
     if (riid == IID_IPropertyPage) {
-        return GetInterface((IPropertyPage *)this,ppv);
+        return GetInterface((IPropertyPage*)this, ppv);
     } else {
-        return CUnknown::NonDelegatingQueryInterface(riid,ppv);
+        return CUnknown::NonDelegatingQueryInterface(riid, ppv);
     }
 }
 
@@ -93,9 +93,9 @@ CBasePropertyPage::NonDelegatingQueryInterface(REFIID riid,void **ppv)
 
 STDMETHODIMP CBasePropertyPage::GetPageInfo(LPPROPPAGEINFO pPageInfo)
 {
-    CheckPointer(pPageInfo,E_POINTER);
+    CheckPointer(pPageInfo, E_POINTER);
     WCHAR wszTitle[STR_MAX_LENGTH];
-    WideStringFromResource(wszTitle,m_TitleId);
+    WideStringFromResource(wszTitle, m_TitleId);
 
     // Allocate dynamic memory for the property page title
 
@@ -116,7 +116,7 @@ STDMETHODIMP CBasePropertyPage::GetPageInfo(LPPROPPAGEINFO pPageInfo)
     pPageInfo->size.cx          = 340;
     pPageInfo->size.cy          = 150;
 
-    GetDialogSize(m_DialogId, DialogProc,0L,&pPageInfo->size);
+    GetDialogSize(m_DialogId, DialogProc, 0L, &pPageInfo->size);
     return NOERROR;
 }
 
@@ -124,11 +124,11 @@ STDMETHODIMP CBasePropertyPage::GetPageInfo(LPPROPPAGEINFO pPageInfo)
 // Handles the messages for our property window
 
 INT_PTR CALLBACK CBasePropertyPage::DialogProc(HWND hwnd,
-                                            UINT uMsg,
-                                            WPARAM wParam,
-                                            LPARAM lParam)
+        UINT uMsg,
+        WPARAM wParam,
+        LPARAM lParam)
 {
-    CBasePropertyPage *pPropertyPage;
+    CBasePropertyPage* pPropertyPage;
 
     switch (uMsg) {
 
@@ -138,7 +138,7 @@ INT_PTR CALLBACK CBasePropertyPage::DialogProc(HWND hwnd,
 
             // This pointer may be NULL when calculating size
 
-            pPropertyPage = (CBasePropertyPage *) lParam;
+            pPropertyPage = (CBasePropertyPage*) lParam;
             if (pPropertyPage == NULL) {
                 return (LRESULT) 1;
             }
@@ -147,17 +147,17 @@ INT_PTR CALLBACK CBasePropertyPage::DialogProc(HWND hwnd,
 
     // This pointer may be NULL when calculating size
 
-    pPropertyPage = (CBasePropertyPage *) GetWindowLongPtr(hwnd, DWLP_USER);
+    pPropertyPage = (CBasePropertyPage*) GetWindowLongPtr(hwnd, DWLP_USER);
     if (pPropertyPage == NULL) {
         return (LRESULT) 1;
     }
-    return pPropertyPage->OnReceiveMessage(hwnd,uMsg,wParam,lParam);
+    return pPropertyPage->OnReceiveMessage(hwnd, uMsg, wParam, lParam);
 }
 
 
 // Tells us the object that should be informed of the property changes
 
-STDMETHODIMP CBasePropertyPage::SetObjects(ULONG cObjects,LPUNKNOWN *ppUnk)
+STDMETHODIMP CBasePropertyPage::SetObjects(ULONG cObjects, LPUNKNOWN* ppUnk)
 {
     if (cObjects == 1) {
 
@@ -184,10 +184,10 @@ STDMETHODIMP CBasePropertyPage::SetObjects(ULONG cObjects,LPUNKNOWN *ppUnk)
 // Create the window we will use to edit properties
 
 STDMETHODIMP CBasePropertyPage::Activate(HWND hwndParent,
-                                         LPCRECT pRect,
-                                         BOOL fModal)
+        LPCRECT pRect,
+        BOOL fModal)
 {
-    CheckPointer(pRect,E_POINTER);
+    CheckPointer(pRect, E_POINTER);
 
     // Return failure if SetObject has not been called.
     if (m_bObjectSet == FALSE) {
@@ -217,7 +217,7 @@ STDMETHODIMP CBasePropertyPage::Activate(HWND hwndParent,
 
 STDMETHODIMP CBasePropertyPage::Move(LPCRECT pRect)
 {
-    CheckPointer(pRect,E_POINTER);
+    CheckPointer(pRect, E_POINTER);
 
     if (m_hwnd == NULL) {
         return E_UNEXPECTED;
@@ -238,7 +238,7 @@ STDMETHODIMP CBasePropertyPage::Move(LPCRECT pRect)
 
 STDMETHODIMP CBasePropertyPage::Show(UINT nCmdShow)
 {
-   // Have we been activated yet
+    // Have we been activated yet
 
     if (m_hwnd == NULL) {
         return E_UNEXPECTED;
@@ -250,8 +250,8 @@ STDMETHODIMP CBasePropertyPage::Show(UINT nCmdShow)
         return E_INVALIDARG;
     }
 
-    ShowWindow(m_hwnd,nCmdShow);
-    InvalidateRect(m_hwnd,NULL,TRUE);
+    ShowWindow(m_hwnd, nCmdShow);
+    InvalidateRect(m_hwnd, NULL, TRUE);
     return NOERROR;
 }
 
@@ -351,7 +351,7 @@ STDMETHODIMP CBasePropertyPage::Apply()
 
 // Base class definition for message handling
 
-INT_PTR CBasePropertyPage::OnReceiveMessage(HWND hwnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
+INT_PTR CBasePropertyPage::OnReceiveMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     // we would like the TAB key to move around the tab stops in our property
     // page, but for some reason OleCreatePropertyFrame clears the CONTROLPARENT
@@ -359,22 +359,22 @@ INT_PTR CBasePropertyPage::OnReceiveMessage(HWND hwnd,UINT uMsg,WPARAM wParam,LP
     // back.  Otherwise the tab key will be useless in every page.
     //
 
-    CBasePropertyPage *pPropertyPage;
+    CBasePropertyPage* pPropertyPage;
     {
-        pPropertyPage = (CBasePropertyPage *) GetWindowLongPtr(hwnd, DWLP_USER);
+        pPropertyPage = (CBasePropertyPage*) GetWindowLongPtr(hwnd, DWLP_USER);
         if (pPropertyPage->m_hwnd == NULL) {
             return 0;
         }
         switch (uMsg) {
-          case WM_STYLECHANGING:
-              if (wParam == GWL_EXSTYLE) {
-                  LPSTYLESTRUCT lpss = (LPSTYLESTRUCT)lParam;
-                  lpss->styleNew |= WS_EX_CONTROLPARENT;
-                  return 0;
-              }
+            case WM_STYLECHANGING:
+                if (wParam == GWL_EXSTYLE) {
+                    LPSTYLESTRUCT lpss = (LPSTYLESTRUCT)lParam;
+                    lpss->styleNew |= WS_EX_CONTROLPARENT;
+                    return 0;
+                }
         }
     }
-		
-    return DefWindowProc(hwnd,uMsg,wParam,lParam);
+
+    return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
 

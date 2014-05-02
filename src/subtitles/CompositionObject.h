@@ -36,15 +36,13 @@ class CGolombBuffer;
 class CompositionObject : Rasterizer
 {
 public:
-    enum ColorType 
-    {
+    enum ColorType {
         NONE,
         YUV_Rec601,
         YUV_Rec709,
         RGB
     };
-    enum YuvRangeType 
-    {
+    enum YuvRangeType {
         RANGE_NONE
         , RANGE_TV
         , RANGE_PC
