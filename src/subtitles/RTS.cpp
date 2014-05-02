@@ -2722,7 +2722,7 @@ bool CRenderedTextSubtitle::ParseSSATag( CSubtitle* sub, const AssTagList& assTa
         case CMD_r:
             {
                 STSStyle* val;
-                style = (!p.IsEmpty() && m_styles.Lookup(WToT(p), val) && val) ? *val : org;
+                style = (!p.IsEmpty() && m_styles.Lookup(p, val) && val) ? *val : org;
                 break;
             }
         case CMD_shad:
@@ -2927,7 +2927,7 @@ bool CRenderedTextSubtitle::ParseHtmlTag(CSubtitle* sub, CStringW str, STSStyle&
                 }
                 if(nColor >= 0 && nColor < 4)
                 {
-                    CString key = WToT(params[i]).TrimLeft(L'#');
+                    CString key = params[i].TrimLeft(L'#');
                     DWORD val;
                     if(g_colors.Lookup(key, val))
                         style.colors[nColor] = val;

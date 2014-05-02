@@ -276,7 +276,7 @@ STDMETHODIMP CSubtitleInputPin::Receive(IMediaSample* pSample)
 				}
 				else if(tag == __GAB1_ENTRY__)
 				{
-					pRTS->Add(AToW(&ptr[8]), false, *(int*)ptr, *(int*)(ptr+4));
+					pRTS->Add((LPWSTR)CA2WEX<>(ptr), false, *(int*)ptr, *(int*)(ptr+4));
 					fInvalidate = true;
 				}
 				else if(tag == __GAB1_LANGUAGE_UNICODE__)
@@ -324,7 +324,7 @@ STDMETHODIMP CSubtitleInputPin::Receive(IMediaSample* pSample)
 
 			if(!str.IsEmpty())
 			{
-				pRTS->Add(AToW(str), false, (int)(tStart / 10000), (int)(tStop / 10000));
+				pRTS->Add((LPWSTR)CA2WEX<>(str), false, (int)(tStart / 10000), (int)(tStop / 10000));
 				fInvalidate = true;
 			}
 		}
