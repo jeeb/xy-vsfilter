@@ -67,6 +67,22 @@ public:
 [uuid("998D4C9A-460F-4de6-BDCD-35AB24F94ADF")]
 class CVobSubFile : public CVobSubSettings, public ISubStream, public CSubPicProviderImpl
 {
+public:
+    struct SubPos {
+        __int64 filepos;
+        __int64 start, stop;
+        bool fForced, bAnimated;
+        char vobid, cellid;
+        __int64 celltimestamp;
+        bool fValid;
+    };
+
+    struct SubLang {
+        int id;
+        CString name, alt;
+        CAtlArray<SubPos> subpos;
+    };
+
 protected:
     CString m_title;
 
@@ -77,6 +93,7 @@ protected:
     CMemFile m_sub;
 
     BYTE* GetPacket(int idx, int& packetsize, int& datasize, int iLang = -1);
+    const SubPos* GetFrameInfo(int idx, int iLang = -1) const;
     bool GetFrame(int idx, int iLang = -1);
     bool GetFrameByTimeStamp(__int64 time);
     int GetFrameIdxByTimeStamp(__int64 time);
@@ -87,25 +104,9 @@ protected:
     bool SaveMaestro(CString fn);
 
 public:
-    typedef struct {
-        __int64 filepos;
-        __int64 start, stop;
-        bool fForced;
-        char vobid, cellid;
-        __int64 celltimestamp;
-        bool fValid;
-    } SubPos;
-
-    typedef struct {
-        int id;
-        CString name, alt;
-        CAtlArray<SubPos> subpos;
-    } SubLang;
-
     int m_iLang;
     SubLang m_langs[32];
 
-public:
     CVobSubFile(CCritSec* pLock);
     virtual ~CVobSubFile();
 
