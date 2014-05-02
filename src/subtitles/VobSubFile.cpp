@@ -318,7 +318,10 @@ bool CVobSubFile::Open(CString fn)
 
                 int packetsize = 0, datasize = 0;
                 BYTE* buff = GetPacket(j, packetsize, datasize, i);
-                if (!buff) { continue; }
+                if (!buff) {
+                    sp[j].fValid = false;
+                    continue;
+                }
 
                 m_img.delay = j < (sp.GetCount() - 1) ? sp[j + 1].start - sp[j].start : 3000;
                 m_img.GetPacketInfo(buff, packetsize, datasize);
@@ -1044,6 +1047,22 @@ BYTE* CVobSubFile::GetPacket(int idx, int& packetsize, int& datasize, int iLang)
     return (ret);
 }
 
+const CVobSubFile::SubPos* CVobSubFile::GetFrameInfo(int idx, int iLang /*= -1*/) const
+{
+    if (iLang < 0 || iLang >= 32) {
+        iLang = m_iLang;
+    }
+    const CAtlArray<SubPos>& sp = m_langs[iLang].subpos;
+
+    if (idx < 0 || (size_t)idx >= sp.GetCount()
+            || !sp[idx].fValid
+            || (m_fOnlyShowForcedSubs && !sp[idx].fForced)) {
+        return nullptr;
+    }
+
+    return &sp[idx];
+}
+
 bool CVobSubFile::GetFrame(int idx, int iLang)
 {
     if (iLang < 0 || iLang >= 32) { iLang = m_iLang; }
@@ -1060,9 +1079,7 @@ bool CVobSubFile::GetFrame(int idx, int iLang)
         if (!buff || packetsize <= 0 || datasize <= 0) { return (false); }
 
         m_img.start = sp[idx].start;
-        m_img.delay = idx < (sp.GetCount() - 1)
-                      ? sp[idx + 1].start - sp[idx].start
-                      : 3000;
+        m_img.delay = (size_t)idx < (sp.GetCount() - 1) ? sp[idx + 1].start - sp[idx].start : 3000;
 
         bool ret = m_img.Decode(buff, packetsize, datasize, m_fCustomPal, m_tridx, m_orgpal, m_cuspal, true);
 
@@ -1134,13 +1151,14 @@ STDMETHODIMP_(POSITION) CVobSubFile::GetStartPosition(REFERENCE_TIME rt, double 
 
     int i = GetFrameIdxByTimeStamp(rt);
 
-    if (!GetFrame(i)) {
-        return (NULL);
+    const SubPos* sp = GetFrameInfo(i);
+    if (!sp) {
+        return nullptr;
     }
 
-    if (rt >= (m_img.start + m_img.delay)) {
-        if (!GetFrame(++i)) {
-            return (NULL);
+    if (rt >= sp->stop) {
+        if (!GetFrameInfo(++i)) {
+            return nullptr;
         }
     }
 
@@ -1150,19 +1168,21 @@ STDMETHODIMP_(POSITION) CVobSubFile::GetStartPosition(REFERENCE_TIME rt, double 
 STDMETHODIMP_(POSITION) CVobSubFile::GetNext(POSITION pos)
 {
     int i = (int)pos;
-    return (GetFrame(i) ? (POSITION)(i + 1) : NULL);
+    return (GetFrameInfo(i) ? (POSITION)(i + 1) : nullptr);
 }
 
 STDMETHODIMP_(REFERENCE_TIME) CVobSubFile::GetStart(POSITION pos, double fps)
 {
     int i = (int)pos - 1;
-    return (GetFrame(i) ? 10000i64 * m_img.start : 0);
+    const SubPos* sp = GetFrameInfo(i);
+    return (sp ? 10000i64 * sp->start : 0);
 }
 
 STDMETHODIMP_(REFERENCE_TIME) CVobSubFile::GetStop(POSITION pos, double fps)
 {
     int i = (int)pos - 1;
-    return (GetFrame(i) ? 10000i64 * (m_img.start + m_img.delay) : 0);
+    const SubPos* sp = GetFrameInfo(i);
+    return (sp ? 10000i64 * sp->stop : 0);
 }
 
 STDMETHODIMP_(bool) CVobSubFile::IsAnimated(POSITION pos)
