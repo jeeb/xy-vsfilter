@@ -1,6 +1,6 @@
 /*
- *	Copyright (C) 2003-2006 Gabest
- *	http://www.gabest.org
+ *  Copyright (C) 2003-2006 Gabest
+ *  http://www.gabest.org
  *
  *  This Program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -28,22 +28,22 @@
 
 class CDX7SubPic : public CSubPicImpl
 {
-	CComPtr<IDirect3DDevice7> m_pD3DDev;
-	CComPtr<IDirectDrawSurface7> m_pSurface;
+    CComPtr<IDirect3DDevice7> m_pD3DDev;
+    CComPtr<IDirectDrawSurface7> m_pSurface;
 
 protected:
-	STDMETHODIMP_(void*) GetObject() const; // returns IDirectDrawSurface7*
+    STDMETHODIMP_(void*) GetObject() const; // returns IDirectDrawSurface7*
 
 public:
-	CDX7SubPic(IDirect3DDevice7* pD3DDev, IDirectDrawSurface7* pSurface);
+    CDX7SubPic(IDirect3DDevice7* pD3DDev, IDirectDrawSurface7* pSurface);
 
-	// ISubPic
-	STDMETHODIMP GetDesc(SubPicDesc& spd) const;
-	STDMETHODIMP CopyTo(ISubPic* pSubPic);
-	STDMETHODIMP ClearDirtyRect(DWORD color);
-	STDMETHODIMP Lock(SubPicDesc& spd);
-	STDMETHODIMP Unlock(RECT* pDirtyRect);
-	STDMETHODIMP AlphaBlt(const RECT* pSrc, const RECT* pDst, SubPicDesc* pTarget);
+    // ISubPic
+    STDMETHODIMP GetDesc(SubPicDesc& spd) const;
+    STDMETHODIMP CopyTo(ISubPic* pSubPic);
+    STDMETHODIMP ClearDirtyRect(DWORD color);
+    STDMETHODIMP Lock(SubPicDesc& spd);
+    STDMETHODIMP Unlock(RECT* pDirtyRect);
+    STDMETHODIMP AlphaBlt(const RECT* pSrc, const RECT* pDst, SubPicDesc* pTarget);
 };
 
 // CDX7SubPicAllocator
@@ -51,13 +51,13 @@ public:
 class CDX7SubPicAllocator : public CSubPicAllocatorImpl, public CCritSec
 {
     CComPtr<IDirect3DDevice7> m_pD3DDev;
-	CSize m_maxsize;
+    CSize m_maxsize;
 
-	bool Alloc(bool fStatic, ISubPic** ppSubPic);
+    bool Alloc(bool fStatic, ISubPic** ppSubPic);
 
 public:
-	CDX7SubPicAllocator(IDirect3DDevice7* pD3DDev, SIZE maxsize, bool fPow2Textures);
+    CDX7SubPicAllocator(IDirect3DDevice7* pD3DDev, SIZE maxsize, bool fPow2Textures);
 
-	// ISubPicAllocator
-	STDMETHODIMP ChangeDevice(IUnknown* pDev);
+    // ISubPicAllocator
+    STDMETHODIMP ChangeDevice(IUnknown* pDev);
 };

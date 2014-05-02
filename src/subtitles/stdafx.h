@@ -1,6 +1,6 @@
 /*
- *	Copyright (C) 2003-2006 Gabest
- *	http://www.gabest.org
+ *  Copyright (C) 2003-2006 Gabest
+ *  http://www.gabest.org
  *
  *  This Program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -26,11 +26,11 @@
 
 #pragma once
 
-#define WIN32_LEAN_AND_MEAN		// Exclude rarely-used stuff from Windows headers
-#define _ATL_CSTRING_EXPLICIT_CONSTRUCTORS	// some CString constructors will be explicit
+#define WIN32_LEAN_AND_MEAN     // Exclude rarely-used stuff from Windows headers
+#define _ATL_CSTRING_EXPLICIT_CONSTRUCTORS  // some CString constructors will be explicit
 
 #ifndef VC_EXTRALEAN
-#define VC_EXTRALEAN		// Exclude rarely-used stuff from Windows headers
+#define VC_EXTRALEAN        // Exclude rarely-used stuff from Windows headers
 #endif
 
 #include <afx.h>

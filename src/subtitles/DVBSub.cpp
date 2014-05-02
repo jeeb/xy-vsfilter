@@ -332,12 +332,11 @@ void CDVBSub::Render(SubPicDesc& spd, REFERENCE_TIME rt, RECT& bbox)
                         pObject->m_height = pRegion->height;
 
                         CompositionObject::ColorType color_type = m_colorTypeSetting;
-                        if (color_type==CompositionObject::NONE)
-                        {
+                        if (color_type == CompositionObject::NONE) {
                             color_type = m_Display.width > 720 ? CompositionObject::YUV_Rec709 : CompositionObject::YUV_Rec601;
                         }
-                        pObject->SetPalette(pCLUT->size, pCLUT->palette, color_type, 
-                            m_yuvRangeSetting==CompositionObject::RANGE_NONE ? CompositionObject::RANGE_TV : m_yuvRangeSetting);
+                        pObject->SetPalette(pCLUT->size, pCLUT->palette, color_type,
+                                            m_yuvRangeSetting == CompositionObject::RANGE_NONE ? CompositionObject::RANGE_TV : m_yuvRangeSetting);
                         pObject->InitColor(spd);
                         pObject->RenderDvb(spd, nX, nY);
                         TRACE_DVB(_T(" --> %d/%d - %d/%d\n"), i + 1, pPage->regionCount, j + 1, pRegion->objectCount);
@@ -349,7 +348,7 @@ void CDVBSub::Render(SubPicDesc& spd, REFERENCE_TIME rt, RECT& bbox)
         bbox.left   = 0;
         bbox.top    = 0;
         bbox.right  = m_Display.width < spd.w ? m_Display.width : spd.w;
-        ASSERT(spd.h>=0);
+        ASSERT(spd.h >= 0);
         bbox.bottom = m_Display.height < spd.h ? m_Display.height : spd.h;
     }
 }
@@ -383,16 +382,14 @@ POSITION CDVBSub::GetStartPosition(REFERENCE_TIME rt, double fps)
         }
     }
 
-    POSITION	pos = m_Pages.GetHeadPosition();
+    POSITION    pos = m_Pages.GetHeadPosition();
 
     while (pos) {
-        DVB_PAGE*	pPage = m_Pages.GetAt (pos);
+        DVB_PAGE*   pPage = m_Pages.GetAt(pos);
 
         if (rt >= pPage->rtStart && rt < pPage->rtStop) {
             break;
-        }
-        else if( rt < pPage->rtStart )
-        {
+        } else if (rt < pPage->rtStart) {
             pos = NULL;
             break;
         }
@@ -433,7 +430,7 @@ void CDVBSub::Reset()
     }
 }
 
-HRESULT CDVBSub::SetYuvType( ColorType colorType, YuvRangeType yuvRangeType )
+HRESULT CDVBSub::SetYuvType(ColorType colorType, YuvRangeType yuvRangeType)
 {
     m_colorTypeSetting = colorType;
     m_yuvRangeSetting = yuvRangeType;

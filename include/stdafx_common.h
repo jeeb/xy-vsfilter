@@ -2,7 +2,7 @@
 #define _SECURE_ATL 1
 #endif
 
-#define WIN32_LEAN_AND_MEAN		// Exclude rarely-used stuff from Windows headers
+#define WIN32_LEAN_AND_MEAN     // Exclude rarely-used stuff from Windows headers
 
 #ifndef VC_EXTRALEAN
 #define VC_EXTRALEAN            // Exclude rarely-used stuff from Windows headers

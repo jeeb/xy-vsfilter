@@ -29,7 +29,7 @@ CompositionObject::CompositionObject()
     m_pRLEData      = NULL;
     m_nRLEDataSize  = 0;
     m_nRLEPos       = 0;
-	
+
     memsetd(m_Colors, 0xFF000000, sizeof(m_Colors));
 }
 
@@ -45,10 +45,9 @@ void CompositionObject::SetPalette(int nNbEntry, HDMV_PALETTE* pPalette, ColorTy
 
     m_colorType = -1;
 
-    m_Palette.SetCount(nNbEntry>0?nNbEntry:0);
-    if(nNbEntry>0)
-    {
-        memcpy(m_Palette.GetData(), pPalette, nNbEntry*sizeof(pPalette[0]));
+    m_Palette.SetCount(nNbEntry > 0 ? nNbEntry : 0);
+    if (nNbEntry > 0) {
+        memcpy(m_Palette.GetData(), pPalette, nNbEntry * sizeof(pPalette[0]));
     }
 }
 
@@ -59,250 +58,179 @@ void CompositionObject::InitColor(const SubPicDesc& spd)
 #define FULL_TYPE(x,y) (((x)<<8)|y)
 
     int paletteNumber = m_Palette.GetCount();
-    if (m_colorType!=spd.type)
-    {
+    if (m_colorType != spd.type) {
         m_colorType = -1;
         ColorConvTable::YuvMatrixType cur_type;
         ColorConvTable::YuvRangeType cur_range;
-        if (m_OriginalColorType==YUV_Rec601)
-        {
+        if (m_OriginalColorType == YUV_Rec601) {
             cur_type = ColorConvTable::BT601;
-        }
-        else if (m_OriginalColorType==YUV_Rec709)
-        {
+        } else if (m_OriginalColorType == YUV_Rec709) {
             cur_type = ColorConvTable::BT709;
-        }
-        else
-        {
+        } else {
             XY_LOG_ERROR("Not supported");
             ASSERT(0);
             return;
         }
-        if (m_OriginalYuvRangeType==RANGE_TV)
-        {
+        if (m_OriginalYuvRangeType == RANGE_TV) {
             cur_range = ColorConvTable::RANGE_TV;
-        }
-        else if (m_OriginalYuvRangeType==RANGE_PC)
-        {
+        } else if (m_OriginalYuvRangeType == RANGE_PC) {
             cur_range = ColorConvTable::RANGE_PC;
-        }
-        else
-        {
+        } else {
             XY_LOG_ERROR("Not supported");
             ASSERT(0);
             return;
         }
 
         m_colorType = spd.type;
-        switch(spd.type)
-        {
-        case MSP_AYUV_PLANAR:
-        case MSP_AYUV:
-            if (FULL_TYPE(cur_type,cur_range)==
-                FULL_TYPE(ColorConvTable::GetDefaultYUVType(), ColorConvTable::GetDefaultRangeType()))
-            {
-                for (int i=0;i<paletteNumber;i++)
-                {
-                    m_Colors[m_Palette[i].entry_id] = COMBINE_AYUV(m_Palette[i].T, m_Palette[i].Y, m_Palette[i].Cb
-                        , m_Palette[i].Cr);
-                }
-            }
-            else if (cur_type==ColorConvTable::GetDefaultYUVType())
-            {
-                if (cur_range==ColorConvTable::RANGE_PC)
-                {
-                    for (int i=0;i<paletteNumber;i++)
-                    {
-                        m_Colors[m_Palette[i].entry_id] = ColorConvTable::A8Y8U8V8_PC_To_TV(m_Palette[i].T, m_Palette[i].Y
-                            , m_Palette[i].Cb, m_Palette[i].Cr);
+        switch (spd.type) {
+            case MSP_AYUV_PLANAR:
+            case MSP_AYUV:
+                if (FULL_TYPE(cur_type, cur_range) ==
+                        FULL_TYPE(ColorConvTable::GetDefaultYUVType(), ColorConvTable::GetDefaultRangeType())) {
+                    for (int i = 0; i < paletteNumber; i++) {
+                        m_Colors[m_Palette[i].entry_id] = COMBINE_AYUV(m_Palette[i].T, m_Palette[i].Y, m_Palette[i].Cb
+                                                          , m_Palette[i].Cr);
                     }
-                }
-                else if (cur_range==ColorConvTable::RANGE_TV)
-                {
-                    for (int i=0;i<paletteNumber;i++)
-                    {
-                        m_Colors[m_Palette[i].entry_id] = ColorConvTable::A8Y8U8V8_TV_To_PC(m_Palette[i].T, m_Palette[i].Y
-                            , m_Palette[i].Cb, m_Palette[i].Cr);
+                } else if (cur_type == ColorConvTable::GetDefaultYUVType()) {
+                    if (cur_range == ColorConvTable::RANGE_PC) {
+                        for (int i = 0; i < paletteNumber; i++) {
+                            m_Colors[m_Palette[i].entry_id] = ColorConvTable::A8Y8U8V8_PC_To_TV(m_Palette[i].T, m_Palette[i].Y
+                                                              , m_Palette[i].Cb, m_Palette[i].Cr);
+                        }
+                    } else if (cur_range == ColorConvTable::RANGE_TV) {
+                        for (int i = 0; i < paletteNumber; i++) {
+                            m_Colors[m_Palette[i].entry_id] = ColorConvTable::A8Y8U8V8_TV_To_PC(m_Palette[i].T, m_Palette[i].Y
+                                                              , m_Palette[i].Cb, m_Palette[i].Cr);
+                        }
                     }
+                } else if (FULL_TYPE(cur_type, cur_range) ==
+                           FULL_TYPE(ColorConvTable::BT709, ColorConvTable::RANGE_TV)) {
+                    for (int i = 0; i < paletteNumber; i++) {
+                        DWORD argb = ColorConvTable::A8Y8U8V8_To_ARGB_TV_BT709(m_Palette[i].T, m_Palette[i].Y
+                                     , m_Palette[i].Cb, m_Palette[i].Cr);
+                        m_Colors[m_Palette[i].entry_id] = ColorConvTable::Argb2Ayuv(argb);
+                    }
+                } else if (FULL_TYPE(cur_type, cur_range) ==
+                           FULL_TYPE(ColorConvTable::BT709, ColorConvTable::RANGE_PC)) {
+                    for (int i = 0; i < paletteNumber; i++) {
+                        DWORD argb = ColorConvTable::A8Y8U8V8_To_ARGB_PC_BT709(m_Palette[i].T, m_Palette[i].Y
+                                     , m_Palette[i].Cb, m_Palette[i].Cr);
+                        m_Colors[m_Palette[i].entry_id] = ColorConvTable::Argb2Ayuv(argb);
+                    }
+                } else if (FULL_TYPE(cur_type, cur_range) ==
+                           FULL_TYPE(ColorConvTable::BT601, ColorConvTable::RANGE_TV)) {
+                    for (int i = 0; i < paletteNumber; i++) {
+                        DWORD argb = ColorConvTable::A8Y8U8V8_To_ARGB_TV_BT601(m_Palette[i].T, m_Palette[i].Y
+                                     , m_Palette[i].Cb, m_Palette[i].Cr);
+                        m_Colors[m_Palette[i].entry_id] = ColorConvTable::Argb2Ayuv(argb);
+                    }
+                } else if (FULL_TYPE(cur_type, cur_range) ==
+                           FULL_TYPE(ColorConvTable::BT601, ColorConvTable::RANGE_PC)) {
+                    for (int i = 0; i < paletteNumber; i++) {
+                        DWORD argb = ColorConvTable::A8Y8U8V8_To_ARGB_PC_BT601(m_Palette[i].T, m_Palette[i].Y
+                                     , m_Palette[i].Cb, m_Palette[i].Cr);
+                        m_Colors[m_Palette[i].entry_id] = ColorConvTable::Argb2Ayuv(argb);
+                    }
+                } else {
+                    XY_LOG_ERROR("Not supported");
+                    ASSERT(0);
+                    return;
                 }
-            }
-            else if (FULL_TYPE(cur_type,cur_range)==
-                FULL_TYPE(ColorConvTable::BT709, ColorConvTable::RANGE_TV))
-            {
-                for (int i=0;i<paletteNumber;i++)
-                {
-                    DWORD argb = ColorConvTable::A8Y8U8V8_To_ARGB_TV_BT709(m_Palette[i].T, m_Palette[i].Y
-                        , m_Palette[i].Cb, m_Palette[i].Cr);
-                    m_Colors[m_Palette[i].entry_id] = ColorConvTable::Argb2Ayuv(argb);
+                break;
+            case MSP_XY_AUYV:
+                if (FULL_TYPE(cur_type, cur_range) ==
+                        FULL_TYPE(ColorConvTable::GetDefaultYUVType(), ColorConvTable::GetDefaultRangeType())) {
+                    for (int i = 0; i < paletteNumber; i++) {
+                        m_Colors[m_Palette[i].entry_id] = COMBINE_AYUV(m_Palette[i].T, m_Palette[i].Cb, m_Palette[i].Y
+                                                          , m_Palette[i].Cr);
+                    }
+                } else if (cur_type == ColorConvTable::GetDefaultYUVType()) {
+                    if (cur_range == ColorConvTable::RANGE_PC) {
+                        for (int i = 0; i < paletteNumber; i++) {
+                            DWORD ayuv = ColorConvTable::A8Y8U8V8_PC_To_TV(m_Palette[i].T, m_Palette[i].Y
+                                         , m_Palette[i].Cb, m_Palette[i].Cr);
+                            m_Colors[m_Palette[i].entry_id] = ColorConvTable::Ayuv2Auyv(ayuv);
+                        }
+                    } else if (cur_range == ColorConvTable::RANGE_TV) {
+                        for (int i = 0; i < paletteNumber; i++) {
+                            DWORD ayuv = ColorConvTable::A8Y8U8V8_TV_To_PC(m_Palette[i].T, m_Palette[i].Y
+                                         , m_Palette[i].Cb, m_Palette[i].Cr);
+                            m_Colors[m_Palette[i].entry_id] = ColorConvTable::Ayuv2Auyv(ayuv);
+                        }
+                    }
+                } else if (FULL_TYPE(cur_type, cur_range) ==
+                           FULL_TYPE(ColorConvTable::BT709, ColorConvTable::RANGE_TV)) {
+                    for (int i = 0; i < paletteNumber; i++) {
+                        DWORD argb = ColorConvTable::A8Y8U8V8_To_ARGB_TV_BT709(m_Palette[i].T, m_Palette[i].Y
+                                     , m_Palette[i].Cb, m_Palette[i].Cr);
+                        m_Colors[m_Palette[i].entry_id] = ColorConvTable::Argb2Auyv(argb);
+                    }
+                } else if (FULL_TYPE(cur_type, cur_range) ==
+                           FULL_TYPE(ColorConvTable::BT709, ColorConvTable::RANGE_PC)) {
+                    for (int i = 0; i < paletteNumber; i++) {
+                        DWORD argb = ColorConvTable::A8Y8U8V8_To_ARGB_PC_BT709(m_Palette[i].T, m_Palette[i].Y
+                                     , m_Palette[i].Cb, m_Palette[i].Cr);
+                        m_Colors[m_Palette[i].entry_id] = ColorConvTable::Argb2Auyv(argb);
+                    }
+                } else if (FULL_TYPE(cur_type, cur_range) ==
+                           FULL_TYPE(ColorConvTable::BT601, ColorConvTable::RANGE_TV)) {
+                    for (int i = 0; i < paletteNumber; i++) {
+                        DWORD argb = ColorConvTable::A8Y8U8V8_To_ARGB_TV_BT601(m_Palette[i].T, m_Palette[i].Y
+                                     , m_Palette[i].Cb, m_Palette[i].Cr);
+                        m_Colors[m_Palette[i].entry_id] = ColorConvTable::Argb2Auyv(argb);
+                    }
+                } else if (FULL_TYPE(cur_type, cur_range) ==
+                           FULL_TYPE(ColorConvTable::BT601, ColorConvTable::RANGE_PC)) {
+                    for (int i = 0; i < paletteNumber; i++) {
+                        DWORD argb = ColorConvTable::A8Y8U8V8_To_ARGB_PC_BT601(m_Palette[i].T, m_Palette[i].Y
+                                     , m_Palette[i].Cb, m_Palette[i].Cr);
+                        m_Colors[m_Palette[i].entry_id] = ColorConvTable::Argb2Auyv(argb);
+                    }
+                } else {
+                    XY_LOG_ERROR("Not supported");
+                    ASSERT(0);
+                    return;
                 }
-            }
-            else if (FULL_TYPE(cur_type,cur_range)==
-                FULL_TYPE(ColorConvTable::BT709, ColorConvTable::RANGE_PC))
-            {
-                for (int i=0;i<paletteNumber;i++)
-                {
-                    DWORD argb = ColorConvTable::A8Y8U8V8_To_ARGB_PC_BT709(m_Palette[i].T, m_Palette[i].Y
-                        , m_Palette[i].Cb, m_Palette[i].Cr);
-                    m_Colors[m_Palette[i].entry_id] = ColorConvTable::Argb2Ayuv(argb);
+                break;
+            case MSP_RGBA:
+                if (FULL_TYPE(cur_type, cur_range) ==
+                        FULL_TYPE(ColorConvTable::BT709, ColorConvTable::RANGE_TV)) {
+                    for (int i = 0; i < paletteNumber; i++) {
+                        DWORD argb = ColorConvTable::A8Y8U8V8_To_ARGB_TV_BT709(m_Palette[i].T, m_Palette[i].Y
+                                     , m_Palette[i].Cb, m_Palette[i].Cr);
+                        m_Colors[m_Palette[i].entry_id] = argb;
+                    }
+                } else if (FULL_TYPE(cur_type, cur_range) ==
+                           FULL_TYPE(ColorConvTable::BT709, ColorConvTable::RANGE_PC)) {
+                    for (int i = 0; i < paletteNumber; i++) {
+                        DWORD argb = ColorConvTable::A8Y8U8V8_To_ARGB_PC_BT709(m_Palette[i].T, m_Palette[i].Y
+                                     , m_Palette[i].Cb, m_Palette[i].Cr);
+                        m_Colors[m_Palette[i].entry_id] = argb;
+                    }
+                } else if (FULL_TYPE(cur_type, cur_range) ==
+                           FULL_TYPE(ColorConvTable::BT601, ColorConvTable::RANGE_TV)) {
+                    for (int i = 0; i < paletteNumber; i++) {
+                        DWORD argb = ColorConvTable::A8Y8U8V8_To_ARGB_TV_BT601(m_Palette[i].T, m_Palette[i].Y
+                                     , m_Palette[i].Cb, m_Palette[i].Cr);
+                        m_Colors[m_Palette[i].entry_id] = argb;
+                    }
+                } else if (FULL_TYPE(cur_type, cur_range) ==
+                           FULL_TYPE(ColorConvTable::BT601, ColorConvTable::RANGE_PC)) {
+                    for (int i = 0; i < paletteNumber; i++) {
+                        DWORD argb = ColorConvTable::A8Y8U8V8_To_ARGB_PC_BT601(m_Palette[i].T, m_Palette[i].Y
+                                     , m_Palette[i].Cb, m_Palette[i].Cr);
+                        m_Colors[m_Palette[i].entry_id] = argb;
+                    }
+                } else {
+                    XY_LOG_ERROR("Not supported");
+                    ASSERT(0);
+                    return;
                 }
-            }
-            else if (FULL_TYPE(cur_type,cur_range)==
-                FULL_TYPE(ColorConvTable::BT601, ColorConvTable::RANGE_TV))
-            {
-                for (int i=0;i<paletteNumber;i++)
-                {
-                    DWORD argb = ColorConvTable::A8Y8U8V8_To_ARGB_TV_BT601(m_Palette[i].T, m_Palette[i].Y
-                        , m_Palette[i].Cb, m_Palette[i].Cr);
-                    m_Colors[m_Palette[i].entry_id] = ColorConvTable::Argb2Ayuv(argb);
-                }
-            }
-            else if (FULL_TYPE(cur_type,cur_range)==
-                FULL_TYPE(ColorConvTable::BT601, ColorConvTable::RANGE_PC))
-            {
-                for (int i=0;i<paletteNumber;i++)
-                {
-                    DWORD argb = ColorConvTable::A8Y8U8V8_To_ARGB_PC_BT601(m_Palette[i].T, m_Palette[i].Y
-                        , m_Palette[i].Cb, m_Palette[i].Cr);
-                    m_Colors[m_Palette[i].entry_id] = ColorConvTable::Argb2Ayuv(argb);
-                }
-            }
-            else
-            {
+                break;
+            default:
                 XY_LOG_ERROR("Not supported");
                 ASSERT(0);
                 return;
-            }
-            break;
-        case MSP_XY_AUYV:
-            if (FULL_TYPE(cur_type,cur_range)==
-                FULL_TYPE(ColorConvTable::GetDefaultYUVType(), ColorConvTable::GetDefaultRangeType()))
-            {
-                for (int i=0;i<paletteNumber;i++)
-                {
-                    m_Colors[m_Palette[i].entry_id] = COMBINE_AYUV(m_Palette[i].T, m_Palette[i].Cb, m_Palette[i].Y
-                        , m_Palette[i].Cr);
-                }
-            }
-            else if (cur_type==ColorConvTable::GetDefaultYUVType())
-            {
-                if (cur_range==ColorConvTable::RANGE_PC)
-                {
-                    for (int i=0;i<paletteNumber;i++)
-                    {
-                        DWORD ayuv = ColorConvTable::A8Y8U8V8_PC_To_TV(m_Palette[i].T, m_Palette[i].Y
-                            , m_Palette[i].Cb, m_Palette[i].Cr);
-                        m_Colors[m_Palette[i].entry_id] = ColorConvTable::Ayuv2Auyv(ayuv);
-                    }
-                }
-                else if (cur_range==ColorConvTable::RANGE_TV)
-                {
-                    for (int i=0;i<paletteNumber;i++)
-                    {
-                        DWORD ayuv = ColorConvTable::A8Y8U8V8_TV_To_PC(m_Palette[i].T, m_Palette[i].Y
-                            , m_Palette[i].Cb, m_Palette[i].Cr);
-                        m_Colors[m_Palette[i].entry_id] = ColorConvTable::Ayuv2Auyv(ayuv);
-                    }
-                }
-            }
-            else if (FULL_TYPE(cur_type,cur_range)==
-                FULL_TYPE(ColorConvTable::BT709, ColorConvTable::RANGE_TV))
-            {
-                for (int i=0;i<paletteNumber;i++)
-                {
-                    DWORD argb = ColorConvTable::A8Y8U8V8_To_ARGB_TV_BT709(m_Palette[i].T, m_Palette[i].Y
-                        , m_Palette[i].Cb, m_Palette[i].Cr);
-                    m_Colors[m_Palette[i].entry_id] = ColorConvTable::Argb2Auyv(argb);
-                }
-            }
-            else if (FULL_TYPE(cur_type,cur_range)==
-                FULL_TYPE(ColorConvTable::BT709, ColorConvTable::RANGE_PC))
-            {
-                for (int i=0;i<paletteNumber;i++)
-                {
-                    DWORD argb = ColorConvTable::A8Y8U8V8_To_ARGB_PC_BT709(m_Palette[i].T, m_Palette[i].Y
-                        , m_Palette[i].Cb, m_Palette[i].Cr);
-                    m_Colors[m_Palette[i].entry_id] = ColorConvTable::Argb2Auyv(argb);
-                }
-            }
-            else if (FULL_TYPE(cur_type,cur_range)==
-                FULL_TYPE(ColorConvTable::BT601, ColorConvTable::RANGE_TV))
-            {
-                for (int i=0;i<paletteNumber;i++)
-                {
-                    DWORD argb = ColorConvTable::A8Y8U8V8_To_ARGB_TV_BT601(m_Palette[i].T, m_Palette[i].Y
-                        , m_Palette[i].Cb, m_Palette[i].Cr);
-                    m_Colors[m_Palette[i].entry_id] = ColorConvTable::Argb2Auyv(argb);
-                }
-            }
-            else if (FULL_TYPE(cur_type,cur_range)==
-                FULL_TYPE(ColorConvTable::BT601, ColorConvTable::RANGE_PC))
-            {
-                for (int i=0;i<paletteNumber;i++)
-                {
-                    DWORD argb = ColorConvTable::A8Y8U8V8_To_ARGB_PC_BT601(m_Palette[i].T, m_Palette[i].Y
-                        , m_Palette[i].Cb, m_Palette[i].Cr);
-                    m_Colors[m_Palette[i].entry_id] = ColorConvTable::Argb2Auyv(argb);
-                }
-            }
-            else
-            {
-                XY_LOG_ERROR("Not supported");
-                ASSERT(0);
-                return;
-            }
-            break;
-        case MSP_RGBA:
-            if (FULL_TYPE(cur_type,cur_range)==
-                FULL_TYPE(ColorConvTable::BT709, ColorConvTable::RANGE_TV))
-            {
-                for (int i=0;i<paletteNumber;i++)
-                {
-                    DWORD argb = ColorConvTable::A8Y8U8V8_To_ARGB_TV_BT709(m_Palette[i].T, m_Palette[i].Y
-                        , m_Palette[i].Cb, m_Palette[i].Cr);
-                    m_Colors[m_Palette[i].entry_id] = argb;
-                }
-            }
-            else if (FULL_TYPE(cur_type,cur_range)==
-                FULL_TYPE(ColorConvTable::BT709, ColorConvTable::RANGE_PC))
-            {
-                for (int i=0;i<paletteNumber;i++)
-                {
-                    DWORD argb = ColorConvTable::A8Y8U8V8_To_ARGB_PC_BT709(m_Palette[i].T, m_Palette[i].Y
-                        , m_Palette[i].Cb, m_Palette[i].Cr);
-                    m_Colors[m_Palette[i].entry_id] = argb;
-                }
-            }
-            else if (FULL_TYPE(cur_type,cur_range)==
-                FULL_TYPE(ColorConvTable::BT601, ColorConvTable::RANGE_TV))
-            {
-                for (int i=0;i<paletteNumber;i++)
-                {
-                    DWORD argb = ColorConvTable::A8Y8U8V8_To_ARGB_TV_BT601(m_Palette[i].T, m_Palette[i].Y
-                        , m_Palette[i].Cb, m_Palette[i].Cr);
-                    m_Colors[m_Palette[i].entry_id] = argb;
-                }
-            }
-            else if (FULL_TYPE(cur_type,cur_range)==
-                FULL_TYPE(ColorConvTable::BT601, ColorConvTable::RANGE_PC))
-            {
-                for (int i=0;i<paletteNumber;i++)
-                {
-                    DWORD argb = ColorConvTable::A8Y8U8V8_To_ARGB_PC_BT601(m_Palette[i].T, m_Palette[i].Y
-                        , m_Palette[i].Cb, m_Palette[i].Cr);
-                    m_Colors[m_Palette[i].entry_id] = argb;
-                }
-            }
-            else
-            {
-                XY_LOG_ERROR("Not supported");
-                ASSERT(0);
-                return;
-            }
-            break;
-        default:
-            XY_LOG_ERROR("Not supported");
-            ASSERT(0);
-            return;
         }
     }
 }

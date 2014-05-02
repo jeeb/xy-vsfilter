@@ -1,4 +1,4 @@
-#ifndef __XY_CIRCULAR_ARRAY_QUEUE_HPP_47831C93_EDAA_44B9_94F2_6FF36839D1A6__ 
+#ifndef __XY_CIRCULAR_ARRAY_QUEUE_HPP_47831C93_EDAA_44B9_94F2_6FF36839D1A6__
 #define __XY_CIRCULAR_ARRAY_QUEUE_HPP_47831C93_EDAA_44B9_94F2_6FF36839D1A6__
 
 template <typename ElementType>
@@ -13,61 +13,52 @@ public:
      *  @brief  Default constructor creates no elements.
      **/
     explicit XYCircularArrayQueue()
-        :_elements(NULL),
-        _head(0),
-        _tail(0),
-        _CAPACITY(0)
-    {
+        : _elements(NULL),
+          _head(0),
+          _tail(0),
+          _CAPACITY(0) {
     }
 
-    ~XYCircularArrayQueue()
-    {
+    ~XYCircularArrayQueue() {
         delete[]  _elements;
     }
 
-    inline int init(size_t  capacity)
-    {
+    inline int init(size_t  capacity) {
         _CAPACITY = capacity;
         _elements = new value_type[_CAPACITY];
         return _elements ? 0 : -1;
     }
 
-    inline size_t capacity()
-    {
+    inline size_t capacity() {
         return _CAPACITY;
     }
 
-    inline bool full() const
-    {
-        return size() >= (_CAPACITY -1);
+    inline bool full() const {
+        return size() >= (_CAPACITY - 1);
     }
 
-    inline bool empty() const
-    {
+    inline bool empty() const {
         return _head == _tail;
     }
 
     /***
      * @return: the number of elements in the @queue.
      **/
-    inline size_t size() const
-    {
-        return (_CAPACITY -_head+_tail) %_CAPACITY;
+    inline size_t size() const {
+        return (_CAPACITY - _head + _tail) % _CAPACITY;
     }
 
     /***
-     * @return: the number of free elements in the @queue. 
+     * @return: the number of free elements in the @queue.
      **/
-    inline size_t free() const
-    {
-        return _CAPACITY - (_CAPACITY -_head+_tail) %_CAPACITY;
+    inline size_t free() const {
+        return _CAPACITY - (_CAPACITY - _head + _tail) % _CAPACITY;
     }
 
     /***
      *  @return: a read/write reference to the i-th element.
      **/
-    inline reference get_at(int i)
-    {
+    inline reference get_at(int i) {
         i += _head;
         i %= _CAPACITY;
         return _elements[i];
@@ -76,8 +67,7 @@ public:
     /***
      *  @return: a read-only reference to the i-th element.
      **/
-    inline const_reference get_at(int i) const
-    {
+    inline const_reference get_at(int i) const {
         i += _head;
         i %= _CAPACITY;
         return _elements[i];
@@ -86,76 +76,57 @@ public:
     /***
      *  @return: a read/write reference to the last element
      **/
-    inline reference back()
-    {
-        return _elements[(_CAPACITY +_tail -1) % _CAPACITY];
+    inline reference back() {
+        return _elements[(_CAPACITY + _tail - 1) % _CAPACITY];
     }
 
     /***
      *  @return: a read-only reference to the last element
      **/
-    inline const_reference back() const
-    {
-        return _elements[(_CAPACITY +_tail -1) % _CAPACITY];
+    inline const_reference back() const {
+        return _elements[(_CAPACITY + _tail - 1) % _CAPACITY];
     }
 
     /***
      *  @return: 0 if succeeded, -1 if failed
      **/
-    inline int push_back(const_reference value)
-    {
-        if(size() == (_CAPACITY -1))
-        {
+    inline int push_back(const_reference value) {
+        if (size() == (_CAPACITY - 1)) {
             return -1;
-        }
-        else
-        {
+        } else {
             _elements[_tail] = value;
-            _tail = (_tail+1) % _CAPACITY;
+            _tail = (_tail + 1) % _CAPACITY;
             return 0;
         }
     }
 
-    inline reference inc_1_at_tail()
-    {
+    inline reference inc_1_at_tail() {
         _tail++;
         _tail += _CAPACITY;
         _tail %= _CAPACITY;
-        return _elements[(_CAPACITY +_tail -1) % _CAPACITY];
+        return _elements[(_CAPACITY + _tail - 1) % _CAPACITY];
     }
 
-    inline void pop_front()
-    {
-        if(empty())
-        {
+    inline void pop_front() {
+        if (empty()) {
             return;
-        }
-        else
-        {
+        } else {
             _head = (_head + 1) % _CAPACITY;
         }
     }
 
-    inline void pop_back()
-    {
-        if(empty())
-        {
+    inline void pop_back() {
+        if (empty()) {
             return;
-        }
-        else
-        {
+        } else {
             _tail = (_tail - 1 + _CAPACITY) % _CAPACITY;
         }
     }
 
-    inline void pop_last_n(int n)
-    {
-        if (size()<n)
-        {
+    inline void pop_last_n(int n) {
+        if (size() < n) {
             _head = _tail = 0;
-        }
-        else
-        {
+        } else {
             _tail -= n;
             _tail += _CAPACITY;
             _tail %= _CAPACITY;

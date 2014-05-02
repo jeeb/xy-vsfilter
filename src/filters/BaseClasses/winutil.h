@@ -25,7 +25,7 @@ const int PROFILESTR = 128;                  // Normal profile string
 const WORD PALVERSION = 0x300;               // GDI palette version
 const LONG PALETTE_VERSION = (LONG) 1;       // Initial palette version
 const COLORREF VIDEO_COLOUR = 0;             // Defaults to black background
-const HANDLE hMEMORY = (HANDLE) (-1);        // Says to open as memory file
+const HANDLE hMEMORY = (HANDLE)(-1);         // Says to open as memory file
 
 #define WIDTH(x) ((*(x)).right - (*(x)).left)
 #define HEIGHT(x) ((*(x)).bottom - (*(x)).top)
@@ -59,8 +59,8 @@ protected:
     BOOL m_bDoGetDC;                // Should this window get a DC
     bool m_bDoPostToDestroy;        // Use PostMessage to destroy
     CCritSec m_PaletteLock;         // This lock protects m_hPalette.
-                                    // It should be held anytime the
-                                    // program use the value of m_hPalette.
+    // It should be held anytime the
+    // program use the value of m_hPalette.
 
     // Maps windows message procedure into C++ methods
     friend LRESULT CALLBACK WndProc(HWND hwnd,      // Window handle
@@ -96,8 +96,7 @@ public:
     void PaintWindow(BOOL bErase);
     void DoSetWindowForeground(BOOL bFocus);
     virtual HRESULT SetPalette(HPALETTE hPalette);
-    void SetRealize(BOOL bRealize)
-    {
+    void SetRealize(BOOL bRealize) {
         m_bNoRealize = !bRealize;
     }
 
@@ -110,7 +109,7 @@ public:
     void UnlockPaletteLock();
 
     virtual BOOL PossiblyEatMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
-	    { return FALSE; };
+    { return FALSE; };
 
     // Access our window information
 
@@ -121,9 +120,9 @@ public:
     HDC GetMemoryHDC();
     HDC GetWindowHDC();
 
-    #ifdef DEBUG
+#ifdef DEBUG
     HPALETTE GetPalette();
-    #endif // DEBUG
+#endif // DEBUG
 
     // This is the window procedure the derived object should override
 
@@ -135,9 +134,9 @@ public:
     // Must be overriden to return class and window styles
 
     virtual LPTSTR GetClassWindowStyles(
-                            DWORD *pClassStyles,          // Class styles
-                            DWORD *pWindowStyles,         // Window styles
-                            DWORD *pWindowStylesEx) PURE; // Extended styles
+        DWORD* pClassStyles,          // Class styles
+        DWORD* pWindowStyles,         // Window styles
+        DWORD* pWindowStylesEx) PURE; // Extended styles
 };
 
 
@@ -162,7 +161,7 @@ class CDrawImage
 {
 protected:
 
-    CBaseWindow *m_pBaseWindow;     // Owning video window object
+    CBaseWindow* m_pBaseWindow;     // Owning video window object
     CRefTime m_StartSample;         // Start time for the current sample
     CRefTime m_EndSample;           // And likewise it's end sample time
     HDC m_hdc;                      // Main window device context
@@ -171,32 +170,32 @@ protected:
     RECT m_SourceRect;              // Source image rectangle
     BOOL m_bStretch;                // Do we have to stretch the images
     BOOL m_bUsingImageAllocator;    // Are the samples shared DIBSECTIONs
-    CMediaType *m_pMediaType;       // Pointer to the current format
+    CMediaType* m_pMediaType;       // Pointer to the current format
     int m_perfidRenderTime;         // Time taken to render an image
     LONG m_PaletteVersion;          // Current palette version cookie
 
     // Draw the video images in the window
 
-    void SlowRender(IMediaSample *pMediaSample);
-    void FastRender(IMediaSample *pMediaSample);
-    void DisplaySampleTimes(IMediaSample *pSample);
-    void UpdateColourTable(HDC hdc,BITMAPINFOHEADER *pbmi);
+    void SlowRender(IMediaSample* pMediaSample);
+    void FastRender(IMediaSample* pMediaSample);
+    void DisplaySampleTimes(IMediaSample* pSample);
+    void UpdateColourTable(HDC hdc, BITMAPINFOHEADER* pbmi);
     void SetStretchMode();
 
 public:
 
     // Used to control the image drawing
 
-    CDrawImage(CBaseWindow *pBaseWindow);
-    BOOL DrawImage(IMediaSample *pMediaSample);
-    BOOL DrawVideoImageHere(HDC hdc, IMediaSample *pMediaSample,
+    CDrawImage(CBaseWindow* pBaseWindow);
+    BOOL DrawImage(IMediaSample* pMediaSample);
+    BOOL DrawVideoImageHere(HDC hdc, IMediaSample* pMediaSample,
                             LPRECT lprcSrc, LPRECT lprcDst);
     void SetDrawContext();
-    void SetTargetRect(RECT *pTargetRect);
-    void SetSourceRect(RECT *pSourceRect);
-    void GetTargetRect(RECT *pTargetRect);
-    void GetSourceRect(RECT *pSourceRect);
-    virtual RECT ScaleSourceRect(const RECT *pSource);
+    void SetTargetRect(RECT* pTargetRect);
+    void SetSourceRect(RECT* pSourceRect);
+    void GetTargetRect(RECT* pTargetRect);
+    void GetSourceRect(RECT* pSourceRect);
+    virtual RECT ScaleSourceRect(const RECT* pSource);
 
     // Handle updating palettes as they change
 
@@ -207,7 +206,7 @@ public:
     // Tell us media types and allocator assignments
 
     void NotifyAllocator(BOOL bUsingImageAllocator);
-    void NotifyMediaType(CMediaType *pMediaType);
+    void NotifyMediaType(CMediaType* pMediaType);
     BOOL UsingImageAllocator();
 
     // Called when we are about to draw an image
@@ -234,7 +233,7 @@ typedef struct tagDIBDATA {
     DIBSECTION  DibSection;         // Details of DIB section allocated
     HBITMAP     hBitmap;            // Handle to bitmap for drawing
     HANDLE      hMapping;           // Handle to shared memory block
-    BYTE        *pBase;             // Pointer to base memory address
+    BYTE*        pBase;             // Pointer to base memory address
 
 } DIBDATA;
 
@@ -256,16 +255,16 @@ public:
 
     // Constructor
 
-    CImageSample(CBaseAllocator *pAllocator,
-                 TCHAR *pName,
-                 HRESULT *phr,
+    CImageSample(CBaseAllocator* pAllocator,
+                 TCHAR* pName,
+                 HRESULT* phr,
                  LPBYTE pBuffer,
                  LONG length);
 
     // Maintain the DIB/DirectDraw state
 
-    void SetDIBData(DIBDATA *pDibData);
-    DIBDATA *GetDIBData();
+    void SetDIBData(DIBDATA* pDibData);
+    DIBDATA* GetDIBData();
 };
 
 
@@ -280,8 +279,8 @@ class CImageAllocator : public CBaseAllocator
 {
 protected:
 
-    CBaseFilter *m_pFilter;   // Delegate reference counts to
-    CMediaType *m_pMediaType;           // Pointer to the current format
+    CBaseFilter* m_pFilter;   // Delegate reference counts to
+    CMediaType* m_pMediaType;           // Pointer to the current format
 
     // Used to create and delete samples
 
@@ -290,28 +289,28 @@ protected:
 
     // Manage the shared DIBSECTION and DCI/DirectDraw buffers
 
-    HRESULT CreateDIB(LONG InSize,DIBDATA &DibData);
-    STDMETHODIMP CheckSizes(ALLOCATOR_PROPERTIES *pRequest);
-    virtual CImageSample *CreateImageSample(LPBYTE pData,LONG Length);
+    HRESULT CreateDIB(LONG InSize, DIBDATA& DibData);
+    STDMETHODIMP CheckSizes(ALLOCATOR_PROPERTIES* pRequest);
+    virtual CImageSample* CreateImageSample(LPBYTE pData, LONG Length);
 
 public:
 
     // Constructor and destructor
 
-    CImageAllocator(CBaseFilter *pFilter,TCHAR *pName,HRESULT *phr);
+    CImageAllocator(CBaseFilter* pFilter, TCHAR* pName, HRESULT* phr);
 #ifdef DEBUG
     ~CImageAllocator();
 #endif
 
     STDMETHODIMP_(ULONG) NonDelegatingAddRef();
     STDMETHODIMP_(ULONG) NonDelegatingRelease();
-    void NotifyMediaType(CMediaType *pMediaType);
+    void NotifyMediaType(CMediaType* pMediaType);
 
     // Agree the number of buffers to be used and their size
 
     STDMETHODIMP SetProperties(
-        ALLOCATOR_PROPERTIES *pRequest,
-        ALLOCATOR_PROPERTIES *pActual);
+        ALLOCATOR_PROPERTIES* pRequest,
+        ALLOCATOR_PROPERTIES* pActual);
 };
 
 
@@ -328,31 +327,30 @@ class CImagePalette
 {
 protected:
 
-    CBaseWindow *m_pBaseWindow;             // Window to realise palette in
-    CBaseFilter *m_pFilter;                 // Media filter to send events
-    CDrawImage *m_pDrawImage;               // Object who will be drawing
+    CBaseWindow* m_pBaseWindow;             // Window to realise palette in
+    CBaseFilter* m_pFilter;                 // Media filter to send events
+    CDrawImage* m_pDrawImage;               // Object who will be drawing
     HPALETTE m_hPalette;                    // The palette handle we own
 
 public:
 
-    CImagePalette(CBaseFilter *pBaseFilter,
-                  CBaseWindow *pBaseWindow,
-                  CDrawImage *pDrawImage);
+    CImagePalette(CBaseFilter* pBaseFilter,
+                  CBaseWindow* pBaseWindow,
+                  CDrawImage* pDrawImage);
 
 #ifdef DEBUG
     virtual ~CImagePalette();
 #endif
 
-    static HPALETTE MakePalette(const VIDEOINFOHEADER *pVideoInfo, LPSTR szDevice);
+    static HPALETTE MakePalette(const VIDEOINFOHEADER* pVideoInfo, LPSTR szDevice);
     HRESULT RemovePalette();
-    static HRESULT MakeIdentityPalette(PALETTEENTRY *pEntry,INT iColours, LPSTR szDevice);
-    HRESULT CopyPalette(const CMediaType *pSrc,CMediaType *pDest);
-    BOOL ShouldUpdate(const VIDEOINFOHEADER *pNewInfo,const VIDEOINFOHEADER *pOldInfo);
-    HRESULT PreparePalette(const CMediaType *pmtNew,const CMediaType *pmtOld,LPSTR szDevice);
+    static HRESULT MakeIdentityPalette(PALETTEENTRY* pEntry, INT iColours, LPSTR szDevice);
+    HRESULT CopyPalette(const CMediaType* pSrc, CMediaType* pDest);
+    BOOL ShouldUpdate(const VIDEOINFOHEADER* pNewInfo, const VIDEOINFOHEADER* pOldInfo);
+    HRESULT PreparePalette(const CMediaType* pmtNew, const CMediaType* pmtOld, LPSTR szDevice);
 
-    BOOL DrawVideoImageHere(HDC hdc, IMediaSample *pMediaSample, LPRECT lprcSrc, LPRECT lprcDst)
-    {
-        return m_pDrawImage->DrawVideoImageHere(hdc, pMediaSample, lprcSrc,lprcDst);
+    BOOL DrawVideoImageHere(HDC hdc, IMediaSample* pMediaSample, LPRECT lprcSrc, LPRECT lprcDst) {
+        return m_pDrawImage->DrawVideoImageHere(hdc, pMediaSample, lprcSrc, lprcDst);
     }
 };
 
@@ -377,7 +375,7 @@ protected:
 
     static DWORD CountSetBits(const DWORD Field);
     static DWORD CountPrefixBits(const DWORD Field);
-    static BOOL CheckBitFields(const VIDEOINFO *pInput);
+    static BOOL CheckBitFields(const VIDEOINFO* pInput);
 
 public:
 
@@ -387,27 +385,27 @@ public:
 
     // Used to manage BITMAPINFOHEADERs and the display format
 
-    const VIDEOINFO *GetDisplayFormat();
+    const VIDEOINFO* GetDisplayFormat();
     HRESULT RefreshDisplayType(LPSTR szDeviceName);
-    static BOOL CheckHeaderValidity(const VIDEOINFO *pInput);
-    static BOOL CheckPaletteHeader(const VIDEOINFO *pInput);
+    static BOOL CheckHeaderValidity(const VIDEOINFO* pInput);
+    static BOOL CheckPaletteHeader(const VIDEOINFO* pInput);
     BOOL IsPalettised();
     WORD GetDisplayDepth();
 
     // Provide simple video format type checking
 
-    HRESULT CheckMediaType(const CMediaType *pmtIn);
-    HRESULT CheckVideoType(const VIDEOINFO *pInput);
-    HRESULT UpdateFormat(VIDEOINFO *pVideoInfo);
-    const DWORD *GetBitMasks(const VIDEOINFO *pVideoInfo);
+    HRESULT CheckMediaType(const CMediaType* pmtIn);
+    HRESULT CheckVideoType(const VIDEOINFO* pInput);
+    HRESULT UpdateFormat(VIDEOINFO* pVideoInfo);
+    const DWORD* GetBitMasks(const VIDEOINFO* pVideoInfo);
 
-    BOOL GetColourMask(DWORD *pMaskRed,
-                       DWORD *pMaskGreen,
-                       DWORD *pMaskBlue);
+    BOOL GetColourMask(DWORD* pMaskRed,
+                       DWORD* pMaskGreen,
+                       DWORD* pMaskBlue);
 };
 
 //  Convert a FORMAT_VideoInfo to FORMAT_VideoInfo2
-STDAPI ConvertVideoInfoToVideoInfo2(AM_MEDIA_TYPE *pmt);
+STDAPI ConvertVideoInfoToVideoInfo2(AM_MEDIA_TYPE* pmt);
 
 #endif // __WINUTIL__
 

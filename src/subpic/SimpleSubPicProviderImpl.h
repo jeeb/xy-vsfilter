@@ -8,12 +8,12 @@ interface IDirectVobSubXy;
 //////////////////////////////////////////////////////////////////////////
 //
 // SimpleSubPicProvider
-// 
+//
 
 class SimpleSubPicProvider: public CUnknown, public ISimpleSubPicProvider
 {
 public:
-    SimpleSubPicProvider(int alpha_blt_dst_type, SIZE spd_size, RECT video_rect, IDirectVobSubXy *consumer, HRESULT* phr=NULL);
+    SimpleSubPicProvider(int alpha_blt_dst_type, SIZE spd_size, RECT video_rect, IDirectVobSubXy* consumer, HRESULT* phr = NULL);
     virtual ~SimpleSubPicProvider();
 
     DECLARE_IUNKNOWN;
@@ -53,22 +53,22 @@ protected:
     CComPtr<ISubPicExAllocator> m_pAllocator;
 
     CCritSec m_csLock;
-    REFERENCE_TIME m_subpic_start,m_subpic_stop;
+    REFERENCE_TIME m_subpic_start, m_subpic_stop;
     CComPtr<IXySubRenderFrame> m_pSubPic;
 
-    IDirectVobSubXy *m_consumer;
+    IDirectVobSubXy* m_consumer;
 };
 
 //////////////////////////////////////////////////////////////////////////
 //
 // SimpleSubPicProvider2
-// 
+//
 
 class SimpleSubPicProvider2: public CUnknown, public ISimpleSubPicProvider
 {
 public:
-    SimpleSubPicProvider2(int alpha_blt_dst_type, SIZE max_size, SIZE cur_size, RECT video_rect, 
-        IDirectVobSubXy *consumer, HRESULT* phr=NULL);
+    SimpleSubPicProvider2(int alpha_blt_dst_type, SIZE max_size, SIZE cur_size, RECT video_rect,
+                          IDirectVobSubXy* consumer, HRESULT* phr = NULL);
     virtual ~SimpleSubPicProvider2();
 
     DECLARE_IUNKNOWN;
@@ -100,9 +100,9 @@ protected:
     double m_fps;
     REFERENCE_TIME m_now;
 
-    ISimpleSubPicProvider *m_cur_provider;
-    SimpleSubPicProvider *m_ex_provider;
-    CSubPicQueueNoThread *m_old_provider;
+    ISimpleSubPicProvider* m_cur_provider;
+    SimpleSubPicProvider* m_ex_provider;
+    CSubPicQueueNoThread* m_old_provider;
 
-    IDirectVobSubXy *m_consumer;
+    IDirectVobSubXy* m_consumer;
 };

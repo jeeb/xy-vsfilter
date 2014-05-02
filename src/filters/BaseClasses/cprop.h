@@ -50,15 +50,15 @@ private:
     BOOL m_bObjectSet ;                  // SetObject has been called or not.
 public:
 
-    CBasePropertyPage(TCHAR *pName,      // Debug only name
+    CBasePropertyPage(TCHAR* pName,      // Debug only name
                       LPUNKNOWN pUnk,    // COM Delegator
                       int DialogId,      // Resource ID
                       int TitleId);      // To get tital
 
 #ifdef UNICODE
-    CBasePropertyPage(CHAR *pName,
+    CBasePropertyPage(CHAR* pName,
                       LPUNKNOWN pUnk,
-                      int DialogId,  
+                      int DialogId,
                       int TitleId);
 #endif
     virtual ~CBasePropertyPage() { };
@@ -66,23 +66,23 @@ public:
 
     // Override these virtual methods
 
-    virtual HRESULT OnConnect(IUnknown *pUnknown) { return NOERROR; };
+    virtual HRESULT OnConnect(IUnknown* pUnknown) { return NOERROR; };
     virtual HRESULT OnDisconnect() { return NOERROR; };
     virtual HRESULT OnActivate() { return NOERROR; };
     virtual HRESULT OnDeactivate() { return NOERROR; };
     virtual HRESULT OnApplyChanges() { return NOERROR; };
-    virtual INT_PTR OnReceiveMessage(HWND hwnd,UINT uMsg,WPARAM wParam,LPARAM lParam);
+    virtual INT_PTR OnReceiveMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
     // These implement an IPropertyPage interface
 
-    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid,void **ppv);
+    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
     STDMETHODIMP_(ULONG) NonDelegatingRelease();
     STDMETHODIMP_(ULONG) NonDelegatingAddRef();
     STDMETHODIMP SetPageSite(LPPROPERTYPAGESITE pPageSite);
-    STDMETHODIMP Activate(HWND hwndParent,LPCRECT prect,BOOL fModal);
+    STDMETHODIMP Activate(HWND hwndParent, LPCRECT prect, BOOL fModal);
     STDMETHODIMP Deactivate(void);
     STDMETHODIMP GetPageInfo(LPPROPPAGEINFO pPageInfo);
-    STDMETHODIMP SetObjects(ULONG cObjects, LPUNKNOWN *ppUnk);
+    STDMETHODIMP SetObjects(ULONG cObjects, LPUNKNOWN* ppUnk);
     STDMETHODIMP Show(UINT nCmdShow);
     STDMETHODIMP Move(LPCRECT prect);
     STDMETHODIMP IsPageDirty(void) { return m_bDirty ? S_OK : S_FALSE; }
