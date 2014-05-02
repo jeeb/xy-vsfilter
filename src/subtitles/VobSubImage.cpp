@@ -23,13 +23,26 @@
 #include "VobSubImage.h"
 
 CVobSubImage::CVobSubImage()
+    : iLang(-1)
+    , iIdx(-1)
+    , fForced(false)
+    , bAnimated(false)
+    , tCurrent(-1)
+    , start(0)
+    , delay(0)
+    , rect(CRect(0, 0, 0, 0))
+    , lpPixels(nullptr)
+    , lpTemp1(nullptr)
+    , lpTemp2(nullptr)
+    , org(CSize(0, 0))
+    , nPlane(0)
+    , fCustomPal(false)
+    , fAligned(1)
+    , tridx(0)
+    , orgpal(nullptr)
+    , cuspal(nullptr)
 {
-    iLang = iIdx = -1;
-    fForced = false;
-    start = delay = 0;
-    rect = CRect(0, 0, 0, 0);
-    lpPixels = lpTemp1 = lpTemp2 = NULL;
-    org = CSize(0, 0);
+    ZeroMemory(&pal, sizeof(pal));
 }
 
 CVobSubImage::~CVobSubImage()
@@ -72,13 +85,13 @@ void CVobSubImage::Free()
     lpPixels = NULL;
 }
 
-bool CVobSubImage::Decode(BYTE* lpData, int packetsize, int datasize,
+bool CVobSubImage::Decode(BYTE* lpData, int packetsize, int datasize, int t,
                           bool fCustomPal,
                           int tridx,
                           RGBQUAD* orgpal /*[16]*/, RGBQUAD* cuspal /*[4]*/,
                           bool fTrim)
 {
-    GetPacketInfo(lpData, packetsize, datasize);
+    GetPacketInfo(lpData, packetsize, datasize, t);
 
     if (!Alloc(rect.Width(), rect.Height())) { return (false); }
 
@@ -124,17 +137,18 @@ bool CVobSubImage::Decode(BYTE* lpData, int packetsize, int datasize,
     return (true);
 }
 
-void CVobSubImage::GetPacketInfo(BYTE* lpData, int packetsize, int datasize)
+void CVobSubImage::GetPacketInfo(const BYTE* lpData, int packetsize, int datasize, int t /*= INT_MAX*/)
 {
     //  delay = 0;
 
     int i, nextctrlblk = datasize;
     WORD pal = 0, tr = 0;
+    WORD nPal = 0, nTr = 0;
 
     do {
         i = nextctrlblk;
 
-        int t = (lpData[i] << 8) | lpData[i + 1];
+        tCurrent = 1024 * ((lpData[i] << 8) | lpData[i + 1]) / 90;
         i += 2;
         nextctrlblk = (lpData[i] << 8) | lpData[i + 1];
         i += 2;
@@ -142,6 +156,10 @@ void CVobSubImage::GetPacketInfo(BYTE* lpData, int packetsize, int datasize)
         if (nextctrlblk > packetsize || nextctrlblk < datasize) {
             ASSERT(0);
             return;
+        }
+
+        if (tCurrent > t) {
+            break;
         }
 
         bool fBreak = false;
@@ -189,15 +207,17 @@ void CVobSubImage::GetPacketInfo(BYTE* lpData, int packetsize, int datasize)
                     fForced = false;
                     break;
                 case 0x02: // stop displaying
-                    delay = 1024 * t / 90;
+                    delay = tCurrent;
                     break;
                 case 0x03:
                     pal = (lpData[i] << 8) | lpData[i + 1];
                     i += 2;
+                    nPal++;
                     break;
                 case 0x04:
                     tr = (lpData[i] << 8) | lpData[i + 1];
                     i += 2;
+                    nTr++;
                     //tr &= 0x00f0;
                     break;
                 case 0x05:
@@ -227,6 +247,8 @@ void CVobSubImage::GetPacketInfo(BYTE* lpData, int packetsize, int datasize)
         this->pal[i].pal = (pal >> (i << 2)) & 0xf;
         this->pal[i].tr = (tr >> (i << 2)) & 0xf;
     }
+
+    bAnimated = (nPal > 1 || nTr > 1);
 }
 
 BYTE CVobSubImage::GetNibble(BYTE* lpData)
