@@ -94,7 +94,7 @@ protected:
 
     BYTE* GetPacket(int idx, int& packetsize, int& datasize, int iLang = -1);
     const SubPos* GetFrameInfo(int idx, int iLang = -1) const;
-    bool GetFrame(int idx, int iLang = -1);
+    bool GetFrame(int idx, int iLang = -1, REFERENCE_TIME rt = -1);
     bool GetFrameByTimeStamp(__int64 time);
     int GetFrameIdxByTimeStamp(__int64 time);
 
@@ -148,7 +148,11 @@ class CVobSubStream : public CVobSubSettings, public ISubStream, public CSubPicP
     CString m_name;
 
     CCritSec m_csSubPics;
-    struct SubPic {REFERENCE_TIME tStart, tStop; CAtlArray<BYTE> pData;};
+    struct SubPic {
+        REFERENCE_TIME tStart, tStop;
+        bool bAnimated;
+        CAtlArray<BYTE> pData;
+    };
     CAutoPtrList<SubPic> m_subpics;
 
 public:
