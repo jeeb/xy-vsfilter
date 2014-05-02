@@ -14,17 +14,17 @@
 class CSeekingPassThru : public ISeekingPassThru, public CUnknown
 {
 public:
-    static CUnknown *CreateInstance(LPUNKNOWN pUnk, HRESULT *phr);
-    CSeekingPassThru(TCHAR *pName, LPUNKNOWN pUnk, HRESULT *phr);
+    static CUnknown* CreateInstance(LPUNKNOWN pUnk, HRESULT* phr);
+    CSeekingPassThru(TCHAR* pName, LPUNKNOWN pUnk, HRESULT* phr);
     ~CSeekingPassThru();
 
     DECLARE_IUNKNOWN;
-    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void ** ppv);
+    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
 
-    STDMETHODIMP Init(BOOL bSupportRendering, IPin *pPin);
+    STDMETHODIMP Init(BOOL bSupportRendering, IPin* pPin);
 
 private:
-    CPosPassThru              *m_pPosPassThru;
+    CPosPassThru*              m_pPosPassThru;
 };
 
 #endif

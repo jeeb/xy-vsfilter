@@ -19,20 +19,19 @@ int inline TimeDiff(REFERENCE_TIME rt)
 {
     if (rt < - (50 * UNITS)) {
         return -(50 * UNITS);
-    } else
-    if (rt > 50 * UNITS) {
+    } else if (rt > 50 * UNITS) {
         return 50 * UNITS;
-    } else return (int)rt;
+    } else { return (int)rt; }
 }
 
 // Implements the CBaseRenderer class
 
 CBaseRenderer::CBaseRenderer(REFCLSID RenderClass, // CLSID for this renderer
-                             TCHAR *pName,         // Debug ONLY description
+                             TCHAR* pName,         // Debug ONLY description
                              LPUNKNOWN pUnk,       // Aggregated owner object
-                             HRESULT *phr) :       // General OLE return code
+                             HRESULT* phr) :       // General OLE return code
 
-    CBaseFilter(pName,pUnk,&m_InterfaceLock,RenderClass),
+    CBaseFilter(pName, pUnk, &m_InterfaceLock, RenderClass),
     m_evComplete(TRUE),
     m_bAbort(FALSE),
     m_pPosition(NULL),
@@ -93,11 +92,11 @@ CBaseRenderer::~CBaseRenderer()
 
 // This returns the IMediaPosition and IMediaSeeking interfaces
 
-HRESULT CBaseRenderer::GetMediaPositionInterface(REFIID riid,void **ppv)
+HRESULT CBaseRenderer::GetMediaPositionInterface(REFIID riid, void** ppv)
 {
     CAutoLock cObjectCreationLock(&m_ObjectCreationLock);
     if (m_pPosition) {
-        return m_pPosition->NonDelegatingQueryInterface(riid,ppv);
+        return m_pPosition->NonDelegatingQueryInterface(riid, ppv);
     }
 
     HRESULT hr = NOERROR;
@@ -109,7 +108,7 @@ HRESULT CBaseRenderer::GetMediaPositionInterface(REFIID riid,void **ppv)
 
     m_pPosition = new CRendererPosPassThru(NAME("Renderer CPosPassThru"),
                                            CBaseFilter::GetOwner(),
-                                           (HRESULT *) &hr,
+                                           (HRESULT*) &hr,
                                            GetPin(0));
     if (m_pPosition == NULL) {
         return E_OUTOFMEMORY;
@@ -120,20 +119,20 @@ HRESULT CBaseRenderer::GetMediaPositionInterface(REFIID riid,void **ppv)
         m_pPosition = NULL;
         return E_NOINTERFACE;
     }
-    return GetMediaPositionInterface(riid,ppv);
+    return GetMediaPositionInterface(riid, ppv);
 }
 
 
 // Overriden to say what interfaces we support and where
 
-STDMETHODIMP CBaseRenderer::NonDelegatingQueryInterface(REFIID riid,void **ppv)
+STDMETHODIMP CBaseRenderer::NonDelegatingQueryInterface(REFIID riid, void** ppv)
 {
     // Do we have this interface
 
     if (riid == IID_IMediaPosition || riid == IID_IMediaSeeking) {
-        return GetMediaPositionInterface(riid,ppv);
+        return GetMediaPositionInterface(riid, ppv);
     } else {
-        return CBaseFilter::NonDelegatingQueryInterface(riid,ppv);
+        return CBaseFilter::NonDelegatingQueryInterface(riid, ppv);
     }
 }
 
@@ -169,68 +168,68 @@ void CBaseRenderer::DisplayRendererState()
     // No way should this be signalled at this point
 
     BOOL bSignalled = m_ThreadSignal.Check();
-    DbgLog((LOG_TIMING, 1, TEXT("Signal sanity check %d"),bSignalled));
+    DbgLog((LOG_TIMING, 1, TEXT("Signal sanity check %d"), bSignalled));
 
     // Now output the current renderer state variables
 
-    DbgLog((LOG_TIMING, 1, TEXT("Filter state %d"),m_State));
+    DbgLog((LOG_TIMING, 1, TEXT("Filter state %d"), m_State));
 
-    DbgLog((LOG_TIMING, 1, TEXT("Abort flag %d"),m_bAbort));
+    DbgLog((LOG_TIMING, 1, TEXT("Abort flag %d"), m_bAbort));
 
-    DbgLog((LOG_TIMING, 1, TEXT("Streaming flag %d"),m_bStreaming));
+    DbgLog((LOG_TIMING, 1, TEXT("Streaming flag %d"), m_bStreaming));
 
-    DbgLog((LOG_TIMING, 1, TEXT("Clock advise link %d"),m_dwAdvise));
+    DbgLog((LOG_TIMING, 1, TEXT("Clock advise link %d"), m_dwAdvise));
 
-    DbgLog((LOG_TIMING, 1, TEXT("Current media sample %x"),m_pMediaSample));
+    DbgLog((LOG_TIMING, 1, TEXT("Current media sample %x"), m_pMediaSample));
 
-    DbgLog((LOG_TIMING, 1, TEXT("EOS signalled %d"),m_bEOS));
+    DbgLog((LOG_TIMING, 1, TEXT("EOS signalled %d"), m_bEOS));
 
-    DbgLog((LOG_TIMING, 1, TEXT("EOS delivered %d"),m_bEOSDelivered));
+    DbgLog((LOG_TIMING, 1, TEXT("EOS delivered %d"), m_bEOSDelivered));
 
-    DbgLog((LOG_TIMING, 1, TEXT("Repaint status %d"),m_bRepaintStatus));
+    DbgLog((LOG_TIMING, 1, TEXT("Repaint status %d"), m_bRepaintStatus));
 
 
     // Output the delayed end of stream timer information
 
-    DbgLog((LOG_TIMING, 1, TEXT("End of stream timer %x"),m_EndOfStreamTimer));
+    DbgLog((LOG_TIMING, 1, TEXT("End of stream timer %x"), m_EndOfStreamTimer));
 
-    DbgLog((LOG_TIMING, 1, TEXT("Deliver time %s"),CDisp((LONGLONG)m_SignalTime)));
+    DbgLog((LOG_TIMING, 1, TEXT("Deliver time %s"), CDisp((LONGLONG)m_SignalTime)));
 
 
     // Should never timeout during a flushing state
 
     BOOL bFlushing = m_pInputPin->IsFlushing();
-    DbgLog((LOG_TIMING, 1, TEXT("Flushing sanity check %d"),bFlushing));
+    DbgLog((LOG_TIMING, 1, TEXT("Flushing sanity check %d"), bFlushing));
 
     // Display the time we were told to start at
-    DbgLog((LOG_TIMING, 1, TEXT("Last run time %s"),CDisp((LONGLONG)m_tStart.m_time)));
+    DbgLog((LOG_TIMING, 1, TEXT("Last run time %s"), CDisp((LONGLONG)m_tStart.m_time)));
 
     // Have we got a reference clock
-    if (m_pClock == NULL) return;
+    if (m_pClock == NULL) { return; }
 
     // Get the current time from the wall clock
 
-    CRefTime CurrentTime,StartTime,EndTime;
+    CRefTime CurrentTime, StartTime, EndTime;
     m_pClock->GetTime((REFERENCE_TIME*) &CurrentTime);
     CRefTime Offset = CurrentTime - m_tStart;
 
     // Display the current time from the clock
 
-    DbgLog((LOG_TIMING, 1, TEXT("Clock time %s"),CDisp((LONGLONG)CurrentTime.m_time)));
+    DbgLog((LOG_TIMING, 1, TEXT("Clock time %s"), CDisp((LONGLONG)CurrentTime.m_time)));
 
-    DbgLog((LOG_TIMING, 1, TEXT("Time difference %dms"),Offset.Millisecs()));
+    DbgLog((LOG_TIMING, 1, TEXT("Time difference %dms"), Offset.Millisecs()));
 
 
     // Do we have a sample ready to render
-    if (m_pMediaSample == NULL) return;
+    if (m_pMediaSample == NULL) { return; }
 
     m_pMediaSample->GetTime((REFERENCE_TIME*)&StartTime, (REFERENCE_TIME*)&EndTime);
     DbgLog((LOG_TIMING, 1, TEXT("Next sample stream times (Start %d End %d ms)"),
-           StartTime.Millisecs(),EndTime.Millisecs()));
+            StartTime.Millisecs(), EndTime.Millisecs()));
 
     // Calculate how long it is until it is due for rendering
     CRefTime Wait = (m_tStart + StartTime) - CurrentTime;
-    DbgLog((LOG_TIMING, 1, TEXT("Wait required %d ms"),Wait.Millisecs()));
+    DbgLog((LOG_TIMING, 1, TEXT("Wait required %d ms"), Wait.Millisecs()));
 }
 #endif
 
@@ -252,10 +251,10 @@ HRESULT CBaseRenderer::WaitForRenderTime()
 
     OnWaitStart();
     while (Result == WAIT_TIMEOUT) {
-        Result = WaitForMultipleObjects(2,WaitObjects,FALSE,RENDER_TIMEOUT);
+        Result = WaitForMultipleObjects(2, WaitObjects, FALSE, RENDER_TIMEOUT);
 
 #ifdef DEBUG
-        if (Result == WAIT_TIMEOUT) DisplayRendererState();
+        if (Result == WAIT_TIMEOUT) { DisplayRendererState(); }
 #endif
 
     }
@@ -320,7 +319,8 @@ void CBaseRenderer::WaitForReceiveToComplete()
 
 // Simple internal way of getting the real state
 
-FILTER_STATE CBaseRenderer::GetRealState() {
+FILTER_STATE CBaseRenderer::GetRealState()
+{
     return m_State;
 }
 
@@ -329,9 +329,9 @@ FILTER_STATE CBaseRenderer::GetRealState() {
 // it has got one media sample to render. If you ask it for its state while
 // it's waiting it will return the state along with VFW_S_STATE_INTERMEDIATE
 
-STDMETHODIMP CBaseRenderer::GetState(DWORD dwMSecs,FILTER_STATE *State)
+STDMETHODIMP CBaseRenderer::GetState(DWORD dwMSecs, FILTER_STATE* State)
 {
-    CheckPointer(State,E_POINTER);
+    CheckPointer(State, E_POINTER);
 
     if (WaitDispatchingMessages(m_evComplete, dwMSecs) == WAIT_TIMEOUT) {
         *State = m_State;
@@ -424,7 +424,7 @@ STDMETHODIMP CBaseRenderer::Stop()
 
     // There should be no outstanding clock advise
     ASSERT(CancelNotification() == S_FALSE);
-    ASSERT(WAIT_TIMEOUT == WaitForSingleObject((HANDLE)m_RenderEvent,0));
+    ASSERT(WAIT_TIMEOUT == WaitForSingleObject((HANDLE)m_RenderEvent, 0));
     ASSERT(m_EndOfStreamTimer == 0);
 
     Ready();
@@ -489,7 +489,7 @@ STDMETHODIMP CBaseRenderer::Pause()
 
     // There should be no outstanding advise
     ASSERT(CancelNotification() == S_FALSE);
-    ASSERT(WAIT_TIMEOUT == WaitForSingleObject((HANDLE)m_RenderEvent,0));
+    ASSERT(WAIT_TIMEOUT == WaitForSingleObject((HANDLE)m_RenderEvent, 0));
     ASSERT(m_EndOfStreamTimer == 0);
     ASSERT(m_pInputPin->IsFlushing() == FALSE);
 
@@ -530,7 +530,7 @@ STDMETHODIMP CBaseRenderer::Run(REFERENCE_TIME StartTime)
     // Send EC_COMPLETE if we're not connected
 
     if (m_pInputPin->IsConnected() == FALSE) {
-        NotifyEvent(EC_COMPLETE,S_OK,(LONG_PTR)(IBaseFilter *)this);
+        NotifyEvent(EC_COMPLETE, S_OK, (LONG_PTR)(IBaseFilter*)this);
         m_State = State_Running;
         return NOERROR;
     }
@@ -552,7 +552,7 @@ STDMETHODIMP CBaseRenderer::Run(REFERENCE_TIME StartTime)
 
     // There should be no outstanding advise
     ASSERT(CancelNotification() == S_FALSE);
-    ASSERT(WAIT_TIMEOUT == WaitForSingleObject((HANDLE)m_RenderEvent,0));
+    ASSERT(WAIT_TIMEOUT == WaitForSingleObject((HANDLE)m_RenderEvent, 0));
     ASSERT(m_EndOfStreamTimer == 0);
     ASSERT(m_pInputPin->IsFlushing() == FALSE);
 
@@ -588,7 +588,7 @@ int CBaseRenderer::GetPinCount()
 
 // We only support one input pin and it is numbered zero
 
-CBasePin *CBaseRenderer::GetPin(int n)
+CBasePin* CBaseRenderer::GetPin(int n)
 {
     CAutoLock cObjectCreationLock(&m_ObjectCreationLock);
 
@@ -608,7 +608,7 @@ CBasePin *CBaseRenderer::GetPin(int n)
         // hr's value if an error occurs.
         HRESULT hr = NOERROR;
 
-        m_pInputPin = new CRendererInputPin(this,&hr,L"In");
+        m_pInputPin = new CRendererInputPin(this, &hr, L"In");
         if (NULL == m_pInputPin) {
             return NULL;
         }
@@ -625,11 +625,11 @@ CBasePin *CBaseRenderer::GetPin(int n)
 
 // If "In" then return the IPin for our input pin, otherwise NULL and error
 
-STDMETHODIMP CBaseRenderer::FindPin(LPCWSTR Id, IPin **ppPin)
+STDMETHODIMP CBaseRenderer::FindPin(LPCWSTR Id, IPin** ppPin)
 {
-    CheckPointer(ppPin,E_POINTER);
+    CheckPointer(ppPin, E_POINTER);
 
-    if (0==lstrcmpW(Id,L"In")) {
+    if (0 == lstrcmpW(Id, L"In")) {
         *ppPin = GetPin(0);
         ASSERT(*ppPin);
         (*ppPin)->AddRef();
@@ -703,7 +703,7 @@ HRESULT CBaseRenderer::BeginFlush()
 HRESULT CBaseRenderer::EndFlush()
 {
     // Reset the current sample media time
-    if (m_pPosition) m_pPosition->ResetMediaTime();
+    if (m_pPosition) { m_pPosition->ResetMediaTime(); }
 
     // There should be no outstanding advise
 
@@ -715,7 +715,7 @@ HRESULT CBaseRenderer::EndFlush()
 
 // We can now send EC_REPAINTs if so required
 
-HRESULT CBaseRenderer::CompleteConnect(IPin *pReceivePin)
+HRESULT CBaseRenderer::CompleteConnect(IPin* pReceivePin)
 {
     // The caller should always hold the interface lock because
     // the function uses CBaseFilter::m_State.
@@ -763,7 +763,7 @@ HRESULT CBaseRenderer::Inactive()
 
 // Tell derived classes about the media type agreed
 
-HRESULT CBaseRenderer::SetMediaType(const CMediaType *pmt)
+HRESULT CBaseRenderer::SetMediaType(const CMediaType* pmt)
 {
     return NOERROR;
 }
@@ -813,9 +813,9 @@ HRESULT CBaseRenderer::BreakConnect()
 // sample according to the times on the sample. We also return S_OK in
 // which case the object should simply render the sample data immediately
 
-HRESULT CBaseRenderer::GetSampleTimes(IMediaSample *pMediaSample,
-                                      REFERENCE_TIME *pStartTime,
-                                      REFERENCE_TIME *pEndTime)
+HRESULT CBaseRenderer::GetSampleTimes(IMediaSample* pMediaSample,
+                                      REFERENCE_TIME* pStartTime,
+                                      REFERENCE_TIME* pEndTime)
 {
     ASSERT(m_dwAdvise == 0);
     ASSERT(pMediaSample);
@@ -840,7 +840,7 @@ HRESULT CBaseRenderer::GetSampleTimes(IMediaSample *pMediaSample,
     if (m_pClock == NULL) {
         return S_OK;
     }
-    return ShouldDrawSampleNow(pMediaSample,pStartTime,pEndTime);
+    return ShouldDrawSampleNow(pMediaSample, pStartTime, pEndTime);
 }
 
 
@@ -848,9 +848,9 @@ HRESULT CBaseRenderer::GetSampleTimes(IMediaSample *pMediaSample,
 // return S_FALSE. Returning S_OK means draw immediately, this is used
 // by the derived video renderer class in its quality management.
 
-HRESULT CBaseRenderer::ShouldDrawSampleNow(IMediaSample *pMediaSample,
-                                           REFERENCE_TIME *ptrStart,
-                                           REFERENCE_TIME *ptrEnd)
+HRESULT CBaseRenderer::ShouldDrawSampleNow(IMediaSample* pMediaSample,
+        REFERENCE_TIME* ptrStart,
+        REFERENCE_TIME* ptrEnd)
 {
     return S_FALSE;
 }
@@ -899,7 +899,7 @@ HRESULT CBaseRenderer::CancelNotification()
 // Return TRUE if the sample is to be drawn and in this case also
 // arrange for m_RenderEvent to be set at the appropriate time
 
-BOOL CBaseRenderer::ScheduleSample(IMediaSample *pMediaSample)
+BOOL CBaseRenderer::ScheduleSample(IMediaSample* pMediaSample)
 {
     REFERENCE_TIME StartSample, EndSample;
 
@@ -930,7 +930,7 @@ BOOL CBaseRenderer::ScheduleSample(IMediaSample *pMediaSample)
 
     ASSERT(m_dwAdvise == 0);
     ASSERT(m_pClock);
-    ASSERT(WAIT_TIMEOUT == WaitForSingleObject((HANDLE)m_RenderEvent,0));
+    ASSERT(WAIT_TIMEOUT == WaitForSingleObject((HANDLE)m_RenderEvent, 0));
 
     // We do have a valid reference clock interface so we can ask it to
     // set an event when the image comes due for rendering. We pass in
@@ -938,10 +938,10 @@ BOOL CBaseRenderer::ScheduleSample(IMediaSample *pMediaSample)
     // stream time which is the offset from the start reference time
 
     hr = m_pClock->AdviseTime(
-            (REFERENCE_TIME) m_tStart,          // Start run time
-            StartSample,                        // Stream time
-            (HEVENT)(HANDLE) m_RenderEvent,     // Render notification
-            &m_dwAdvise);                       // Advise cookie
+             (REFERENCE_TIME) m_tStart,          // Start run time
+             StartSample,                        // Stream time
+             (HEVENT)(HANDLE) m_RenderEvent,     // Render notification
+             &m_dwAdvise);                       // Advise cookie
 
     if (SUCCEEDED(hr)) {
         return TRUE;
@@ -961,7 +961,7 @@ BOOL CBaseRenderer::ScheduleSample(IMediaSample *pMediaSample)
 // the next sample, NOTE signal that the last one fired first, if we don't
 // do this it thinks there is still one outstanding that hasn't completed
 
-HRESULT CBaseRenderer::Render(IMediaSample *pMediaSample)
+HRESULT CBaseRenderer::Render(IMediaSample* pMediaSample)
 {
     // If the media sample is NULL then we will have been notified by the
     // clock that another sample is ready but in the mean time someone has
@@ -1003,7 +1003,7 @@ BOOL CBaseRenderer::HaveCurrentSample()
 // person who called this method will hold the remaining reference count
 // that will stop the sample being added back onto the allocator free list
 
-IMediaSample *CBaseRenderer::GetCurrentSample()
+IMediaSample* CBaseRenderer::GetCurrentSample()
 {
     CAutoLock cRendererLock(&m_RendererLock);
     if (m_pMediaSample) {
@@ -1021,14 +1021,14 @@ IMediaSample *CBaseRenderer::GetCurrentSample()
 // thread may get in and change our state to stopped (for example) in which
 // case it will also signal the thread event so that our wait call is stopped
 
-HRESULT CBaseRenderer::PrepareReceive(IMediaSample *pMediaSample)
+HRESULT CBaseRenderer::PrepareReceive(IMediaSample* pMediaSample)
 {
     CAutoLock cInterfaceLock(&m_InterfaceLock);
     m_bInReceive = TRUE;
 
     // Check our flushing and filter state
 
-    // This function must hold the interface lock because it calls 
+    // This function must hold the interface lock because it calls
     // CBaseInputPin::Receive() and CBaseInputPin::Receive() uses
     // CBasePin::m_bRunTimeError.
     HRESULT hr = m_pInputPin->CBaseInputPin::Receive(pMediaSample);
@@ -1046,7 +1046,7 @@ HRESULT CBaseRenderer::PrepareReceive(IMediaSample *pMediaSample)
     // lock
     if (m_pInputPin->SampleProps()->pMediaType) {
         hr = m_pInputPin->SetMediaType(
-                (CMediaType *)m_pInputPin->SampleProps()->pMediaType);
+                 (CMediaType*)m_pInputPin->SampleProps()->pMediaType);
         if (FAILED(hr)) {
             m_bInReceive = FALSE;
             return hr;
@@ -1072,12 +1072,12 @@ HRESULT CBaseRenderer::PrepareReceive(IMediaSample *pMediaSample)
     }
 
     // Store the media times from this sample
-    if (m_pPosition) m_pPosition->RegisterMediaTime(pMediaSample);
+    if (m_pPosition) { m_pPosition->RegisterMediaTime(pMediaSample); }
 
     // Schedule the next sample if we are streaming
 
     if ((m_bStreaming == TRUE) && (ScheduleSample(pMediaSample) == FALSE)) {
-        ASSERT(WAIT_TIMEOUT == WaitForSingleObject((HANDLE)m_RenderEvent,0));
+        ASSERT(WAIT_TIMEOUT == WaitForSingleObject((HANDLE)m_RenderEvent, 0));
         ASSERT(CancelNotification() == S_FALSE);
         m_bInReceive = FALSE;
         return VFW_E_SAMPLE_REJECTED;
@@ -1108,7 +1108,7 @@ HRESULT CBaseRenderer::PrepareReceive(IMediaSample *pMediaSample)
 // the derived class will have overriden. After rendering the sample we may
 // also signal EOS if it was the last one sent before EndOfStream was called
 
-HRESULT CBaseRenderer::Receive(IMediaSample *pSample)
+HRESULT CBaseRenderer::Receive(IMediaSample* pSample)
 {
     ASSERT(pSample);
 
@@ -1132,8 +1132,9 @@ HRESULT CBaseRenderer::Receive(IMediaSample *pSample)
         {
             // We must hold both these locks
             CAutoLock cRendererLock(&m_InterfaceLock);
-            if (m_State == State_Stopped)
+            if (m_State == State_Stopped) {
                 return NOERROR;
+            }
 
             m_bInReceive = TRUE;
             CAutoLock cSampleLock(&m_RendererLock);
@@ -1164,8 +1165,9 @@ HRESULT CBaseRenderer::Receive(IMediaSample *pSample)
 
     // since we gave away the filter wide lock, the sate of the filter could
     // have chnaged to Stopped
-    if (m_State == State_Stopped)
+    if (m_State == State_Stopped) {
         return NOERROR;
+    }
 
     CAutoLock cSampleLock(&m_RendererLock);
 
@@ -1204,8 +1206,8 @@ void CALLBACK EndOfStreamTimer(UINT uID,        // Timer identifier
                                DWORD_PTR dw1,   // Windows reserved
                                DWORD_PTR dw2)   // is also reserved
 {
-    CBaseRenderer *pRenderer = (CBaseRenderer *) dwUser;
-    NOTE1("EndOfStreamTimer called (%d)",uID);
+    CBaseRenderer* pRenderer = (CBaseRenderer*) dwUser;
+    NOTE1("EndOfStreamTimer called (%d)", uID);
     pRenderer->TimerCallback();
 }
 
@@ -1255,9 +1257,9 @@ HRESULT CBaseRenderer::SendEndOfStream()
 
     // Dump the timing information to the debugger
 
-    NOTE1("Delay until end of stream delivery %d",Delay);
-    NOTE1("Current %s",(LPCTSTR)CDisp((LONGLONG)CurrentTime));
-    NOTE1("Signal %s",(LPCTSTR)CDisp((LONGLONG)Signal));
+    NOTE1("Delay until end of stream delivery %d", Delay);
+    NOTE1("Current %s", (LPCTSTR)CDisp((LONGLONG)CurrentTime));
+    NOTE1("Signal %s", (LPCTSTR)CDisp((LONGLONG)Signal));
 
     // Wait for the delivery time to arrive
 
@@ -1268,10 +1270,10 @@ HRESULT CBaseRenderer::SendEndOfStream()
     // Signal a timer callback on another worker thread
 
     m_EndOfStreamTimer = CompatibleTimeSetEvent((UINT) Delay, // Period of timer
-                                      TIMEOUT_RESOLUTION,     // Timer resolution
-                                      EndOfStreamTimer,       // Callback function
-                                      DWORD_PTR(this),        // Used information
-                                      TIME_ONESHOT);          // Type of callback
+                         TIMEOUT_RESOLUTION,     // Timer resolution
+                         EndOfStreamTimer,       // Callback function
+                         DWORD_PTR(this),        // Used information
+                         TIME_ONESHOT);          // Type of callback
     if (m_EndOfStreamTimer == 0) {
         return NotifyEndOfStream();
     }
@@ -1302,10 +1304,10 @@ HRESULT CBaseRenderer::NotifyEndOfStream()
     // that we actually get to the end, even if the MPEG guestimate has
     // been bad or if the quality management dropped the last few frames
 
-    if (m_pPosition) m_pPosition->EOS();
+    if (m_pPosition) { m_pPosition->EOS(); }
     m_bEOSDelivered = TRUE;
     NOTE("Sending EC_COMPLETE...");
-    return NotifyEvent(EC_COMPLETE,S_OK,(LONG_PTR)(IBaseFilter *)this);
+    return NotifyEvent(EC_COMPLETE, S_OK, (LONG_PTR)(IBaseFilter*)this);
 }
 
 
@@ -1363,7 +1365,7 @@ HRESULT CBaseRenderer::StartStreaming()
     OnStartStreaming();
 
     // There should be no outstanding advise
-    ASSERT(WAIT_TIMEOUT == WaitForSingleObject((HANDLE)m_RenderEvent,0));
+    ASSERT(WAIT_TIMEOUT == WaitForSingleObject((HANDLE)m_RenderEvent, 0));
     ASSERT(CancelNotification() == S_FALSE);
 
     // If we have an EOS and no data then deliver it now
@@ -1375,8 +1377,9 @@ HRESULT CBaseRenderer::StartStreaming()
     // Have the data rendered
 
     ASSERT(m_pMediaSample);
-    if (!ScheduleSample(m_pMediaSample))
+    if (!ScheduleSample(m_pMediaSample)) {
         m_RenderEvent.Set();
+    }
 
     return NOERROR;
 }
@@ -1418,17 +1421,17 @@ void CBaseRenderer::SetRepaintStatus(BOOL bRepaint)
 
 // Pass the window handle to the upstream filter
 
-void CBaseRenderer::SendNotifyWindow(IPin *pPin,HWND hwnd)
+void CBaseRenderer::SendNotifyWindow(IPin* pPin, HWND hwnd)
 {
-    IMediaEventSink *pSink;
+    IMediaEventSink* pSink;
 
     // Does the pin support IMediaEventSink
-    HRESULT hr = pPin->QueryInterface(IID_IMediaEventSink,(void **)&pSink);
+    HRESULT hr = pPin->QueryInterface(IID_IMediaEventSink, (void**)&pSink);
     if (SUCCEEDED(hr)) {
-        pSink->Notify(EC_NOTIFY_WINDOW,LONG_PTR(hwnd),0);
+        pSink->Notify(EC_NOTIFY_WINDOW, LONG_PTR(hwnd), 0);
         pSink->Release();
     }
-    NotifyEvent(EC_NOTIFY_WINDOW,LONG_PTR(hwnd),0);
+    NotifyEvent(EC_NOTIFY_WINDOW, LONG_PTR(hwnd), 0);
 }
 
 
@@ -1458,8 +1461,8 @@ void CBaseRenderer::SendRepaint()
             if (m_pInputPin->IsFlushing() == FALSE) {
                 if (IsEndOfStream() == FALSE) {
                     if (m_bRepaintStatus == TRUE) {
-                        IPin *pPin = (IPin *) m_pInputPin;
-                        NotifyEvent(EC_REPAINT,(LONG_PTR) pPin,0);
+                        IPin* pPin = (IPin*) m_pInputPin;
+                        NotifyEvent(EC_REPAINT, (LONG_PTR) pPin, 0);
                         SetRepaintStatus(FALSE);
                         RLOG("Sending repaint");
                     }
@@ -1489,9 +1492,9 @@ BOOL CBaseRenderer::OnDisplayChange()
 
     // Pass our input pin as parameter on the event
 
-    IPin *pPin = (IPin *) m_pInputPin;
+    IPin* pPin = (IPin*) m_pInputPin;
     m_pInputPin->AddRef();
-    NotifyEvent(EC_DISPLAY_CHANGED,(LONG_PTR) pPin,0);
+    NotifyEvent(EC_DISPLAY_CHANGED, (LONG_PTR) pPin, 0);
     SetAbortSignal(TRUE);
     ClearPendingSample();
     m_pInputPin->Release();
@@ -1504,7 +1507,7 @@ BOOL CBaseRenderer::OnDisplayChange()
 // Store the current time in m_trRenderStart to allow the rendering time to be
 // logged.  Log the time stamp of the sample and how late it is (neg is early)
 
-void CBaseRenderer::OnRenderStart(IMediaSample *pMediaSample)
+void CBaseRenderer::OnRenderStart(IMediaSample* pMediaSample)
 {
 #ifdef PERF
     REFERENCE_TIME trStart, trEnd;
@@ -1515,11 +1518,11 @@ void CBaseRenderer::OnRenderStart(IMediaSample *pMediaSample)
     m_pClock->GetTime(&m_trRenderStart);
     MSR_INTEGER(0, (int)m_trRenderStart);
     REFERENCE_TIME trStream;
-    trStream = m_trRenderStart-m_tStart;     // convert reftime to stream time
-    MSR_INTEGER(0,(int)trStream);
+    trStream = m_trRenderStart - m_tStart;   // convert reftime to stream time
+    MSR_INTEGER(0, (int)trStream);
 
     const int trLate = (int)(trStream - trStart);
-    MSR_INTEGER(m_idBaseAccuracy, trLate/10000);  // dump in mSec
+    MSR_INTEGER(m_idBaseAccuracy, trLate / 10000); // dump in mSec
 #endif
 
 } // OnRenderStart
@@ -1528,13 +1531,13 @@ void CBaseRenderer::OnRenderStart(IMediaSample *pMediaSample)
 // Called directly after drawing an image.
 // calculate the time spent drawing and log it.
 
-void CBaseRenderer::OnRenderEnd(IMediaSample *pMediaSample)
+void CBaseRenderer::OnRenderEnd(IMediaSample* pMediaSample)
 {
 #ifdef PERF
     REFERENCE_TIME trNow;
     m_pClock->GetTime(&trNow);
-    MSR_INTEGER(0,(int)trNow);
-    int t = (int)((trNow - m_trRenderStart)/10000);   // convert UNITS->msec
+    MSR_INTEGER(0, (int)trNow);
+    int t = (int)((trNow - m_trRenderStart) / 10000); // convert UNITS->msec
     MSR_INTEGER(m_idBaseRenderTime, t);
 #endif
 } // OnRenderEnd
@@ -1544,13 +1547,13 @@ void CBaseRenderer::OnRenderEnd(IMediaSample *pMediaSample)
 
 // Constructor must be passed the base renderer object
 
-CRendererInputPin::CRendererInputPin(CBaseRenderer *pRenderer,
-                                     HRESULT *phr,
+CRendererInputPin::CRendererInputPin(CBaseRenderer* pRenderer,
+                                     HRESULT* phr,
                                      LPCWSTR pPinName) :
     CBaseInputPin(NAME("Renderer pin"),
                   pRenderer,
                   &pRenderer->m_InterfaceLock,
-                  (HRESULT *) phr,
+                  (HRESULT*) phr,
                   pPinName)
 {
     m_pRenderer = pRenderer;
@@ -1617,7 +1620,7 @@ STDMETHODIMP CRendererInputPin::EndFlush()
 
 // Pass the sample straight through to the renderer object
 
-STDMETHODIMP CRendererInputPin::Receive(IMediaSample *pSample)
+STDMETHODIMP CRendererInputPin::Receive(IMediaSample* pSample)
 {
     HRESULT hr = m_pRenderer->Receive(pSample);
     if (FAILED(hr)) {
@@ -1633,15 +1636,15 @@ STDMETHODIMP CRendererInputPin::Receive(IMediaSample *pSample)
             CAutoLock cRendererLock(&m_pRenderer->m_InterfaceLock);
 
             // We do not report errors which occur while the filter is stopping,
-            // flushing or if the m_bAbort flag is set .  Errors are expected to 
-            // occur during these operations and the streaming thread correctly 
-            // handles the errors.  
+            // flushing or if the m_bAbort flag is set .  Errors are expected to
+            // occur during these operations and the streaming thread correctly
+            // handles the errors.
             if (!IsStopped() && !IsFlushing() && !m_pRenderer->m_bAbort && !m_bRunTimeError) {
 
                 // EC_ERRORABORT's first parameter is the error which caused
                 // the event and its' last parameter is 0.  See the Direct
                 // Show SDK documentation for more information.
-                m_pRenderer->NotifyEvent(EC_ERRORABORT,hr,0);
+                m_pRenderer->NotifyEvent(EC_ERRORABORT, hr, 0);
 
                 {
                     CAutoLock alRendererLock(&m_pRenderer->m_RendererLock);
@@ -1649,7 +1652,7 @@ STDMETHODIMP CRendererInputPin::Receive(IMediaSample *pSample)
                         m_pRenderer->NotifyEndOfStream();
                     }
                 }
-    
+
                 m_bRunTimeError = TRUE;
             }
         }
@@ -1673,7 +1676,7 @@ HRESULT CRendererInputPin::BreakConnect()
 
 // Called when the input pin is connected
 
-HRESULT CRendererInputPin::CompleteConnect(IPin *pReceivePin)
+HRESULT CRendererInputPin::CompleteConnect(IPin* pReceivePin)
 {
     HRESULT hr = m_pRenderer->CompleteConnect(pReceivePin);
     if (FAILED(hr)) {
@@ -1685,9 +1688,9 @@ HRESULT CRendererInputPin::CompleteConnect(IPin *pReceivePin)
 
 // Give the pin id of our one and only pin
 
-STDMETHODIMP CRendererInputPin::QueryId(LPWSTR *Id)
+STDMETHODIMP CRendererInputPin::QueryId(LPWSTR* Id)
 {
-    CheckPointer(Id,E_POINTER);
+    CheckPointer(Id, E_POINTER);
 
     *Id = (LPWSTR)CoTaskMemAlloc(8);
     if (*Id == NULL) {
@@ -1700,7 +1703,7 @@ STDMETHODIMP CRendererInputPin::QueryId(LPWSTR *Id)
 
 // Will the filter accept this media type
 
-HRESULT CRendererInputPin::CheckMediaType(const CMediaType *pmt)
+HRESULT CRendererInputPin::CheckMediaType(const CMediaType* pmt)
 {
     return m_pRenderer->CheckMediaType(pmt);
 }
@@ -1718,7 +1721,7 @@ HRESULT CRendererInputPin::Active()
 
 HRESULT CRendererInputPin::Inactive()
 {
-    // The caller must hold the interface lock because 
+    // The caller must hold the interface lock because
     // this function uses m_bRunTimeError.
     ASSERT(CritCheckIn(&m_pRenderer->m_InterfaceLock));
 
@@ -1730,7 +1733,7 @@ HRESULT CRendererInputPin::Inactive()
 
 // Tell derived classes about the media type agreed
 
-HRESULT CRendererInputPin::SetMediaType(const CMediaType *pmt)
+HRESULT CRendererInputPin::SetMediaType(const CMediaType* pmt)
 {
     HRESULT hr = CBaseInputPin::SetMediaType(pmt);
     if (FAILED(hr)) {
@@ -1751,12 +1754,12 @@ const TCHAR AMQUALITY[] = TEXT("ActiveMovie");
 const TCHAR DRAWLATEFRAMES[] = TEXT("DrawLateFrames");
 
 CBaseVideoRenderer::CBaseVideoRenderer(
-      REFCLSID RenderClass, // CLSID for this renderer
-      TCHAR *pName,         // Debug ONLY description
-      LPUNKNOWN pUnk,       // Aggregated owner object
-      HRESULT *phr) :       // General OLE return code
+    REFCLSID RenderClass, // CLSID for this renderer
+    TCHAR* pName,         // Debug ONLY description
+    LPUNKNOWN pUnk,       // Aggregated owner object
+    HRESULT* phr) :       // General OLE return code
 
-    CBaseRenderer(RenderClass,pName,pUnk,phr),
+    CBaseRenderer(RenderClass, pName, pUnk, phr),
     m_cFramesDropped(0),
     m_cFramesDrawn(0),
     m_bSupplierHandlingQuality(FALSE)
@@ -1867,7 +1870,7 @@ HRESULT CBaseVideoRenderer::OnStartStreaming()
 
 HRESULT CBaseVideoRenderer::OnStopStreaming()
 {
-    m_tStreamingStart = timeGetTime()-m_tStreamingStart;
+    m_tStreamingStart = timeGetTime() - m_tStreamingStart;
     return NOERROR;
 } // OnStopStreaming
 
@@ -1902,12 +1905,12 @@ void CBaseVideoRenderer::OnWaitEnd()
     // We will be discarding overflows like mad here!
     // This is wrong really because timeGetTime() can wrap but it's
     // only for PERF
-    REFERENCE_TIME tr = timeGetTime()*10000;
+    REFERENCE_TIME tr = timeGetTime() * 10000;
     trRealStream = tr + m_llTimeOffset;
 #endif
     trRealStream -= m_tStart;     // convert to stream time (this is a reftime)
 
-    if (m_trRememberStampForPerf==0) {
+    if (m_trRememberStampForPerf == 0) {
         // This is probably the poster frame at the start, and it is not scheduled
         // in the usual way at all.  Just count it.  The rememberstamp gets set
         // in ShouldDrawSampleNow, so this does invalid frame recording until we
@@ -1948,21 +1951,21 @@ void CBaseVideoRenderer::PreparePerformanceData(int trLate, int trFrame)
 void CBaseVideoRenderer::RecordFrameLateness(int trLate, int trFrame)
 {
     // Record how timely we are.
-    int tLate = trLate/10000;
+    int tLate = trLate / 10000;
 
     // Best estimate of moment of appearing on the screen is average of
     // start and end draw times.  Here we have only the end time.  This may
     // tend to show us as spuriously late by up to 1/2 frame rate achieved.
     // Decoder probably monitors draw time.  We don't bother.
-    MSR_INTEGER( m_idFrameAccuracy, tLate );
+    MSR_INTEGER(m_idFrameAccuracy, tLate);
 
     // This is a kludge - we can get frames that are very late
     // especially (at start-up) and they invalidate the statistics.
     // So ignore things that are more than 1 sec off.
-    if (tLate>1000 || tLate<-1000) {
-        if (m_cFramesDrawn<=1) {
+    if (tLate > 1000 || tLate < -1000) {
+        if (m_cFramesDrawn <= 1) {
             tLate = 0;
-        } else if (tLate>0) {
+        } else if (tLate > 0) {
             tLate = 1000;
         } else {
             tLate = -1000;
@@ -1970,22 +1973,22 @@ void CBaseVideoRenderer::RecordFrameLateness(int trLate, int trFrame)
     }
     // The very first frame often has a invalid time, so don't
     // count it into the statistics.   (???)
-    if (m_cFramesDrawn>1) {
+    if (m_cFramesDrawn > 1) {
         m_iTotAcc += tLate;
-        m_iSumSqAcc += (tLate*tLate);
+        m_iSumSqAcc += (tLate * tLate);
     }
 
     // calculate inter-frame time.  Doesn't make sense for first frame
     // second frame suffers from invalid first frame stamp.
-    if (m_cFramesDrawn>2) {
-        int tFrame = trFrame/10000;    // convert to mSec else it overflows
+    if (m_cFramesDrawn > 2) {
+        int tFrame = trFrame / 10000;  // convert to mSec else it overflows
 
         // This is a kludge.  It can overflow anyway (a pause can cause
         // a very long inter-frame time) and it overflows at 2**31/10**7
         // or about 215 seconds i.e. 3min 35sec
-        if (tFrame>1000||tFrame<0) tFrame = 1000;
-        m_iSumSqFrameTime += tFrame*tFrame;
-        ASSERT(m_iSumSqFrameTime>=0);
+        if (tFrame > 1000 || tFrame < 0) { tFrame = 1000; }
+        m_iSumSqFrameTime += tFrame * tFrame;
+        ASSERT(m_iSumSqFrameTime >= 0);
         m_iSumFrameTime += tFrame;
     }
     ++m_cFramesDrawn;
@@ -1995,9 +1998,9 @@ void CBaseVideoRenderer::RecordFrameLateness(int trLate, int trFrame)
 
 void CBaseVideoRenderer::ThrottleWait()
 {
-    if (m_trThrottle>0) {
-        int iThrottle = m_trThrottle/10000;    // convert to mSec
-        MSR_INTEGER( m_idThrottle, iThrottle);
+    if (m_trThrottle > 0) {
+        int iThrottle = m_trThrottle / 10000;  // convert to mSec
+        MSR_INTEGER(m_idThrottle, iThrottle);
         DbgLog((LOG_TRACE, 0, TEXT("Throttle %d ms"), iThrottle));
         Sleep(iThrottle);
     } else {
@@ -2013,12 +2016,12 @@ void CBaseVideoRenderer::ThrottleWait()
 
 // Called in place of OnRenderStart..OnRenderEnd
 // When a DirectDraw image is drawn
-void CBaseVideoRenderer::OnDirectRender(IMediaSample *pMediaSample)
+void CBaseVideoRenderer::OnDirectRender(IMediaSample* pMediaSample)
 {
     m_trRenderAvg = 0;
     m_trRenderLast = 5000000;  // If we mode switch, we do NOT want this
-                               // to inhibit the new average getting going!
-                               // so we set it to half a second
+    // to inhibit the new average getting going!
+    // so we set it to half a second
     // MSR_INTEGER(m_idRenderAvg, m_trRenderAvg/10000);
     RecordFrameLateness(m_trLate, m_trFrame);
     ThrottleWait();
@@ -2030,7 +2033,7 @@ void CBaseVideoRenderer::OnDirectRender(IMediaSample *pMediaSample)
 // in a member variable because it isn't used until we complete the drawing
 // The rest is just performance logging.
 
-void CBaseVideoRenderer::OnRenderStart(IMediaSample *pMediaSample)
+void CBaseVideoRenderer::OnRenderStart(IMediaSample* pMediaSample)
 {
     RecordFrameLateness(m_trLate, m_trFrame);
     m_tRenderStart = timeGetTime();
@@ -2042,23 +2045,23 @@ void CBaseVideoRenderer::OnRenderStart(IMediaSample *pMediaSample)
 // it then we add it to the current average draw time.  Measurement spikes may
 // occur if the drawing thread is interrupted and switched to somewhere else.
 
-void CBaseVideoRenderer::OnRenderEnd(IMediaSample *pMediaSample)
+void CBaseVideoRenderer::OnRenderEnd(IMediaSample* pMediaSample)
 {
     // The renderer time can vary erratically if we are interrupted so we do
     // some smoothing to help get more sensible figures out but even that is
     // not enough as figures can go 9,10,9,9,83,9 and we must disregard 83
 
-    int tr = (timeGetTime() - m_tRenderStart)*10000;   // convert mSec->UNITS
-    if (tr < m_trRenderAvg*2 || tr < 2 * m_trRenderLast) {
+    int tr = (timeGetTime() - m_tRenderStart) * 10000; // convert mSec->UNITS
+    if (tr < m_trRenderAvg * 2 || tr < 2 * m_trRenderLast) {
         // DO_MOVING_AVG(m_trRenderAvg, tr);
-        m_trRenderAvg = (tr + (AVGPERIOD-1)*m_trRenderAvg)/AVGPERIOD;
+        m_trRenderAvg = (tr + (AVGPERIOD - 1) * m_trRenderAvg) / AVGPERIOD;
     }
     m_trRenderLast = tr;
     ThrottleWait();
 } // OnRenderEnd
 
 
-STDMETHODIMP CBaseVideoRenderer::SetSink( IQualityControl * piqc)
+STDMETHODIMP CBaseVideoRenderer::SetSink(IQualityControl* piqc)
 {
 
     m_pQSink = piqc;
@@ -2067,7 +2070,7 @@ STDMETHODIMP CBaseVideoRenderer::SetSink( IQualityControl * piqc)
 } // SetSink
 
 
-STDMETHODIMP CBaseVideoRenderer::Notify( IBaseFilter * pSelf, Quality q)
+STDMETHODIMP CBaseVideoRenderer::Notify(IBaseFilter* pSelf, Quality q)
 {
     // NOTE:  We are NOT getting any locks here.  We could be called
     // asynchronously and possibly even on a time critical thread of
@@ -2104,11 +2107,11 @@ STDMETHODIMP CBaseVideoRenderer::Notify( IBaseFilter * pSelf, Quality q)
     // P60-ish machine).  The easy way to get these coefficients is to use
     // Renbase.xls follow the instructions therein using excel solver.
 
-    if (q.Proportion>=1000) { m_trThrottle = 0; }
+    if (q.Proportion >= 1000) { m_trThrottle = 0; }
     else {
         // The DWORD is to make quite sure I get unsigned arithmetic
         // as the constant is between 2**31 and 2**32
-        m_trThrottle = -330000 + (388880000/(q.Proportion+167));
+        m_trThrottle = -330000 + (388880000 / (q.Proportion + 167));
     }
     return NOERROR;
 } // Notify
@@ -2170,11 +2173,11 @@ HRESULT CBaseVideoRenderer::SendQuality(REFERENCE_TIME trLate,
 
     q.TimeStamp = (REFERENCE_TIME)trRealStream;
 
-    if (m_trFrameAvg<0) {
+    if (m_trFrameAvg < 0) {
         q.Type = Famine;      // guess
     }
     // Is the greater part of the time taken bltting or something else
-    else if (m_trFrameAvg > 2*m_trRenderAvg) {
+    else if (m_trFrameAvg > 2 * m_trRenderAvg) {
         q.Type = Famine;                        // mainly other
     } else {
         q.Type = Flood;                         // mainly bltting
@@ -2182,32 +2185,31 @@ HRESULT CBaseVideoRenderer::SendQuality(REFERENCE_TIME trLate,
 
     q.Proportion = 1000;               // default
 
-    if (m_trFrameAvg<0) {
+    if (m_trFrameAvg < 0) {
         // leave it alone - we don't know enough
-    }
-    else if ( trLate> 0 ) {
+    } else if (trLate > 0) {
         // try to catch up over the next second
         // We could be Really, REALLY late, but rendering all the frames
         // anyway, just because it's so cheap.
 
-        q.Proportion = 1000 - (int)((trLate)/(UNITS/1000));
-        if (q.Proportion<500) {
-           q.Proportion = 500;      // don't go daft. (could've been negative!)
+        q.Proportion = 1000 - (int)((trLate) / (UNITS / 1000));
+        if (q.Proportion < 500) {
+            q.Proportion = 500;      // don't go daft. (could've been negative!)
         } else {
         }
 
-    } else if (  m_trWaitAvg>20000
-              && trLate<-20000
-              ){
+    } else if (m_trWaitAvg > 20000
+               && trLate < -20000
+              ) {
         // Go cautiously faster - aim at 2mSec wait.
-        if (m_trWaitAvg>=m_trFrameAvg) {
+        if (m_trWaitAvg >= m_trFrameAvg) {
             // This can happen because of some fudges.
             // The waitAvg is how long we originally planned to wait
             // The frameAvg is more honest.
             // It means that we are spending a LOT of time waiting
             q.Proportion = 2000;    // double.
         } else {
-            if (m_trFrameAvg+20000 > m_trWaitAvg) {
+            if (m_trFrameAvg + 20000 > m_trWaitAvg) {
                 q.Proportion
                     = 1000 * (m_trFrameAvg / (m_trFrameAvg + 20000 - m_trWaitAvg));
             } else {
@@ -2219,7 +2221,7 @@ HRESULT CBaseVideoRenderer::SendQuality(REFERENCE_TIME trLate,
             }
         }
 
-        if (q.Proportion>2000) {
+        if (q.Proportion > 2000) {
             q.Proportion = 2000;    // don't go crazy.
         }
     }
@@ -2237,32 +2239,32 @@ HRESULT CBaseVideoRenderer::SendQuality(REFERENCE_TIME trLate,
     // to be the same.  We don't, we expect the average to be a better shot.
     // In direct draw mode the RenderAvg will be zero.
 
-    q.Late = trLate + m_trRenderAvg/2;
+    q.Late = trLate + m_trRenderAvg / 2;
 
     // log what we're doing
     MSR_INTEGER(m_idQualityRate, q.Proportion);
-    MSR_INTEGER( m_idQualityTime, (int)q.Late / 10000 );
+    MSR_INTEGER(m_idQualityTime, (int)q.Late / 10000);
 
     // A specific sink interface may be set through IPin
 
-    if (m_pQSink==NULL) {
+    if (m_pQSink == NULL) {
         // Get our input pin's peer.  We send quality management messages
         // to any nominated receiver of these things (set in the IPin
         // interface), or else to our source filter.
 
-        IQualityControl *pQC = NULL;
-        IPin *pOutputPin = m_pInputPin->GetConnected();
+        IQualityControl* pQC = NULL;
+        IPin* pOutputPin = m_pInputPin->GetConnected();
         ASSERT(pOutputPin != NULL);
 
         // And get an AddRef'd quality control interface
 
-        hr = pOutputPin->QueryInterface(IID_IQualityControl,(void**) &pQC);
+        hr = pOutputPin->QueryInterface(IID_IQualityControl, (void**) &pQC);
         if (SUCCEEDED(hr)) {
             m_pQSink = pQC;
         }
     }
     if (m_pQSink) {
-        return m_pQSink->Notify(this,q);
+        return m_pQSink->Notify(this, q);
     }
 
     return S_FALSE;
@@ -2280,15 +2282,15 @@ HRESULT CBaseVideoRenderer::SendQuality(REFERENCE_TIME trLate,
 // Use current stream time plus a number of heuristics (detailed below)
 // to make the decision
 
-HRESULT CBaseVideoRenderer::ShouldDrawSampleNow(IMediaSample *pMediaSample,
-                                                REFERENCE_TIME *ptrStart,
-                                                REFERENCE_TIME *ptrEnd)
+HRESULT CBaseVideoRenderer::ShouldDrawSampleNow(IMediaSample* pMediaSample,
+        REFERENCE_TIME* ptrStart,
+        REFERENCE_TIME* ptrEnd)
 {
 
     // Don't call us unless there's a clock interface to synchronise with
     ASSERT(m_pClock);
 
-    MSR_INTEGER(m_idTimeStamp, (int)((*ptrStart)>>32));   // high order 32 bits
+    MSR_INTEGER(m_idTimeStamp, (int)((*ptrStart) >> 32)); // high order 32 bits
     MSR_INTEGER(m_idTimeStamp, (int)(*ptrStart));         // low order 32 bits
 
     // We lose a bit of time depending on the monitor type waiting for the next
@@ -2296,7 +2298,7 @@ HRESULT CBaseVideoRenderer::ShouldDrawSampleNow(IMediaSample *pMediaSample,
     // later than we think when the picture appears.  To compensate a bit
     // we bias the media samples by -8mSec i.e. 80000 UNITs.
     // We don't ever make a stream time negative (call it paranoia)
-    if (*ptrStart>=80000) {
+    if (*ptrStart >= 80000) {
         *ptrStart -= 80000;
         *ptrEnd -= 80000;       // bias stop to to retain valid frame duration
     }
@@ -2313,7 +2315,7 @@ HRESULT CBaseVideoRenderer::ShouldDrawSampleNow(IMediaSample *pMediaSample,
     // Remember the offset from timeGetTime and use that.
     // This overflows all over the place, but when we subtract to get
     // differences the overflows all cancel out.
-    m_llTimeOffset = trRealStream-timeGetTime()*10000;
+    m_llTimeOffset = trRealStream - timeGetTime() * 10000;
 #endif
     trRealStream -= m_tStart;     // convert to stream time (this is a reftime)
 
@@ -2327,12 +2329,12 @@ HRESULT CBaseVideoRenderer::ShouldDrawSampleNow(IMediaSample *pMediaSample,
     const int trTrueLate = TimeDiff(trRealStream - *ptrStart);
     const int trLate = trTrueLate;
 
-    MSR_INTEGER(m_idSchLateTime, trTrueLate/10000);
+    MSR_INTEGER(m_idSchLateTime, trTrueLate / 10000);
 
     // Send quality control messages upstream, measured against target
     HRESULT hr = SendQuality(trLate, trRealStream);
     // Note: the filter upstream is allowed to this FAIL meaning "you do it".
-    m_bSupplierHandlingQuality = (hr==S_OK);
+    m_bSupplierHandlingQuality = (hr == S_OK);
 
     // Decision time!  Do we drop, draw when ready or draw immediately?
 
@@ -2343,9 +2345,9 @@ HRESULT CBaseVideoRenderer::ShouldDrawSampleNow(IMediaSample *pMediaSample,
         // frame rate inefficent.  Hang on a moment though.  I've seen files
         // where the frames vary between 33 and 34 mSec so as to average
         // 30fps.  A minor variation like that won't hurt us.
-        int t = m_trDuration/32;
-        if (  trDuration > m_trDuration+t
-           || trDuration < m_trDuration-t
+        int t = m_trDuration / 32;
+        if (trDuration > m_trDuration + t
+                || trDuration < m_trDuration - t
            ) {
             // There's a major variation.  Reset the average frame rate to
             // exactly the current rate to disable decision 9002 for this frame,
@@ -2355,14 +2357,14 @@ HRESULT CBaseVideoRenderer::ShouldDrawSampleNow(IMediaSample *pMediaSample,
         }
     }
 
-    MSR_INTEGER(m_idEarliness, m_trEarliness/10000);
-    MSR_INTEGER(m_idRenderAvg, m_trRenderAvg/10000);
-    MSR_INTEGER(m_idFrameAvg, m_trFrameAvg/10000);
-    MSR_INTEGER(m_idWaitAvg, m_trWaitAvg/10000);
-    MSR_INTEGER(m_idDuration, trDuration/10000);
+    MSR_INTEGER(m_idEarliness, m_trEarliness / 10000);
+    MSR_INTEGER(m_idRenderAvg, m_trRenderAvg / 10000);
+    MSR_INTEGER(m_idFrameAvg, m_trFrameAvg / 10000);
+    MSR_INTEGER(m_idWaitAvg, m_trWaitAvg / 10000);
+    MSR_INTEGER(m_idDuration, trDuration / 10000);
 
 #ifdef PERF
-    if (S_OK==pMediaSample->IsDiscontinuity()) {
+    if (S_OK == pMediaSample->IsDiscontinuity()) {
         MSR_INTEGER(m_idDecision, 9000);
     }
 #endif
@@ -2373,21 +2375,21 @@ HRESULT CBaseVideoRenderer::ShouldDrawSampleNow(IMediaSample *pMediaSample,
     // otherwise do the standard slide (reduce by about 12% per frame).
     // Note: earliness is normally NEGATIVE
     BOOL bJustDroppedFrame
-        = (  m_bSupplierHandlingQuality
-          //  Can't use the pin sample properties because we might
-          //  not be in Receive when we call this
-          && (S_OK == pMediaSample->IsDiscontinuity())          // he just dropped one
+        = (m_bSupplierHandlingQuality
+           //  Can't use the pin sample properties because we might
+           //  not be in Receive when we call this
+           && (S_OK == pMediaSample->IsDiscontinuity())          // he just dropped one
           )
-       || (m_nNormal==-1);                          // we just dropped one
+          || (m_nNormal == -1);                        // we just dropped one
 
 
     // Set m_trEarliness (slide back from slow to fast machine mode)
-    if (trLate>0) {
+    if (trLate > 0) {
         m_trEarliness = 0;   // we are no longer in fast machine mode at all!
-    } else if (  (trLate>=m_trEarliness) || bJustDroppedFrame) {
+    } else if ((trLate >= m_trEarliness) || bJustDroppedFrame) {
         m_trEarliness = trLate;  // Things have slipped of their own accord
     } else {
-        m_trEarliness = m_trEarliness - m_trEarliness/8;  // graceful slide
+        m_trEarliness = m_trEarliness - m_trEarliness / 8; // graceful slide
     }
 
     // prepare the new wait average - but don't pollute the old one until
@@ -2396,15 +2398,15 @@ HRESULT CBaseVideoRenderer::ShouldDrawSampleNow(IMediaSample *pMediaSample,
     {
         // We never mix in a negative wait.  This causes us to believe in fast machines
         // slightly more.
-        int trL = trLate<0 ? -trLate : 0;
-        trWaitAvg = (trL + m_trWaitAvg*(AVGPERIOD-1))/AVGPERIOD;
+        int trL = trLate < 0 ? -trLate : 0;
+        trWaitAvg = (trL + m_trWaitAvg * (AVGPERIOD - 1)) / AVGPERIOD;
     }
 
 
     int trFrame;
     {
         REFERENCE_TIME tr = trRealStream - m_trLastDraw; // Cd be large - 4 min pause!
-        if (tr>10000000) {
+        if (tr > 10000000) {
             tr = 10000000;   // 1 second - arbitrarily.
         }
         trFrame = int(tr);
@@ -2412,26 +2414,26 @@ HRESULT CBaseVideoRenderer::ShouldDrawSampleNow(IMediaSample *pMediaSample,
 
     // We will DRAW this frame IF...
     if (
-          // ...the time we are spending drawing is a small fraction of the total
-          // observed inter-frame time so that dropping it won't help much.
-          (3*m_trRenderAvg <= m_trFrameAvg)
+        // ...the time we are spending drawing is a small fraction of the total
+        // observed inter-frame time so that dropping it won't help much.
+        (3 * m_trRenderAvg <= m_trFrameAvg)
 
-         // ...or our supplier is NOT handling things and the next frame would
-         // be less timely than this one or our supplier CLAIMS to be handling
-         // things, and is now less than a full FOUR frames late.
-       || ( m_bSupplierHandlingQuality
-          ? (trLate <= trDuration*4)
-          : (trLate+trLate < trDuration)
-          )
+        // ...or our supplier is NOT handling things and the next frame would
+        // be less timely than this one or our supplier CLAIMS to be handling
+        // things, and is now less than a full FOUR frames late.
+        || (m_bSupplierHandlingQuality
+            ? (trLate <= trDuration * 4)
+            : (trLate + trLate < trDuration)
+           )
 
-          // ...or we are on average waiting for over eight milliseconds then
-          // this may be just a glitch.  Draw it and we'll hope to catch up.
-       || (m_trWaitAvg > 80000)
+        // ...or we are on average waiting for over eight milliseconds then
+        // this may be just a glitch.  Draw it and we'll hope to catch up.
+        || (m_trWaitAvg > 80000)
 
-          // ...or we haven't drawn an image for over a second.  We will update
-          // the display, which stops the video looking hung.
-          // Do this regardless of how late this media sample is.
-       || ((trRealStream - m_trLastDraw) > UNITS)
+        // ...or we haven't drawn an image for over a second.  We will update
+        // the display, which stops the video looking hung.
+        // Do this regardless of how late this media sample is.
+        || ((trRealStream - m_trLastDraw) > UNITS)
 
     ) {
         HRESULT Result;
@@ -2446,29 +2448,29 @@ HRESULT CBaseVideoRenderer::ShouldDrawSampleNow(IMediaSample *pMediaSample,
 
         // we will play it AT ONCE (slow machine mode) if...
 
-            // ...we are playing catch-up
-        if ( bJustDroppedFrame) {
+        // ...we are playing catch-up
+        if (bJustDroppedFrame) {
             bPlayASAP = TRUE;
             MSR_INTEGER(m_idDecision, 9001);
         }
 
-            // ...or if we are running below the true frame rate
-            // exact comparisons are glitchy, for these measurements,
-            // so add an extra 5% or so
-        else if (  (m_trFrameAvg > trDuration + trDuration/16)
+        // ...or if we are running below the true frame rate
+        // exact comparisons are glitchy, for these measurements,
+        // so add an extra 5% or so
+        else if ((m_trFrameAvg > trDuration + trDuration / 16)
 
-                   // It's possible to get into a state where we are losing ground, but
-                   // are a very long way ahead.  To avoid this or recover from it
-                   // we refuse to play early by more than 10 frames.
-                && (trLate > - trDuration*10)
-                ){
+                 // It's possible to get into a state where we are losing ground, but
+                 // are a very long way ahead.  To avoid this or recover from it
+                 // we refuse to play early by more than 10 frames.
+                 && (trLate > - trDuration * 10)
+                ) {
             bPlayASAP = TRUE;
             MSR_INTEGER(m_idDecision, 9002);
         }
 #if 0
-            // ...or if we have been late and are less than one frame early
-        else if (  (trLate + trDuration > 0)
-                && (m_trWaitAvg<=20000)
+        // ...or if we have been late and are less than one frame early
+        else if ((trLate + trDuration > 0)
+                 && (m_trWaitAvg <= 20000)
                 ) {
             bPlayASAP = TRUE;
             MSR_INTEGER(m_idDecision, 9003);
@@ -2478,7 +2480,7 @@ HRESULT CBaseVideoRenderer::ShouldDrawSampleNow(IMediaSample *pMediaSample,
         // rate movies - e.g. clock.avi - it is not a good idea to leap ahead just
         // because we got starved (for instance by the net) and dropped one frame
         // some time or other.  If we are more than 900mSec early, then wait.
-        if (trLate<-9000000) {
+        if (trLate < -9000000) {
             bPlayASAP = FALSE;
         }
 
@@ -2491,10 +2493,10 @@ HRESULT CBaseVideoRenderer::ShouldDrawSampleNow(IMediaSample *pMediaSample,
             // dropping frames to keep sync.  We should not let that mislead
             // us into thinking that we have as much as zero spare time!
             // We just update with a zero wait.
-            m_trWaitAvg = (m_trWaitAvg*(AVGPERIOD-1))/AVGPERIOD;
+            m_trWaitAvg = (m_trWaitAvg * (AVGPERIOD - 1)) / AVGPERIOD;
 
             // Assume that we draw it immediately.  Update inter-frame stats
-            m_trFrameAvg = (trFrame + m_trFrameAvg*(AVGPERIOD-1))/AVGPERIOD;
+            m_trFrameAvg = (trFrame + m_trFrameAvg * (AVGPERIOD - 1)) / AVGPERIOD;
 #ifndef PERF
             // If this is NOT a perf build, then report what we know so far
             // without looking at the clock any more.  This assumes that we
@@ -2532,14 +2534,14 @@ HRESULT CBaseVideoRenderer::ShouldDrawSampleNow(IMediaSample *pMediaSample,
             }
 
             int Delay = -trTrueLate;
-            Result = Delay<=0 ? S_OK : S_FALSE;     // OK = draw now, FALSE = wait
+            Result = Delay <= 0 ? S_OK : S_FALSE;   // OK = draw now, FALSE = wait
 
             m_trWaitAvg = trWaitAvg;
 
             // Predict when it will actually be drawn and update frame stats
 
-            if (Result==S_FALSE) {   // We are going to wait
-                trFrame = TimeDiff(*ptrStart-m_trLastDraw);
+            if (Result == S_FALSE) { // We are going to wait
+                trFrame = TimeDiff(*ptrStart - m_trLastDraw);
                 m_trLastDraw = *ptrStart;
             } else {
                 // trFrame is already = trRealStream-m_trLastDraw;
@@ -2547,9 +2549,9 @@ HRESULT CBaseVideoRenderer::ShouldDrawSampleNow(IMediaSample *pMediaSample,
             }
 #ifndef PERF
             int iAccuracy;
-            if (Delay>0) {
+            if (Delay > 0) {
                 // Report lateness based on when we intend to play it
-                iAccuracy = TimeDiff(*ptrStart-m_trRememberStampForPerf);
+                iAccuracy = TimeDiff(*ptrStart - m_trRememberStampForPerf);
             } else {
                 // Report lateness based on playing it *now*.
                 iAccuracy = trTrueLate;     // trRealStream-RememberStampForPerf;
@@ -2569,7 +2571,7 @@ HRESULT CBaseVideoRenderer::ShouldDrawSampleNow(IMediaSample *pMediaSample,
 #ifdef PERF
     // Respect registry setting - debug only!
     if (m_bDrawLateFrames) {
-       return S_OK;                        // draw it when it's ready
+        return S_OK;                        // draw it when it's ready
     }                                      // even though it's late.
 #endif
 
@@ -2592,14 +2594,14 @@ HRESULT CBaseVideoRenderer::ShouldDrawSampleNow(IMediaSample *pMediaSample,
 // link to draw a sample, that sample's time will always become the last one
 // drawn - unless of course we stop streaming in which case we cancel links
 
-BOOL CBaseVideoRenderer::ScheduleSample(IMediaSample *pMediaSample)
+BOOL CBaseVideoRenderer::ScheduleSample(IMediaSample* pMediaSample)
 {
     // We override ShouldDrawSampleNow to add quality management
 
     BOOL bDrawImage = CBaseRenderer::ScheduleSample(pMediaSample);
     if (bDrawImage == FALSE) {
-	++m_cFramesDropped;
-	return FALSE;
+        ++m_cFramesDropped;
+        return FALSE;
     }
 
     // m_cFramesDrawn must NOT be updated here.  It has to be updated
@@ -2617,9 +2619,9 @@ BOOL CBaseVideoRenderer::ScheduleSample(IMediaSample *pMediaSample)
 // our IQualProp interface. The AddRef and Release are handled automatically
 // by the base class and will be passed on to the appropriate outer object
 
-STDMETHODIMP CBaseVideoRenderer::get_FramesDroppedInRenderer(int *pcFramesDropped)
+STDMETHODIMP CBaseVideoRenderer::get_FramesDroppedInRenderer(int* pcFramesDropped)
 {
-    CheckPointer(pcFramesDropped,E_POINTER);
+    CheckPointer(pcFramesDropped, E_POINTER);
     CAutoLock cVideoLock(&m_InterfaceLock);
     *pcFramesDropped = m_cFramesDropped;
     return NOERROR;
@@ -2629,9 +2631,9 @@ STDMETHODIMP CBaseVideoRenderer::get_FramesDroppedInRenderer(int *pcFramesDroppe
 // Set *pcFramesDrawn to the number of frames drawn since
 // streaming started.
 
-STDMETHODIMP CBaseVideoRenderer::get_FramesDrawn( int *pcFramesDrawn)
+STDMETHODIMP CBaseVideoRenderer::get_FramesDrawn(int* pcFramesDrawn)
 {
-    CheckPointer(pcFramesDrawn,E_POINTER);
+    CheckPointer(pcFramesDrawn, E_POINTER);
     CAutoLock cVideoLock(&m_InterfaceLock);
     *pcFramesDrawn = m_cFramesDrawn;
     return NOERROR;
@@ -2641,19 +2643,19 @@ STDMETHODIMP CBaseVideoRenderer::get_FramesDrawn( int *pcFramesDrawn)
 // Set iAvgFrameRate to the frames per hundred secs since
 // streaming started.  0 otherwise.
 
-STDMETHODIMP CBaseVideoRenderer::get_AvgFrameRate( int *piAvgFrameRate)
+STDMETHODIMP CBaseVideoRenderer::get_AvgFrameRate(int* piAvgFrameRate)
 {
-    CheckPointer(piAvgFrameRate,E_POINTER);
+    CheckPointer(piAvgFrameRate, E_POINTER);
     CAutoLock cVideoLock(&m_InterfaceLock);
 
     int t;
     if (m_bStreaming) {
-        t = timeGetTime()-m_tStreamingStart;
+        t = timeGetTime() - m_tStreamingStart;
     } else {
         t = m_tStreamingStart;
     }
 
-    if (t<=0) {
+    if (t <= 0) {
         *piAvgFrameRate = 0;
         ASSERT(m_cFramesDrawn == 0);
     } else {
@@ -2668,22 +2670,22 @@ STDMETHODIMP CBaseVideoRenderer::get_AvgFrameRate( int *piAvgFrameRate)
 // in mSec.  The sync offset is the time in mSec between when the frame
 // should have been drawn and when the frame was actually drawn.
 
-STDMETHODIMP CBaseVideoRenderer::get_AvgSyncOffset( int *piAvg)
+STDMETHODIMP CBaseVideoRenderer::get_AvgSyncOffset(int* piAvg)
 {
-    CheckPointer(piAvg,E_POINTER);
+    CheckPointer(piAvg, E_POINTER);
     CAutoLock cVideoLock(&m_InterfaceLock);
 
-    if (NULL==m_pClock) {
+    if (NULL == m_pClock) {
         *piAvg = 0;
         return NOERROR;
     }
 
     // Note that we didn't gather the stats on the first frame
     // so we use m_cFramesDrawn-1 here
-    if (m_cFramesDrawn<=1) {
+    if (m_cFramesDrawn <= 1) {
         *piAvg = 0;
     } else {
-        *piAvg = (int)(m_iTotAcc / (m_cFramesDrawn-1));
+        *piAvg = (int)(m_iTotAcc / (m_cFramesDrawn - 1));
     }
     return NOERROR;
 } // get_AvgSyncOffset
@@ -2712,19 +2714,19 @@ int isqrt(int x)
     int s = 1;
     // Make s an initial guess for sqrt(x)
     if (x > 0x40000000) {
-       s = 0x8000;     // prevent any conceivable closed loop
+        s = 0x8000;     // prevent any conceivable closed loop
     } else {
-        while (s*s<x) {    // loop cannot possible go more than 31 times
-            s = 2*s;       // normally it goes about 6 times
+        while (s * s < x) { // loop cannot possible go more than 31 times
+            s = 2 * s;     // normally it goes about 6 times
         }
         // Three NR iterations.
-        if (x==0) {
-           s= 0; // Wouldn't it be tragic to divide by zero whenever our
-                 // accuracy was perfect!
+        if (x == 0) {
+            s = 0; // Wouldn't it be tragic to divide by zero whenever our
+            // accuracy was perfect!
         } else {
-            s = (s*s+x)/(2*s);
-            if (s>=0) s = (s*s+x)/(2*s);
-            if (s>=0) s = (s*s+x)/(2*s);
+            s = (s * s + x) / (2 * s);
+            if (s >= 0) { s = (s * s + x) / (2 * s); }
+            if (s >= 0) { s = (s * s + x) / (2 * s); }
         }
     }
     return s;
@@ -2736,15 +2738,15 @@ int isqrt(int x)
 //
 HRESULT CBaseVideoRenderer::GetStdDev(
     int nSamples,
-    int *piResult,
+    int* piResult,
     LONGLONG llSumSq,
     LONGLONG iTot
 )
 {
-    CheckPointer(piResult,E_POINTER);
+    CheckPointer(piResult, E_POINTER);
     CAutoLock cVideoLock(&m_InterfaceLock);
 
-    if (NULL==m_pClock) {
+    if (NULL == m_pClock) {
         *piResult = 0;
         return NOERROR;
     }
@@ -2754,7 +2756,7 @@ HRESULT CBaseVideoRenderer::GetStdDev(
     //    N observations, then an estimate of the standard deviation is
     //      sqrt( (S - T**2/N) / (N-1) )
 
-    if (nSamples<=1) {
+    if (nSamples <= 1) {
         *piResult = 0;
     } else {
         LONGLONG x;
@@ -2763,8 +2765,8 @@ HRESULT CBaseVideoRenderer::GetStdDev(
 
         // so we use m_cFramesDrawn-1 here
         x = llSumSq - llMulDiv(iTot, iTot, nSamples, 0);
-        x = x / (nSamples-1);
-        ASSERT(x>=0);
+        x = x / (nSamples - 1);
+        ASSERT(x >= 0);
         *piResult = isqrt((LONG)x);
     }
     return NOERROR;
@@ -2773,7 +2775,7 @@ HRESULT CBaseVideoRenderer::GetStdDev(
 // Set *piDev to the standard deviation in mSec of the sync offset
 // of each frame since streaming started.
 
-STDMETHODIMP CBaseVideoRenderer::get_DevSyncOffset( int *piDev)
+STDMETHODIMP CBaseVideoRenderer::get_DevSyncOffset(int* piDev)
 {
     // First frames have invalid stamps, so we get no stats for them
     // So we need 2 frames to get 1 datum, so N is cFramesDrawn-1
@@ -2787,7 +2789,7 @@ STDMETHODIMP CBaseVideoRenderer::get_DevSyncOffset( int *piDev)
 // Set *piJitter to the standard deviation in mSec of the inter-frame time
 // of frames since streaming started.
 
-STDMETHODIMP CBaseVideoRenderer::get_Jitter( int *piJitter)
+STDMETHODIMP CBaseVideoRenderer::get_Jitter(int* piJitter)
 {
     // First frames have invalid stamps, so we get no stats for them
     // So second frame gives invalid inter-frame time
@@ -2802,16 +2804,16 @@ STDMETHODIMP CBaseVideoRenderer::get_Jitter( int *piJitter)
 // Overidden to return our IQualProp interface
 
 STDMETHODIMP
-CBaseVideoRenderer::NonDelegatingQueryInterface(REFIID riid,VOID **ppv)
+CBaseVideoRenderer::NonDelegatingQueryInterface(REFIID riid, VOID** ppv)
 {
     // We return IQualProp and delegate everything else
 
     if (riid == IID_IQualProp) {
-        return GetInterface( (IQualProp *)this, ppv);
+        return GetInterface((IQualProp*)this, ppv);
     } else if (riid == IID_IQualityControl) {
-        return GetInterface( (IQualityControl *)this, ppv);
+        return GetInterface((IQualityControl*)this, ppv);
     }
-    return CBaseRenderer::NonDelegatingQueryInterface(riid,ppv);
+    return CBaseRenderer::NonDelegatingQueryInterface(riid, ppv);
 }
 
 
@@ -2819,7 +2821,7 @@ CBaseVideoRenderer::NonDelegatingQueryInterface(REFIID riid,VOID **ppv)
 // the graph we can send an EC_WINDOW_DESTROYED event
 
 STDMETHODIMP
-CBaseVideoRenderer::JoinFilterGraph(IFilterGraph *pGraph,LPCWSTR pName)
+CBaseVideoRenderer::JoinFilterGraph(IFilterGraph* pGraph, LPCWSTR pName)
 {
     // Since we send EC_ACTIVATE, we also need to ensure
     // we send EC_WINDOW_DESTROYED or the resource manager may be
@@ -2829,7 +2831,7 @@ CBaseVideoRenderer::JoinFilterGraph(IFilterGraph *pGraph,LPCWSTR pName)
         // We were in a graph and now we're not
         // Do this properly in case we are aggregated
         IBaseFilter* pFilter;
-        QueryInterface(IID_IBaseFilter,(void **) &pFilter);
+        QueryInterface(IID_IBaseFilter, (void**) &pFilter);
         NotifyEvent(EC_WINDOW_DESTROYED, (LPARAM) pFilter, 0);
         pFilter->Release();
     }

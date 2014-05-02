@@ -25,39 +25,40 @@
 __inline
 ULONG
 WINAPI
-EnlargedUnsignedDivide (
+EnlargedUnsignedDivide(
     IN ULARGE_INTEGER Dividend,
     IN ULONG Divisor,
     IN PULONG Remainder
-    )
+)
 {
-        // return remainder if necessary
-        if (Remainder != NULL)
-                *Remainder = (ULONG)(LLtoU64(Dividend) % Divisor);
-        return (ULONG)(LLtoU64(Dividend) / Divisor);
+    // return remainder if necessary
+    if (Remainder != NULL) {
+        *Remainder = (ULONG)(LLtoU64(Dividend) % Divisor);
+    }
+    return (ULONG)(LLtoU64(Dividend) / Divisor);
 }
 
 #else
 __inline
 ULONG
 WINAPI
-EnlargedUnsignedDivide (
+EnlargedUnsignedDivide(
     IN ULARGE_INTEGER Dividend,
     IN ULONG Divisor,
     IN PULONG Remainder
-    )
+)
 {
     ULONG ulResult;
     _asm {
-        mov eax,Dividend.LowPart
-        mov edx,Dividend.HighPart
-        mov ecx,Remainder
+        mov eax, Dividend.LowPart
+        mov edx, Dividend.HighPart
+        mov ecx, Remainder
         div Divisor
-        or  ecx,ecx
+        or  ecx, ecx
         jz  short label
-        mov [ecx],edx
-label:
-        mov ulResult,eax
+        mov [ecx], edx
+        label:
+        mov ulResult, eax
     }
     return ulResult;
 }
@@ -72,7 +73,7 @@ CAMEvent::CAMEvent(BOOL fManualReset)
 CAMEvent::~CAMEvent()
 {
     if (m_hEvent) {
-	EXECUTE_ASSERT(CloseHandle(m_hEvent));
+        EXECUTE_ASSERT(CloseHandle(m_hEvent));
     }
 }
 
@@ -99,23 +100,23 @@ BOOL CAMMsgEvent::WaitMsg(DWORD dwTimeout)
     }
 
     do {
-        dwWait = MsgWaitForMultipleObjects(1,&m_hEvent,FALSE, dwWaitTime, QS_SENDMESSAGE);
+        dwWait = MsgWaitForMultipleObjects(1, &m_hEvent, FALSE, dwWaitTime, QS_SENDMESSAGE);
         if (dwWait == WAIT_OBJECT_0 + 1) {
-	    MSG Message;
-            PeekMessage(&Message,NULL,0,0,PM_NOREMOVE);
+            MSG Message;
+            PeekMessage(&Message, NULL, 0, 0, PM_NOREMOVE);
 
-	    // If we have an explicit length of time to wait calculate
-	    // the next wake up point - which might be now.
-	    // If dwTimeout is INFINITE, it stays INFINITE
-	    if (dwWaitTime != INFINITE) {
+            // If we have an explicit length of time to wait calculate
+            // the next wake up point - which might be now.
+            // If dwTimeout is INFINITE, it stays INFINITE
+            if (dwWaitTime != INFINITE) {
 
-		DWORD dwElapsed = timeGetTime()-dwStartTime;
+                DWORD dwElapsed = timeGetTime() - dwStartTime;
 
-		dwWaitTime =
-		    (dwElapsed >= dwTimeout)
-			? 0  // wake up with WAIT_TIMEOUT
-			: dwTimeout-dwElapsed;
-	    }
+                dwWaitTime =
+                    (dwElapsed >= dwTimeout)
+                    ? 0  // wake up with WAIT_TIMEOUT
+                    : dwTimeout - dwElapsed;
+            }
         }
     } while (dwWait == WAIT_OBJECT_0 + 1);
 
@@ -133,7 +134,8 @@ CAMThread::CAMThread()
     m_hThread = NULL;
 }
 
-CAMThread::~CAMThread() {
+CAMThread::~CAMThread()
+{
     Close();
 }
 
@@ -144,15 +146,15 @@ DWORD WINAPI
 CAMThread::InitialThreadProc(LPVOID pv)
 {
     HRESULT hrCoInit = CAMThread::CoInitializeHelper();
-    if(FAILED(hrCoInit)) {
+    if (FAILED(hrCoInit)) {
         DbgLog((LOG_ERROR, 1, TEXT("CoInitializeEx failed.")));
     }
 
-    CAMThread * pThread = (CAMThread *) pv;
+    CAMThread* pThread = (CAMThread*) pv;
 
     HRESULT hr = pThread->ThreadProc();
 
-    if(SUCCEEDED(hrCoInit)) {
+    if (SUCCEEDED(hrCoInit)) {
         CoUninitialize();
     }
 
@@ -167,19 +169,19 @@ CAMThread::Create()
     CAutoLock lock(&m_AccessLock);
 
     if (ThreadExists()) {
-	return FALSE;
+        return FALSE;
     }
 
     m_hThread = CreateThread(
-		    NULL,
-		    0,
-		    CAMThread::InitialThreadProc,
-		    this,
-		    0,
-		    &threadid);
+                    NULL,
+                    0,
+                    CAMThread::InitialThreadProc,
+                    this,
+                    0,
+                    &threadid);
 
     if (!m_hThread) {
-	return FALSE;
+        return FALSE;
     }
 
     return TRUE;
@@ -192,7 +194,7 @@ CAMThread::CallWorker(DWORD dwParam)
     CAutoLock lock(&m_AccessLock);
 
     if (!ThreadExists()) {
-	return (DWORD) E_FAIL;
+        return (DWORD) E_FAIL;
     }
 
     // set the parameter
@@ -218,15 +220,15 @@ CAMThread::GetRequest()
 
 // is there a request?
 BOOL
-CAMThread::CheckRequest(DWORD * pParam)
+CAMThread::CheckRequest(DWORD* pParam)
 {
     if (!m_EventSend.Check()) {
-	return FALSE;
+        return FALSE;
     } else {
-	if (pParam) {
-	    *pParam = m_dwParam;
-	}
-	return TRUE;
+        if (pParam) {
+            *pParam = m_dwParam;
+        }
+        return TRUE;
     }
 }
 
@@ -266,19 +268,15 @@ HRESULT CAMThread::CoInitializeHelper()
 
     HRESULT hr = E_FAIL;
     HINSTANCE hOle = GetModuleHandle(TEXT("ole32.dll"));
-    if(hOle)
-    {
-        typedef HRESULT (STDAPICALLTYPE *PCoInitializeEx)(
+    if (hOle) {
+        typedef HRESULT(STDAPICALLTYPE * PCoInitializeEx)(
             LPVOID pvReserved, DWORD dwCoInit);
         PCoInitializeEx pCoInitializeEx =
             (PCoInitializeEx)(GetProcAddress(hOle, "CoInitializeEx"));
-        if(pCoInitializeEx)
-        {
-            hr = (*pCoInitializeEx)(0, COINIT_DISABLE_OLE1DDE );
+        if (pCoInitializeEx) {
+            hr = (*pCoInitializeEx)(0, COINIT_DISABLE_OLE1DDE);
         }
-    }
-    else
-    {
+    } else {
         // caller must load ole32.dll
         DbgBreak("couldn't locate ole32.dll");
     }
@@ -298,7 +296,7 @@ CMsgThread::~CMsgThread()
 
     POSITION pos = m_ThreadQueue.GetHeadPosition();
     while (pos) {
-        CMsg * pMsg = m_ThreadQueue.GetNext(pos);
+        CMsg* pMsg = m_ThreadQueue.GetNext(pos);
         delete pMsg;
     }
     m_ThreadQueue.RemoveAll();
@@ -310,7 +308,7 @@ CMsgThread::~CMsgThread()
 
 BOOL
 CMsgThread::CreateThread(
-    )
+)
 {
     m_hSem = CreateSemaphore(NULL, 0, 0x7FFFFFFF, NULL);
     if (m_hSem == NULL) {
@@ -318,7 +316,7 @@ CMsgThread::CreateThread(
     }
 
     m_hThread = ::CreateThread(NULL, 0, DefaultThreadProc,
-			       (LPVOID)this, 0, &m_ThreadId);
+                               (LPVOID)this, 0, &m_ThreadId);
     return m_hThread != NULL;
 }
 
@@ -331,9 +329,9 @@ CMsgThread::CreateThread(
 DWORD WINAPI
 CMsgThread::DefaultThreadProc(
     LPVOID lpParam
-    )
+)
 {
-    CMsgThread *lpThis = (CMsgThread *)lpParam;
+    CMsgThread* lpThis = (CMsgThread*)lpParam;
     CMsg msg;
     LRESULT lResult;
 
@@ -344,9 +342,9 @@ CMsgThread::DefaultThreadProc(
     lpThis->OnThreadInit();
 
     do {
-	lpThis->GetThreadMsg(&msg);
-	lResult = lpThis->ThreadMessageProc(msg.uMsg,msg.dwFlags,
-					    msg.lpParam, msg.pEvent);
+        lpThis->GetThreadMsg(&msg);
+        lResult = lpThis->ThreadMessageProc(msg.uMsg, msg.dwFlags,
+                                            msg.lpParam, msg.pEvent);
     } while (lResult == 0L);
 
     // !!!
@@ -359,9 +357,9 @@ CMsgThread::DefaultThreadProc(
 // Block until the next message is placed on the list m_ThreadQueue.
 // copies the message to the message pointed to by *pmsg
 void
-CMsgThread::GetThreadMsg(CMsg *msg)
+CMsgThread::GetThreadMsg(CMsg* msg)
 {
-    CMsg * pmsg = NULL;
+    CMsg* pmsg = NULL;
 
     // keep trying until a message appears
     while (TRUE) {
@@ -397,7 +395,7 @@ WINAPI
 lstrcpyWInternal(
     LPWSTR lpString1,
     LPCWSTR lpString2
-    )
+)
 {
     LPWSTR  lpReturn = lpString1;
     while (*lpString1++ = *lpString2++);
@@ -412,7 +410,7 @@ lstrcpynWInternal(
     LPWSTR lpString1,
     LPCWSTR lpString2,
     int     iMaxLength
-    )
+)
 {
     ASSERT(iMaxLength);
     LPWSTR  lpReturn = lpString1;
@@ -422,7 +420,7 @@ lstrcpynWInternal(
         // If we ran out of room (which will be the case if
         // iMaxLength is now 0) we still need to terminate the
         // string.
-        if (!iMaxLength) *lpString1 = L'\0';
+        if (!iMaxLength) { *lpString1 = L'\0'; }
     }
     return lpReturn;
 }
@@ -432,13 +430,14 @@ WINAPI
 lstrcmpWInternal(
     LPCWSTR lpString1,
     LPCWSTR lpString2
-    )
+)
 {
     do {
-	WCHAR c1 = *lpString1;
-	WCHAR c2 = *lpString2;
-	if (c1 != c2)
-	    return (int) c1 - (int) c2;
+        WCHAR c1 = *lpString1;
+        WCHAR c2 = *lpString2;
+        if (c1 != c2) {
+            return (int) c1 - (int) c2;
+        }
     } while (*lpString1++ && *lpString2++);
     return 0;
 }
@@ -449,18 +448,21 @@ WINAPI
 lstrcmpiWInternal(
     LPCWSTR lpString1,
     LPCWSTR lpString2
-    )
+)
 {
     do {
-	WCHAR c1 = *lpString1;
-	WCHAR c2 = *lpString2;
-	if (c1 >= L'A' && c1 <= L'Z')
-	    c1 -= (WCHAR) (L'A' - L'a');
-	if (c2 >= L'A' && c2 <= L'Z')
-	    c2 -= (WCHAR) (L'A' - L'a');
-	
-	if (c1 != c2)
-	    return (int) c1 - (int) c2;
+        WCHAR c1 = *lpString1;
+        WCHAR c2 = *lpString2;
+        if (c1 >= L'A' && c1 <= L'Z') {
+            c1 -= (WCHAR)(L'A' - L'a');
+        }
+        if (c2 >= L'A' && c2 <= L'Z') {
+            c2 -= (WCHAR)(L'A' - L'a');
+        }
+
+        if (c1 != c2) {
+            return (int) c1 - (int) c2;
+        }
     } while (*lpString1++ && *lpString2++);
 
     return 0;
@@ -471,10 +473,10 @@ int
 WINAPI
 lstrlenWInternal(
     LPCWSTR lpString
-    )
+)
 {
     int i = -1;
-    while (*(lpString+(++i)))
+    while (*(lpString + (++i)))
         ;
     return i;
 }
@@ -492,7 +494,7 @@ int WINAPIV wsprintfWInternal(LPWSTR wszOut, LPCWSTR pszFmt, ...)
     i = wvsprintfA(ach, fmt, va);
     va_end(va);
 
-    MultiByteToWideChar(CP_ACP, 0, ach, -1, wszOut, i+1);
+    MultiByteToWideChar(CP_ACP, 0, ach, -1, wszOut, i + 1);
 
     return i;
 }
@@ -503,7 +505,7 @@ int WINAPIV wsprintfWInternal(LPWSTR wszOut, LPCWSTR pszFmt, ...)
 LPWSTR WINAPI lstrcpyWInternal(
     LPWSTR lpString1,
     LPCWSTR lpString2
-    )
+)
 {
     return lstrcpyW(lpString1, lpString2);
 }
@@ -512,7 +514,7 @@ LPWSTR WINAPI lstrcpynWInternal(
     LPWSTR lpString1,
     LPCWSTR lpString2,
     int     iMaxLength
-    )
+)
 {
     return lstrcpynW(lpString1, lpString2, iMaxLength);
 }
@@ -520,7 +522,7 @@ LPWSTR WINAPI lstrcpynWInternal(
 int WINAPI lstrcmpWInternal(
     LPCWSTR lpString1,
     LPCWSTR lpString2
-    )
+)
 {
     return lstrcmpW(lpString1, lpString2);
 }
@@ -529,7 +531,7 @@ int WINAPI lstrcmpWInternal(
 int WINAPI lstrcmpiWInternal(
     LPCWSTR lpString1,
     LPCWSTR lpString2
-    )
+)
 {
     return lstrcmpiW(lpString1, lpString2);
 }
@@ -537,7 +539,7 @@ int WINAPI lstrcmpiWInternal(
 
 int WINAPI lstrlenWInternal(
     LPCWSTR lpString
-    )
+)
 {
     return lstrlenW(lpString);
 }
@@ -569,13 +571,14 @@ void WINAPI IntToWstr(int i, LPWSTR wstr)
 
 
 #if 0
-void * memchrInternal(const void *pv, int c, size_t sz)
+void* memchrInternal(const void* pv, int c, size_t sz)
 {
-    BYTE *pb = (BYTE *) pv;
+    BYTE* pb = (BYTE*) pv;
     while (sz--) {
-	if (*pb == c)
-	    return (void *) pb;
-	pb++;
+        if (*pb == c) {
+            return (void*) pb;
+        }
+        pb++;
     }
     return NULL;
 }
@@ -586,45 +589,44 @@ void * memchrInternal(const void *pv, int c, size_t sz)
 #define MEMORY_ALIGNMENT_LOG2   2
 #define MEMORY_ALIGNMENT_MASK   MEMORY_ALIGNMENT - 1
 
-void * __stdcall memmoveInternal(void * dst, const void * src, size_t count)
+void* __stdcall memmoveInternal(void* dst, const void* src, size_t count)
 {
-    void * ret = dst;
+    void* ret = dst;
 
 #ifdef _X86_
-    if (dst <= src || (char *)dst >= ((char *)src + count)) {
+    if (dst <= src || (char*)dst >= ((char*)src + count)) {
 
         /*
          * Non-Overlapping Buffers
          * copy from lower addresses to higher addresses
          */
         _asm {
-            mov     esi,src
-            mov     edi,dst
-            mov     ecx,count
+            mov     esi, src
+            mov     edi, dst
+            mov     ecx, count
             cld
-            mov     edx,ecx
-            and     edx,MEMORY_ALIGNMENT_MASK
-            shr     ecx,MEMORY_ALIGNMENT_LOG2
+            mov     edx, ecx
+            and     edx, MEMORY_ALIGNMENT_MASK
+            shr     ecx, MEMORY_ALIGNMENT_LOG2
             rep     movsd
-            or      ecx,edx
+            or      ecx, edx
             jz      memmove_done
             rep     movsb
-memmove_done:
+            memmove_done:
         }
-    }
-    else {
+    } else {
 
         /*
          * Overlapping Buffers
          * copy from higher addresses to lower addresses
          */
         _asm {
-            mov     esi,src
-            mov     edi,dst
-            mov     ecx,count
+            mov     esi, src
+            mov     edi, dst
+            mov     ecx, count
             std
-            add     esi,ecx
-            add     edi,ecx
+            add     esi, ecx
+            add     edi, ecx
             dec     esi
             dec     edi
             rep     movsb
@@ -688,14 +690,14 @@ LONGLONG WINAPI llMulDiv(LONGLONG a, LONGLONG b, LONGLONG c, LONGLONG d)
             ud[0].QuadPart = (DWORDLONG)(-d);
             if (d > 0) {
                 /*  -d < 0 */
-                ud[1].QuadPart = (DWORDLONG)(LONGLONG)-1;
+                ud[1].QuadPart = (DWORDLONG)(LONGLONG) - 1;
             } else {
                 ud[1].QuadPart = (DWORDLONG)0;
             }
         } else {
             ud[0].QuadPart = (DWORDLONG)d;
             if (d < 0) {
-                ud[1].QuadPart = (DWORDLONG)(LONGLONG)-1;
+                ud[1].QuadPart = (DWORDLONG)(LONGLONG) - 1;
             } else {
                 ud[1].QuadPart = (DWORDLONG)0;
             }
@@ -743,7 +745,7 @@ LONGLONG WINAPI llMulDiv(LONGLONG a, LONGLONG b, LONGLONG c, LONGLONG d)
     /*  This will catch c == 0 and overflow */
     if (uc <= p[1].QuadPart) {
         return bSign ? (LONGLONG)0x8000000000000000 :
-                       (LONGLONG)0x7FFFFFFFFFFFFFFF;
+               (LONGLONG)0x7FFFFFFFFFFFFFFF;
     }
 
     DWORDLONG ullResult;
@@ -783,12 +785,12 @@ LONGLONG WINAPI llMulDiv(LONGLONG a, LONGLONG b, LONGLONG c, LONGLONG d)
             uliResult.HighPart = 0;
         }
         uliResult.LowPart = EnlargedUnsignedDivide(
-                                 p[0],
-                                 dwDivisor,
-                                 NULL);
+                                p[0],
+                                dwDivisor,
+                                NULL);
 #endif
         return bSign ? -(LONGLONG)uliResult.QuadPart :
-                        (LONGLONG)uliResult.QuadPart;
+               (LONGLONG)uliResult.QuadPart;
     }
 
 
@@ -853,14 +855,14 @@ LONGLONG WINAPI Int64x32Div32(LONGLONG a, LONG b, LONG c, LONG d)
             ud0.QuadPart = (DWORDLONG)(-(LONGLONG)d);
             if (d > 0) {
                 /*  -d < 0 */
-                ud1 = (DWORD)-1;
+                ud1 = (DWORD) - 1;
             } else {
                 ud1 = (DWORD)0;
             }
         } else {
             ud0.QuadPart = (DWORDLONG)d;
             if (d < 0) {
-                ud1 = (DWORD)-1;
+                ud1 = (DWORD) - 1;
             } else {
                 ud1 = (DWORD)0;
             }
@@ -904,7 +906,7 @@ LONGLONG WINAPI Int64x32Div32(LONGLONG a, LONG b, LONG c, LONG d)
     /*  This will catch c == 0 and overflow */
     if (uc <= p1) {
         return bSign ? (LONGLONG)0x8000000000000000 :
-                       (LONGLONG)0x7FFFFFFFFFFFFFFF;
+               (LONGLONG)0x7FFFFFFFFFFFFFFF;
     }
 
     /*  Do the division */
@@ -927,11 +929,11 @@ LONGLONG WINAPI Int64x32Div32(LONGLONG a, LONG b, LONG c, LONG d)
         uliResult.HighPart = 0;
     }
     uliResult.LowPart = EnlargedUnsignedDivide(
-                             p0,
-                             dwDivisor,
-                             NULL);
+                            p0,
+                            dwDivisor,
+                            NULL);
     return bSign ? -(LONGLONG)uliResult.QuadPart :
-                    (LONGLONG)uliResult.QuadPart;
+           (LONGLONG)uliResult.QuadPart;
 }
 
 #ifdef DEBUG
@@ -960,18 +962,18 @@ CCritSec::~CCritSec()
 
 void CCritSec::Lock()
 {
-    UINT tracelevel=3;
+    UINT tracelevel = 3;
     DWORD us = GetCurrentThreadId();
     DWORD currentOwner = m_currentOwner;
     if (currentOwner && (currentOwner != us)) {
         // already owned, but not by us
         if (m_fTrace) {
             DbgLog((LOG_LOCKING, 2, TEXT("Thread %d about to wait for lock %x owned by %d"),
-                GetCurrentThreadId(), &m_CritSec, currentOwner));
-            tracelevel=2;
-	        // if we saw the message about waiting for the critical
-	        // section we ensure we see the message when we get the
-	        // critical section
+                    GetCurrentThreadId(), &m_CritSec, currentOwner));
+            tracelevel = 2;
+            // if we saw the message about waiting for the critical
+            // section we ensure we see the message when we get the
+            // critical section
         }
     }
     EnterCriticalSection(&m_CritSec);
@@ -985,7 +987,8 @@ void CCritSec::Lock()
     }
 }
 
-void CCritSec::Unlock() {
+void CCritSec::Unlock()
+{
     if (0 == --m_lockCount) {
         // about to be unowned
         if (m_fTrace) {
@@ -997,45 +1000,45 @@ void CCritSec::Unlock() {
     LeaveCriticalSection(&m_CritSec);
 }
 
-void WINAPI DbgLockTrace(CCritSec * pcCrit, BOOL fTrace)
+void WINAPI DbgLockTrace(CCritSec* pcCrit, BOOL fTrace)
 {
     pcCrit->m_fTrace = fTrace;
 }
 
-BOOL WINAPI CritCheckIn(CCritSec * pcCrit)
+BOOL WINAPI CritCheckIn(CCritSec* pcCrit)
 {
     return (GetCurrentThreadId() == pcCrit->m_currentOwner);
 }
 
-BOOL WINAPI CritCheckIn(const CCritSec * pcCrit)
+BOOL WINAPI CritCheckIn(const CCritSec* pcCrit)
 {
     return (GetCurrentThreadId() == pcCrit->m_currentOwner);
 }
 
-BOOL WINAPI CritCheckOut(CCritSec * pcCrit)
+BOOL WINAPI CritCheckOut(CCritSec* pcCrit)
 {
     return (GetCurrentThreadId() != pcCrit->m_currentOwner);
 }
 
-BOOL WINAPI CritCheckOut(const CCritSec * pcCrit)
+BOOL WINAPI CritCheckOut(const CCritSec* pcCrit)
 {
     return (GetCurrentThreadId() != pcCrit->m_currentOwner);
 }
 #endif
 
 
-STDAPI WriteBSTR(BSTR *pstrDest, LPCWSTR szSrc)
+STDAPI WriteBSTR(BSTR* pstrDest, LPCWSTR szSrc)
 {
-    *pstrDest = SysAllocString( szSrc );
-    if( !(*pstrDest) ) return E_OUTOFMEMORY;
+    *pstrDest = SysAllocString(szSrc);
+    if (!(*pstrDest)) { return E_OUTOFMEMORY; }
     return NOERROR;
 }
 
 
 STDAPI FreeBSTR(BSTR* pstr)
 {
-    if( *pstr == NULL ) return S_FALSE;
-    SysFreeString( *pstr );
+    if (*pstr == NULL) { return S_FALSE; }
+    SysFreeString(*pstr);
     return NOERROR;
 }
 
@@ -1045,14 +1048,14 @@ STDAPI FreeBSTR(BSTR* pstr)
 //    S_OK          - no error
 //    E_POINTER     - ppszReturn == NULL
 //    E_OUTOFMEMORY - can't allocate memory for returned string
-STDAPI AMGetWideString(LPCWSTR psz, LPWSTR *ppszReturn)
+STDAPI AMGetWideString(LPCWSTR psz, LPWSTR* ppszReturn)
 {
     CheckPointer(ppszReturn, E_POINTER);
     ValidateReadWritePtr(ppszReturn, sizeof(LPWSTR));
-    DWORD nameLen = sizeof(WCHAR) * (lstrlenW(psz)+1);
+    DWORD nameLen = sizeof(WCHAR) * (lstrlenW(psz) + 1);
     *ppszReturn = (LPWSTR)CoTaskMemAlloc(nameLen);
     if (*ppszReturn == NULL) {
-       return E_OUTOFMEMORY;
+        return E_OUTOFMEMORY;
     }
     CopyMemory(*ppszReturn, psz, nameLen);
     return NOERROR;
@@ -1081,7 +1084,7 @@ DWORD WINAPI WaitDispatchingMessages(
     if (dwWait != INFINITE && dwWait != 0) {
         dwStart = GetTickCount();
     }
-    for (; ; ) {
+    for (; ;) {
         DWORD nCount = NULL != hEvent ? 2 : 1;
 
         //  Minimize the chance of actually dispatching any messages
@@ -1096,14 +1099,14 @@ DWORD WINAPI WaitDispatchingMessages(
             dwTimeOut = 10;
         }
         dwResult = MsgWaitForMultipleObjects(
-                             nCount,
-                             hObjects,
-                             FALSE,
-                             dwTimeOut,
-                             hwnd == NULL ? QS_SENDMESSAGE :
-                                            QS_SENDMESSAGE + QS_POSTMESSAGE);
+                       nCount,
+                       hObjects,
+                       FALSE,
+                       dwTimeOut,
+                       hwnd == NULL ? QS_SENDMESSAGE :
+                       QS_SENDMESSAGE + QS_POSTMESSAGE);
         if (dwResult == WAIT_OBJECT_0 + nCount ||
-            dwResult == WAIT_TIMEOUT && dwTimeOut != dwWait) {
+                dwResult == WAIT_TIMEOUT && dwTimeOut != dwWait) {
             MSG msg;
             if (hwnd != NULL) {
                 while (PeekMessage(&msg, hwnd, uMsg, uMsg, PM_REMOVE)) {
@@ -1148,7 +1151,7 @@ DWORD WINAPI WaitDispatchingMessages(
             if (uMsgId != 0) {
                 MSG msg;
                 //  Remove old ones
-                while (PeekMessage(&msg, (HWND)-1, uMsgId, uMsgId, PM_REMOVE)) {
+                while (PeekMessage(&msg, (HWND) - 1, uMsgId, uMsgId, PM_REMOVE)) {
                 }
             }
             PostThreadMessage(GetCurrentThreadId(), uMsgId, 0, 0);
@@ -1160,22 +1163,21 @@ DWORD WINAPI WaitDispatchingMessages(
 HRESULT AmGetLastErrorToHResult()
 {
     DWORD dwLastError = GetLastError();
-    if(dwLastError != 0)
-    {
+    if (dwLastError != 0) {
         return HRESULT_FROM_WIN32(dwLastError);
-    }
-    else
-    {
+    } else {
         return E_FAIL;
     }
 }
 
 IUnknown* QzAtlComPtrAssign(IUnknown** pp, IUnknown* lp)
 {
-    if (lp != NULL)
+    if (lp != NULL) {
         lp->AddRef();
-    if (*pp)
+    }
+    if (*pp) {
         (*pp)->Release();
+    }
     *pp = lp;
     return lp;
 }
@@ -1189,48 +1191,50 @@ timeSetEvent() if the current operating system supports it.  TIME_KILL_SYNCHRONO
 is supported on Windows XP and later operating systems.
 
 Parameters:
-- The same parameters as timeSetEvent().  See timeSetEvent()'s documentation in 
+- The same parameters as timeSetEvent().  See timeSetEvent()'s documentation in
 the Platform SDK for more information.
 
 Return Value:
-- The same return value as timeSetEvent().  See timeSetEvent()'s documentation in 
+- The same return value as timeSetEvent().  See timeSetEvent()'s documentation in
 the Platform SDK for more information.
 
 ******************************************************************************/
-MMRESULT CompatibleTimeSetEvent( UINT uDelay, UINT uResolution, LPTIMECALLBACK lpTimeProc, DWORD_PTR dwUser, UINT fuEvent )
+MMRESULT CompatibleTimeSetEvent(UINT uDelay, UINT uResolution, LPTIMECALLBACK lpTimeProc, DWORD_PTR dwUser, UINT fuEvent)
 {
-    #if WINVER >= 0x0501
+#if WINVER >= 0x0501
     {
         static bool fCheckedVersion = false;
-        static bool fTimeKillSynchronousFlagAvailable = false; 
+        static bool fTimeKillSynchronousFlagAvailable = false;
 
-        if( !fCheckedVersion ) {
+        if (!fCheckedVersion)
+        {
             fTimeKillSynchronousFlagAvailable = TimeKillSynchronousFlagAvailable();
             fCheckedVersion = true;
         }
 
-        if( fTimeKillSynchronousFlagAvailable ) {
+        if (fTimeKillSynchronousFlagAvailable)
+        {
             fuEvent = fuEvent | TIME_KILL_SYNCHRONOUS;
         }
     }
-    #endif // WINVER >= 0x0501
+#endif // WINVER >= 0x0501
 
-    return timeSetEvent( uDelay, uResolution, lpTimeProc, dwUser, fuEvent );
+    return timeSetEvent(uDelay, uResolution, lpTimeProc, dwUser, fuEvent);
 }
 
-bool TimeKillSynchronousFlagAvailable( void )
+bool TimeKillSynchronousFlagAvailable(void)
 {
     OSVERSIONINFO osverinfo;
 
     osverinfo.dwOSVersionInfoSize = sizeof(osverinfo);
 
-    if( GetVersionEx( &osverinfo ) ) {
-        
+    if (GetVersionEx(&osverinfo)) {
+
         // Windows XP's major version is 5 and its' minor version is 1.
         // timeSetEvent() started supporting the TIME_KILL_SYNCHRONOUS flag
         // in Windows XP.
-        if( (osverinfo.dwMajorVersion > 5) || 
-            ( (osverinfo.dwMajorVersion == 5) && (osverinfo.dwMinorVersion >= 1) ) ) {
+        if ((osverinfo.dwMajorVersion > 5) ||
+                ((osverinfo.dwMajorVersion == 5) && (osverinfo.dwMinorVersion >= 1))) {
             return true;
         }
     }

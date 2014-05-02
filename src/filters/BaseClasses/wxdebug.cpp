@@ -2,7 +2,7 @@
 // File: WXDebug.cpp
 //
 // Desc: DirectShow base classes - implements ActiveX system debugging
-//       facilities.    
+//       facilities.
 //
 // Copyright (c) 1992-2002 Microsoft Corporation.  All rights reserved.
 //------------------------------------------------------------------------------
@@ -37,7 +37,7 @@ const INT iDEBUGINFO = 1024;                 // Used to format strings
    HKEY_LOCAL_MACHINE\SOFTWARE\Debug\<Module Name>\<KeyName> key values
    NOTE these must be in the same order as their enumeration definition */
 
-TCHAR *pKeyNames[] = {
+TCHAR* pKeyNames[] = {
     TEXT("TIMING"),      // Timing and performance measurements
     TEXT("TRACE"),       // General step point call tracing
     TEXT("MEMORY"),      // Memory and object allocation/destruction
@@ -48,7 +48,7 @@ TCHAR *pKeyNames[] = {
     TEXT("CUSTOM3"),
     TEXT("CUSTOM4"),
     TEXT("CUSTOM5")
-    };
+};
 
 const TCHAR CAutoTrace::_szEntering[] = TEXT("Entering: %s");
 const TCHAR CAutoTrace::_szLeaving[]  = TEXT("Leaving: %s");
@@ -60,21 +60,21 @@ TCHAR m_ModuleName[iDEBUGINFO];             // Cut down module name
 DWORD m_Levels[iMAXLEVELS];                 // Debug level per category
 CRITICAL_SECTION m_CSDebug;                 // Controls access to list
 DWORD m_dwNextCookie;                       // Next active object ID
-ObjectDesc *pListHead = NULL;               // First active object
+ObjectDesc* pListHead = NULL;               // First active object
 DWORD m_dwObjectCount;                      // Active object count
 BOOL m_bInit = FALSE;                       // Have we been initialised
 HANDLE m_hOutput = INVALID_HANDLE_VALUE;    // Optional output written here
 DWORD dwWaitTimeout = INFINITE;             // Default timeout value
-DWORD dwTimeOffset;			    // Time of first DbgLog call
+DWORD dwTimeOffset;             // Time of first DbgLog call
 bool g_fUseKASSERT = false;                 // don't create messagebox
 bool g_fDbgInDllEntryPoint = false;
 bool g_fAutoRefreshLevels = false;
 
-const TCHAR *pBaseKey = TEXT("SOFTWARE\\Debug");
-const TCHAR *pGlobalKey = TEXT("GLOBAL");
-static CHAR *pUnknownName = "UNKNOWN";
+const TCHAR* pBaseKey = TEXT("SOFTWARE\\Debug");
+const TCHAR* pGlobalKey = TEXT("GLOBAL");
+static CHAR* pUnknownName = "UNKNOWN";
 
-TCHAR *TimeoutName = TEXT("TIMEOUT");
+TCHAR* TimeoutName = TEXT("TIMEOUT");
 
 /* This sets the instance handle that the debug library uses to find
    the module's file name from the Win32 GetModuleFileName function */
@@ -86,8 +86,9 @@ void WINAPI DbgInitialise(HINSTANCE hInst)
 
     m_hInst = hInst;
     DbgInitModuleName();
-    if (GetProfileInt(m_ModuleName, TEXT("BreakOnLoad"), 0))
-       DebugBreak();
+    if (GetProfileInt(m_ModuleName, TEXT("BreakOnLoad"), 0)) {
+        DebugBreak();
+    }
     DbgInitModuleSettings(false);
     DbgInitGlobalSettings(true);
     dwTimeOffset = timeGetTime();
@@ -103,8 +104,8 @@ void WINAPI DbgInitialise(HINSTANCE hInst)
 void WINAPI DbgTerminate()
 {
     if (m_hOutput != INVALID_HANDLE_VALUE) {
-       EXECUTE_ASSERT(CloseHandle(m_hOutput));
-       m_hOutput = INVALID_HANDLE_VALUE;
+        EXECUTE_ASSERT(CloseHandle(m_hOutput));
+        m_hOutput = INVALID_HANDLE_VALUE;
     }
     DeleteCriticalSection(&m_CSDebug);
     m_bInit = FALSE;
@@ -123,16 +124,16 @@ void WINAPI DbgInitKeyLevels(HKEY hKey, bool fTakeMax)
     DWORD dwKeyValue;           // This fields value
 
     /* Try and read a value for each key position in turn */
-    for (lKeyPos = 0;lKeyPos < iMAXLEVELS;lKeyPos++) {
+    for (lKeyPos = 0; lKeyPos < iMAXLEVELS; lKeyPos++) {
 
         dwKeySize = sizeof(DWORD);
         lReturn = RegQueryValueEx(
-            hKey,                       // Handle to an open key
-            pKeyNames[lKeyPos],         // Subkey name derivation
-            NULL,                       // Reserved field
-            &dwKeyType,                 // Returns the field type
-            (LPBYTE) &dwKeyValue,       // Returns the field's value
-            &dwKeySize );               // Number of bytes transferred
+                      hKey,                       // Handle to an open key
+                      pKeyNames[lKeyPos],         // Subkey name derivation
+                      NULL,                       // Reserved field
+                      &dwKeyType,                 // Returns the field type
+                      (LPBYTE) &dwKeyValue,       // Returns the field's value
+                      &dwKeySize);                // Number of bytes transferred
 
         /* If either the key was not available or it was not a DWORD value
            then we ensure only the high priority debug logging is output
@@ -142,25 +143,22 @@ void WINAPI DbgInitKeyLevels(HKEY hKey, bool fTakeMax)
 
             dwKeyValue = 0;
             lReturn = RegSetValueEx(
-                hKey,                   // Handle of an open key
-                pKeyNames[lKeyPos],     // Address of subkey name
-                (DWORD) 0,              // Reserved field
-                REG_DWORD,              // Type of the key field
-                (PBYTE) &dwKeyValue,    // Value for the field
-                sizeof(DWORD));         // Size of the field buffer
+                          hKey,                   // Handle of an open key
+                          pKeyNames[lKeyPos],     // Address of subkey name
+                          (DWORD) 0,              // Reserved field
+                          REG_DWORD,              // Type of the key field
+                          (PBYTE) &dwKeyValue,    // Value for the field
+                          sizeof(DWORD));         // Size of the field buffer
 
             if (lReturn != ERROR_SUCCESS) {
-                DbgLog((LOG_ERROR,0,TEXT("Could not create subkey %s"),pKeyNames[lKeyPos]));
+                DbgLog((LOG_ERROR, 0, TEXT("Could not create subkey %s"), pKeyNames[lKeyPos]));
                 dwKeyValue = 0;
             }
         }
-        if(fTakeMax)
-        {
-            m_Levels[lKeyPos] = max(dwKeyValue,m_Levels[lKeyPos]);
-        }
-        else
-        {
-            if((m_Levels[lKeyPos] & LOG_FORCIBLY_SET) == 0) {
+        if (fTakeMax) {
+            m_Levels[lKeyPos] = max(dwKeyValue, m_Levels[lKeyPos]);
+        } else {
+            if ((m_Levels[lKeyPos] & LOG_FORCIBLY_SET) == 0) {
                 m_Levels[lKeyPos] = dwKeyValue;
             }
         }
@@ -169,12 +167,12 @@ void WINAPI DbgInitKeyLevels(HKEY hKey, bool fTakeMax)
     /*  Read the timeout value for catching hangs */
     dwKeySize = sizeof(DWORD);
     lReturn = RegQueryValueEx(
-        hKey,                       // Handle to an open key
-        TimeoutName,                // Subkey name derivation
-        NULL,                       // Reserved field
-        &dwKeyType,                 // Returns the field type
-        (LPBYTE) &dwWaitTimeout,    // Returns the field's value
-        &dwKeySize );               // Number of bytes transferred
+                  hKey,                       // Handle to an open key
+                  TimeoutName,                // Subkey name derivation
+                  NULL,                       // Reserved field
+                  &dwKeyType,                 // Returns the field type
+                  (LPBYTE) &dwWaitTimeout,    // Returns the field's value
+                  &dwKeySize);                // Number of bytes transferred
 
     /* If either the key was not available or it was not a DWORD value
        then we ensure only the high priority debug logging is output
@@ -184,15 +182,15 @@ void WINAPI DbgInitKeyLevels(HKEY hKey, bool fTakeMax)
 
         dwWaitTimeout = INFINITE;
         lReturn = RegSetValueEx(
-            hKey,                   // Handle of an open key
-            TimeoutName,            // Address of subkey name
-            (DWORD) 0,              // Reserved field
-            REG_DWORD,              // Type of the key field
-            (PBYTE) &dwWaitTimeout, // Value for the field
-            sizeof(DWORD));         // Size of the field buffer
+                      hKey,                   // Handle of an open key
+                      TimeoutName,            // Address of subkey name
+                      (DWORD) 0,              // Reserved field
+                      REG_DWORD,              // Type of the key field
+                      (PBYTE) &dwWaitTimeout, // Value for the field
+                      sizeof(DWORD));         // Size of the field buffer
 
         if (lReturn != ERROR_SUCCESS) {
-            DbgLog((LOG_ERROR,0,TEXT("Could not create subkey %s"),pKeyNames[lKeyPos]));
+            DbgLog((LOG_ERROR, 0, TEXT("Could not create subkey %s"), pKeyNames[lKeyPos]));
             dwWaitTimeout = INFINITE;
         }
     }
@@ -206,19 +204,19 @@ void WINAPI DbgOutString(LPCTSTR psz)
 #ifdef UNICODE
         CHAR szDest[2048];
         WideCharToMultiByte(CP_ACP, 0, psz, -1, szDest, NUMELMS(szDest), 0, 0);
-        WriteFile (m_hOutput, szDest, cb, &dw, NULL);
+        WriteFile(m_hOutput, szDest, cb, &dw, NULL);
 #else
-        WriteFile (m_hOutput, psz, cb, &dw, NULL);
+        WriteFile(m_hOutput, psz, cb, &dw, NULL);
 #endif
     } else {
-        OutputDebugString (psz);
+        OutputDebugString(psz);
     }
 }
 
 /* Called by DbgInitGlobalSettings to setup alternate logging destinations
  */
 
-void WINAPI DbgInitLogTo (
+void WINAPI DbgInitLogTo(
     HKEY hKey)
 {
     LONG  lReturn;
@@ -229,60 +227,56 @@ void WINAPI DbgInitLogTo (
 
     dwKeySize = MAX_PATH;
     lReturn = RegQueryValueEx(
-        hKey,                       // Handle to an open key
-        cszKey,                     // Subkey name derivation
-        NULL,                       // Reserved field
-        &dwKeyType,                 // Returns the field type
-        (LPBYTE) szFile,            // Returns the field's value
-        &dwKeySize);                // Number of bytes transferred
+                  hKey,                       // Handle to an open key
+                  cszKey,                     // Subkey name derivation
+                  NULL,                       // Reserved field
+                  &dwKeyType,                 // Returns the field type
+                  (LPBYTE) szFile,            // Returns the field's value
+                  &dwKeySize);                // Number of bytes transferred
 
     // create an empty key if it does not already exist
     //
-    if (lReturn != ERROR_SUCCESS || dwKeyType != REG_SZ)
-       {
-       dwKeySize = sizeof(TCHAR);
-       lReturn = RegSetValueEx(
-            hKey,                   // Handle of an open key
-            cszKey,                 // Address of subkey name
-            (DWORD) 0,              // Reserved field
-            REG_SZ,                 // Type of the key field
-            (PBYTE)szFile,          // Value for the field
-            dwKeySize);            // Size of the field buffer
-       }
+    if (lReturn != ERROR_SUCCESS || dwKeyType != REG_SZ) {
+        dwKeySize = sizeof(TCHAR);
+        lReturn = RegSetValueEx(
+                      hKey,                   // Handle of an open key
+                      cszKey,                 // Address of subkey name
+                      (DWORD) 0,              // Reserved field
+                      REG_SZ,                 // Type of the key field
+                      (PBYTE)szFile,          // Value for the field
+                      dwKeySize);            // Size of the field buffer
+    }
 
     // if an output-to was specified.  try to open it.
     //
     if (m_hOutput != INVALID_HANDLE_VALUE) {
-       EXECUTE_ASSERT(CloseHandle (m_hOutput));
-       m_hOutput = INVALID_HANDLE_VALUE;
+        EXECUTE_ASSERT(CloseHandle(m_hOutput));
+        m_hOutput = INVALID_HANDLE_VALUE;
     }
-    if (szFile[0] != 0)
-       {
-       if (!lstrcmpi(szFile, TEXT("Console"))) {
-          m_hOutput = GetStdHandle (STD_OUTPUT_HANDLE);
-          if (m_hOutput == INVALID_HANDLE_VALUE) {
-             AllocConsole ();
-             m_hOutput = GetStdHandle (STD_OUTPUT_HANDLE);
-          }
-          SetConsoleTitle (TEXT("ActiveX Debug Output"));
-       } else if (szFile[0] &&
-                lstrcmpi(szFile, TEXT("Debug")) &&
-                lstrcmpi(szFile, TEXT("Debugger")) &&
-                lstrcmpi(szFile, TEXT("Deb")))
-          {
+    if (szFile[0] != 0) {
+        if (!lstrcmpi(szFile, TEXT("Console"))) {
+            m_hOutput = GetStdHandle(STD_OUTPUT_HANDLE);
+            if (m_hOutput == INVALID_HANDLE_VALUE) {
+                AllocConsole();
+                m_hOutput = GetStdHandle(STD_OUTPUT_HANDLE);
+            }
+            SetConsoleTitle(TEXT("ActiveX Debug Output"));
+        } else if (szFile[0] &&
+                   lstrcmpi(szFile, TEXT("Debug")) &&
+                   lstrcmpi(szFile, TEXT("Debugger")) &&
+                   lstrcmpi(szFile, TEXT("Deb"))) {
             m_hOutput = CreateFile(szFile, GENERIC_WRITE,
-                                 FILE_SHARE_READ,
-                                 NULL, OPEN_ALWAYS,
-                                 FILE_ATTRIBUTE_NORMAL,
-                                 NULL);
-          if (INVALID_HANDLE_VALUE != m_hOutput)
-              {
-              static const TCHAR cszBar[] = TEXT("\r\n\r\n=====DbgInitialize()=====\r\n\r\n");
-              SetFilePointer (m_hOutput, 0, NULL, FILE_END);
-              DbgOutString (cszBar);
-              }
-          }
-       }
+                                   FILE_SHARE_READ,
+                                   NULL, OPEN_ALWAYS,
+                                   FILE_ATTRIBUTE_NORMAL,
+                                   NULL);
+            if (INVALID_HANDLE_VALUE != m_hOutput) {
+                static const TCHAR cszBar[] = TEXT("\r\n\r\n=====DbgInitialize()=====\r\n\r\n");
+                SetFilePointer(m_hOutput, 0, NULL, FILE_END);
+                DbgOutString(cszBar);
+            }
+        }
+    }
 }
 
 
@@ -299,7 +293,7 @@ void WINAPI DbgInitGlobalSettings(bool fTakeMax)
     HKEY hGlobalKey;            // Global override key
 
     /* Construct the global base key name */
-    wsprintf(szInfo,TEXT("%s\\%s"),pBaseKey,pGlobalKey);
+    wsprintf(szInfo, TEXT("%s\\%s"), pBaseKey, pGlobalKey);
 
     /* Create or open the key for this module */
     lReturn = RegCreateKeyEx(HKEY_LOCAL_MACHINE,   // Handle of an open key
@@ -313,7 +307,7 @@ void WINAPI DbgInitGlobalSettings(bool fTakeMax)
                              NULL);                // What really happened
 
     if (lReturn != ERROR_SUCCESS) {
-        DbgLog((LOG_ERROR,0,TEXT("Could not access GLOBAL module key")));
+        DbgLog((LOG_ERROR, 0, TEXT("Could not access GLOBAL module key")));
         return;
     }
 
@@ -335,7 +329,7 @@ void WINAPI DbgInitModuleSettings(bool fTakeMax)
     HKEY hModuleKey;            // Module key handle
 
     /* Construct the base key name */
-    wsprintf(szInfo,TEXT("%s\\%s"),pBaseKey,m_ModuleName);
+    wsprintf(szInfo, TEXT("%s\\%s"), pBaseKey, m_ModuleName);
 
     /* Create or open the key for this module */
     lReturn = RegCreateKeyEx(HKEY_LOCAL_MACHINE,   // Handle of an open key
@@ -349,7 +343,7 @@ void WINAPI DbgInitModuleSettings(bool fTakeMax)
                              NULL);                // What really happened
 
     if (lReturn != ERROR_SUCCESS) {
-        DbgLog((LOG_ERROR,0,TEXT("Could not access module key")));
+        DbgLog((LOG_ERROR, 0, TEXT("Could not access module key")));
         return;
     }
 
@@ -364,23 +358,22 @@ void WINAPI DbgInitModuleSettings(bool fTakeMax)
 void WINAPI DbgInitModuleName()
 {
     TCHAR FullName[iDEBUGINFO];     // Load the full path and module name
-    TCHAR *pName;                   // Searches from the end for a backslash
+    TCHAR* pName;                   // Searches from the end for a backslash
 
-    GetModuleFileName(m_hInst,FullName,iDEBUGINFO);
-    pName = _tcsrchr(FullName,'\\');
+    GetModuleFileName(m_hInst, FullName, iDEBUGINFO);
+    pName = _tcsrchr(FullName, '\\');
     if (pName == NULL) {
         pName = FullName;
     } else {
         pName++;
     }
-    lstrcpy(m_ModuleName,pName);
+    lstrcpy(m_ModuleName, pName);
 }
 
-struct MsgBoxMsg
-{
+struct MsgBoxMsg {
     HWND hwnd;
-    TCHAR *szTitle;
-    TCHAR *szMessage;
+    TCHAR* szTitle;
+    TCHAR* szMessage;
     DWORD dwFlags;
     INT iResult;
 };
@@ -390,44 +383,40 @@ struct MsgBoxMsg
 // random threads at bad times can confuse the host (eg IE).
 //
 DWORD WINAPI MsgBoxThread(
-  LPVOID lpParameter   // thread data
-  )
+    LPVOID lpParameter   // thread data
+)
 {
-    MsgBoxMsg *pmsg = (MsgBoxMsg *)lpParameter;
+    MsgBoxMsg* pmsg = (MsgBoxMsg*)lpParameter;
     pmsg->iResult = MessageBox(
-        pmsg->hwnd,
-        pmsg->szTitle,
-        pmsg->szMessage,
-        pmsg->dwFlags);
-    
+                        pmsg->hwnd,
+                        pmsg->szTitle,
+                        pmsg->szMessage,
+                        pmsg->dwFlags);
+
     return 0;
 }
 
 INT MessageBoxOtherThread(
     HWND hwnd,
-    TCHAR *szTitle,
-    TCHAR *szMessage,
+    TCHAR* szTitle,
+    TCHAR* szMessage,
     DWORD dwFlags)
 {
-    if(g_fDbgInDllEntryPoint)
-    {
+    if (g_fDbgInDllEntryPoint) {
         // can't wait on another thread because we have the loader
         // lock held in the dll entry point.
         return MessageBox(hwnd, szTitle, szMessage, dwFlags);
-    }
-    else
-    {
+    } else {
         MsgBoxMsg msg = {hwnd, szTitle, szMessage, dwFlags, 0};
         DWORD dwid;
         HANDLE hThread = CreateThread(
-            0,                      // security
-            0,                      // stack size
-            MsgBoxThread,
-            (void *)&msg,           // arg
-            0,                      // flags
-            &dwid);
-        if(hThread)
-        {
+                             0,                      // security
+                             0,                      // stack size
+                             MsgBoxThread,
+                             (void*)&msg,            // arg
+                             0,                      // flags
+                             &dwid);
+        if (hThread) {
             WaitForSingleObject(hThread, INFINITE);
             CloseHandle(hThread);
             return msg.iResult;
@@ -440,108 +429,100 @@ INT MessageBoxOtherThread(
 
 /* Displays a message box if the condition evaluated to FALSE */
 
-void WINAPI DbgAssert(const TCHAR *pCondition,const TCHAR *pFileName,INT iLine)
+void WINAPI DbgAssert(const TCHAR* pCondition, const TCHAR* pFileName, INT iLine)
 {
-    if(g_fUseKASSERT)
-    {
+    if (g_fUseKASSERT) {
         DbgKernelAssert(pCondition, pFileName, iLine);
-    }
-    else
-    {
+    } else {
 
         TCHAR szInfo[iDEBUGINFO];
 
         wsprintf(szInfo, TEXT("%s \nAt line %d of %s\nContinue? (Cancel to debug)"),
                  pCondition, iLine, pFileName);
 
-        INT MsgId = MessageBoxOtherThread(NULL,szInfo,TEXT("ASSERT Failed"),
+        INT MsgId = MessageBoxOtherThread(NULL, szInfo, TEXT("ASSERT Failed"),
                                           MB_SYSTEMMODAL |
                                           MB_ICONHAND |
                                           MB_YESNOCANCEL |
                                           MB_SETFOREGROUND);
-        switch (MsgId)
-        {
-          case IDNO:              /* Kill the application */
+        switch (MsgId) {
+            case IDNO:              /* Kill the application */
 
-              FatalAppExit(FALSE, TEXT("Application terminated"));
-              break;
+                FatalAppExit(FALSE, TEXT("Application terminated"));
+                break;
 
-          case IDCANCEL:          /* Break into the debugger */
+            case IDCANCEL:          /* Break into the debugger */
 
-              DebugBreak();
-              break;
+                DebugBreak();
+                break;
 
-          case IDYES:             /* Ignore assertion continue execution */
-              break;
+            case IDYES:             /* Ignore assertion continue execution */
+                break;
         }
     }
 }
 
 /* Displays a message box at a break point */
 
-void WINAPI DbgBreakPoint(const TCHAR *pCondition,const TCHAR *pFileName,INT iLine)
+void WINAPI DbgBreakPoint(const TCHAR* pCondition, const TCHAR* pFileName, INT iLine)
 {
-    if(g_fUseKASSERT)
-    {
+    if (g_fUseKASSERT) {
         DbgKernelAssert(pCondition, pFileName, iLine);
-    }
-    else
-    {
+    } else {
         TCHAR szInfo[iDEBUGINFO];
 
         wsprintf(szInfo, TEXT("%s \nAt line %d of %s\nContinue? (Cancel to debug)"),
                  pCondition, iLine, pFileName);
 
-        INT MsgId = MessageBoxOtherThread(NULL,szInfo,TEXT("Hard coded break point"),
+        INT MsgId = MessageBoxOtherThread(NULL, szInfo, TEXT("Hard coded break point"),
                                           MB_SYSTEMMODAL |
                                           MB_ICONHAND |
                                           MB_YESNOCANCEL |
                                           MB_SETFOREGROUND);
-        switch (MsgId)
-        {
-          case IDNO:              /* Kill the application */
+        switch (MsgId) {
+            case IDNO:              /* Kill the application */
 
-              FatalAppExit(FALSE, TEXT("Application terminated"));
-              break;
+                FatalAppExit(FALSE, TEXT("Application terminated"));
+                break;
 
-          case IDCANCEL:          /* Break into the debugger */
+            case IDCANCEL:          /* Break into the debugger */
 
-              DebugBreak();
-              break;
+                DebugBreak();
+                break;
 
-          case IDYES:             /* Ignore break point continue execution */
-              break;
+            case IDYES:             /* Ignore break point continue execution */
+                break;
         }
     }
 }
 
-void WINAPI DbgBreakPoint(const TCHAR *pFileName,INT iLine,const TCHAR* szFormatString,...)
+void WINAPI DbgBreakPoint(const TCHAR* pFileName, INT iLine, const TCHAR* szFormatString, ...)
 {
-    // A debug break point message can have at most 2000 characters if 
+    // A debug break point message can have at most 2000 characters if
     // ANSI or UNICODE characters are being used.  A debug break point message
-    // can have between 1000 and 2000 double byte characters in it.  If a 
+    // can have between 1000 and 2000 double byte characters in it.  If a
     // particular message needs more characters, then the value of this constant
     // should be increased.
     const DWORD MAX_BREAK_POINT_MESSAGE_SIZE = 2000;
 
     TCHAR szBreakPointMessage[MAX_BREAK_POINT_MESSAGE_SIZE];
-    
+
     const DWORD MAX_CHARS_IN_BREAK_POINT_MESSAGE = sizeof(szBreakPointMessage) / sizeof(TCHAR);
 
     va_list va;
-    va_start( va, szFormatString );
+    va_start(va, szFormatString);
 
-    int nReturnValue = _vsntprintf( szBreakPointMessage, MAX_CHARS_IN_BREAK_POINT_MESSAGE, szFormatString, va );
+    int nReturnValue = _vsntprintf(szBreakPointMessage, MAX_CHARS_IN_BREAK_POINT_MESSAGE, szFormatString, va);
 
     va_end(va);
-    
+
     // _vsnprintf() returns -1 if an error occurs.
-    if( -1 == nReturnValue ) {
-        DbgBreak( "ERROR in DbgBreakPoint().  The variable length debug message could not be displayed because _vsnprintf() failed." );
+    if (-1 == nReturnValue) {
+        DbgBreak("ERROR in DbgBreakPoint().  The variable length debug message could not be displayed because _vsnprintf() failed.");
         return;
     }
 
-    ::DbgBreakPoint( szBreakPointMessage, pFileName, iLine );
+    ::DbgBreakPoint(szBreakPointMessage, pFileName, iLine);
 }
 
 
@@ -558,15 +539,14 @@ void WINAPI DbgBreakPoint(const TCHAR *pFileName,INT iLine,const TCHAR* szFormat
 */
 
 
-BOOL WINAPI DbgCheckModuleLevel(DWORD Type,DWORD Level)
+BOOL WINAPI DbgCheckModuleLevel(DWORD Type, DWORD Level)
 {
-    if(g_fAutoRefreshLevels)
-    {
+    if (g_fAutoRefreshLevels) {
         // re-read the registry every second. We cannot use RegNotify() to
         // notice registry changes because it's not available on win9x.
         static DWORD g_dwLastRefresh = 0;
         DWORD dwTime = timeGetTime();
-        if(dwTime - g_dwLastRefresh > 1000) {
+        if (dwTime - g_dwLastRefresh > 1000) {
             g_dwLastRefresh = dwTime;
 
             // there's a race condition: multiple threads could update the
@@ -580,13 +560,14 @@ BOOL WINAPI DbgCheckModuleLevel(DWORD Type,DWORD Level)
     DWORD Mask = 0x01;
 
     // If no valid bits are set return FALSE
-    if ((Type & ((1<<iMAXLEVELS)-1))) {
+    if ((Type & ((1 << iMAXLEVELS) - 1))) {
 
-	// speed up unconditional output.
-	if (0==Level)
-	    return(TRUE);
-	
-        for (LONG lKeyPos = 0;lKeyPos < iMAXLEVELS;lKeyPos++) {
+        // speed up unconditional output.
+        if (0 == Level) {
+            return (TRUE);
+        }
+
+        for (LONG lKeyPos = 0; lKeyPos < iMAXLEVELS; lKeyPos++) {
             if (Type & Mask) {
                 if (Level <= (m_Levels[lKeyPos] & ~LOG_FORCIBLY_SET)) {
                     return TRUE;
@@ -605,7 +586,7 @@ void WINAPI DbgSetModuleLevel(DWORD Type, DWORD Level)
 {
     DWORD Mask = 0x01;
 
-    for (LONG lKeyPos = 0;lKeyPos < iMAXLEVELS;lKeyPos++) {
+    for (LONG lKeyPos = 0; lKeyPos < iMAXLEVELS; lKeyPos++) {
         if (Type & Mask) {
             m_Levels[lKeyPos] = Level | LOG_FORCIBLY_SET;
         }
@@ -621,15 +602,15 @@ void WINAPI DbgSetAutoRefreshLevels(bool fAuto)
 }
 
 #ifdef UNICODE
-// 
+//
 // warning -- this function is implemented twice for ansi applications
 // linking to the unicode library
-// 
-void WINAPI DbgLogInfo(DWORD Type,DWORD Level,const CHAR *pFormat,...)
+//
+void WINAPI DbgLogInfo(DWORD Type, DWORD Level, const CHAR* pFormat, ...)
 {
     /* Check the current level for this type combination */
 
-    BOOL bAccept = DbgCheckModuleLevel(Type,Level);
+    BOOL bAccept = DbgCheckModuleLevel(Type, Level);
     if (bAccept == FALSE) {
         return;
     }
@@ -641,7 +622,7 @@ void WINAPI DbgLogInfo(DWORD Type,DWORD Level,const CHAR *pFormat,...)
     va_list va;
     va_start(va, pFormat);
 
-    lstrcpy(szInfo,m_ModuleName);
+    lstrcpy(szInfo, m_ModuleName);
     wsprintf(szInfo + lstrlen(szInfo),
              TEXT("(tid %x) %8d : "),
              GetCurrentThreadId(), timeGetTime() - dwTimeOffset);
@@ -659,85 +640,77 @@ void WINAPI DbgLogInfo(DWORD Type,DWORD Level,const CHAR *pFormat,...)
     va_end(va);
 }
 
-void DbgAssert(const CHAR *pCondition,const CHAR *pFileName,INT iLine)
+void DbgAssert(const CHAR* pCondition, const CHAR* pFileName, INT iLine)
 {
-    if(g_fUseKASSERT)
-    {
+    if (g_fUseKASSERT) {
         DbgKernelAssert(pCondition, pFileName, iLine);
-    }
-    else
-    {
+    } else {
 
         TCHAR szInfo[iDEBUGINFO];
 
         wsprintf(szInfo, TEXT("%hs \nAt line %d of %hs\nContinue? (Cancel to debug)"),
                  pCondition, iLine, pFileName);
 
-        INT MsgId = MessageBoxOtherThread(NULL,szInfo,TEXT("ASSERT Failed"),
+        INT MsgId = MessageBoxOtherThread(NULL, szInfo, TEXT("ASSERT Failed"),
                                           MB_SYSTEMMODAL |
                                           MB_ICONHAND |
                                           MB_YESNOCANCEL |
                                           MB_SETFOREGROUND);
-        switch (MsgId)
-        {
-          case IDNO:              /* Kill the application */
+        switch (MsgId) {
+            case IDNO:              /* Kill the application */
 
-              FatalAppExit(FALSE, TEXT("Application terminated"));
-              break;
+                FatalAppExit(FALSE, TEXT("Application terminated"));
+                break;
 
-          case IDCANCEL:          /* Break into the debugger */
+            case IDCANCEL:          /* Break into the debugger */
 
-              DebugBreak();
-              break;
+                DebugBreak();
+                break;
 
-          case IDYES:             /* Ignore assertion continue execution */
-              break;
+            case IDYES:             /* Ignore assertion continue execution */
+                break;
         }
     }
 }
 
 /* Displays a message box at a break point */
 
-void WINAPI DbgBreakPoint(const CHAR *pCondition,const CHAR *pFileName,INT iLine)
+void WINAPI DbgBreakPoint(const CHAR* pCondition, const CHAR* pFileName, INT iLine)
 {
-    if(g_fUseKASSERT)
-    {
+    if (g_fUseKASSERT) {
         DbgKernelAssert(pCondition, pFileName, iLine);
-    }
-    else
-    {
+    } else {
         TCHAR szInfo[iDEBUGINFO];
 
         wsprintf(szInfo, TEXT("%hs \nAt line %d of %hs\nContinue? (Cancel to debug)"),
                  pCondition, iLine, pFileName);
 
-        INT MsgId = MessageBoxOtherThread(NULL,szInfo,TEXT("Hard coded break point"),
+        INT MsgId = MessageBoxOtherThread(NULL, szInfo, TEXT("Hard coded break point"),
                                           MB_SYSTEMMODAL |
                                           MB_ICONHAND |
                                           MB_YESNOCANCEL |
                                           MB_SETFOREGROUND);
-        switch (MsgId)
-        {
-          case IDNO:              /* Kill the application */
+        switch (MsgId) {
+            case IDNO:              /* Kill the application */
 
-              FatalAppExit(FALSE, TEXT("Application terminated"));
-              break;
+                FatalAppExit(FALSE, TEXT("Application terminated"));
+                break;
 
-          case IDCANCEL:          /* Break into the debugger */
+            case IDCANCEL:          /* Break into the debugger */
 
-              DebugBreak();
-              break;
+                DebugBreak();
+                break;
 
-          case IDYES:             /* Ignore break point continue execution */
-              break;
+            case IDYES:             /* Ignore break point continue execution */
+                break;
         }
     }
 }
 
-void WINAPI DbgKernelAssert(const CHAR *pCondition,const CHAR *pFileName,INT iLine)
+void WINAPI DbgKernelAssert(const CHAR* pCondition, const CHAR* pFileName, INT iLine)
 {
-    DbgLog((LOG_ERROR,0,TEXT("Assertion FAILED (%hs) at line %d in file %hs"),
-           pCondition, iLine, pFileName));
+    DbgLog((LOG_ERROR, 0, TEXT("Assertion FAILED (%hs) at line %d in file %hs"),
+            pCondition, iLine, pFileName));
     DebugBreak();
 }
 
@@ -748,16 +721,16 @@ void WINAPI DbgKernelAssert(const CHAR *pCondition,const CHAR *pFileName,INT iLi
    have their own copy of this code. It therefore helps if the module name is
    included on the output so that the offending code can be easily found */
 
-// 
+//
 // warning -- this function is implemented twice for ansi applications
 // linking to the unicode library
-// 
-void WINAPI DbgLogInfo(DWORD Type,DWORD Level,const TCHAR *pFormat,...)
+//
+void WINAPI DbgLogInfo(DWORD Type, DWORD Level, const TCHAR* pFormat, ...)
 {
-    
+
     /* Check the current level for this type combination */
 
-    BOOL bAccept = DbgCheckModuleLevel(Type,Level);
+    BOOL bAccept = DbgCheckModuleLevel(Type, Level);
     if (bAccept == FALSE) {
         return;
     }
@@ -769,7 +742,7 @@ void WINAPI DbgLogInfo(DWORD Type,DWORD Level,const TCHAR *pFormat,...)
     va_list va;
     va_start(va, pFormat);
 
-    lstrcpy(szInfo,m_ModuleName);
+    lstrcpy(szInfo, m_ModuleName);
     wsprintf(szInfo + lstrlen(szInfo),
              TEXT("(tid %x) %8d : "),
              GetCurrentThreadId(), timeGetTime() - dwTimeOffset);
@@ -786,10 +759,10 @@ void WINAPI DbgLogInfo(DWORD Type,DWORD Level,const TCHAR *pFormat,...)
    boxes to the user, this provides an alternative which puts the error
    condition on the debugger output with a suitable eye catching message */
 
-void WINAPI DbgKernelAssert(const TCHAR *pCondition,const TCHAR *pFileName,INT iLine)
+void WINAPI DbgKernelAssert(const TCHAR* pCondition, const TCHAR* pFileName, INT iLine)
 {
-    DbgLog((LOG_ERROR,0,TEXT("Assertion FAILED (%s) at line %d in file %s"),
-           pCondition, iLine, pFileName));
+    DbgLog((LOG_ERROR, 0, TEXT("Assertion FAILED (%s) at line %d in file %s"),
+            pCondition, iLine, pFileName));
     DebugBreak();
 }
 
@@ -801,8 +774,8 @@ void WINAPI DbgKernelAssert(const TCHAR *pCondition,const TCHAR *pFileName,INT i
    uses to identify the object when it is destroyed later on. We update the
    total number of active objects in the DLL mainly for debugging purposes */
 
-DWORD WINAPI DbgRegisterObjectCreation(const CHAR *szObjectName,
-                                       const WCHAR *wszObjectName)
+DWORD WINAPI DbgRegisterObjectCreation(const CHAR* szObjectName,
+                                       const WCHAR* wszObjectName)
 {
     /* If this fires you have a mixed DEBUG/RETAIL build */
 
@@ -810,7 +783,7 @@ DWORD WINAPI DbgRegisterObjectCreation(const CHAR *szObjectName,
 
     /* Create a place holder for this object description */
 
-    ObjectDesc *pObject = new ObjectDesc;
+    ObjectDesc* pObject = new ObjectDesc;
     ASSERT(pObject);
 
     /* It is valid to pass a NULL object name */
@@ -847,11 +820,11 @@ DWORD WINAPI DbgRegisterObjectCreation(const CHAR *szObjectName,
     DWORD ObjectCookie = pObject->m_dwCookie;
     ASSERT(ObjectCookie);
 
-    if(wszObjectName) {
-        DbgLog((LOG_MEMORY,2,TEXT("Object created   %d (%ls) %d Active"),
+    if (wszObjectName) {
+        DbgLog((LOG_MEMORY, 2, TEXT("Object created   %d (%ls) %d Active"),
                 pObject->m_dwCookie, wszObjectName, m_dwObjectCount));
     } else {
-        DbgLog((LOG_MEMORY,2,TEXT("Object created   %d (%hs) %d Active"),
+        DbgLog((LOG_MEMORY, 2, TEXT("Object created   %d (%hs) %d Active"),
                 pObject->m_dwCookie, szObjectName, m_dwObjectCount));
     }
 
@@ -870,8 +843,8 @@ BOOL WINAPI DbgRegisterObjectDestruction(DWORD dwCookie)
     /* Grab the list critical section */
     EnterCriticalSection(&m_CSDebug);
 
-    ObjectDesc *pObject = pListHead;
-    ObjectDesc *pPrevious = NULL;
+    ObjectDesc* pObject = pListHead;
+    ObjectDesc* pPrevious = NULL;
 
     /* Scan the object list looking for a cookie match */
 
@@ -901,11 +874,11 @@ BOOL WINAPI DbgRegisterObjectDestruction(DWORD dwCookie)
 
     m_dwObjectCount--;
 
-    if(pObject->m_wszName) {
-        DbgLog((LOG_MEMORY,2,TEXT("Object destroyed %d (%ls) %d Active"),
+    if (pObject->m_wszName) {
+        DbgLog((LOG_MEMORY, 2, TEXT("Object destroyed %d (%ls) %d Active"),
                 pObject->m_dwCookie, pObject->m_wszName, m_dwObjectCount));
     } else {
-        DbgLog((LOG_MEMORY,2,TEXT("Object destroyed %d (%hs) %d Active"),
+        DbgLog((LOG_MEMORY, 2, TEXT("Object destroyed %d (%hs) %d Active"),
                 pObject->m_dwCookie, pObject->m_szName, m_dwObjectCount));
     }
 
@@ -924,27 +897,27 @@ void WINAPI DbgDumpObjectRegister()
     /* Grab the list critical section */
 
     EnterCriticalSection(&m_CSDebug);
-    ObjectDesc *pObject = pListHead;
+    ObjectDesc* pObject = pListHead;
 
     /* Scan the object list displaying the name and cookie */
 
-    DbgLog((LOG_MEMORY,2,TEXT("")));
-    DbgLog((LOG_MEMORY,2,TEXT("   ID             Object Description")));
-    DbgLog((LOG_MEMORY,2,TEXT("")));
+    DbgLog((LOG_MEMORY, 2, TEXT("")));
+    DbgLog((LOG_MEMORY, 2, TEXT("   ID             Object Description")));
+    DbgLog((LOG_MEMORY, 2, TEXT("")));
 
     while (pObject) {
-        if(pObject->m_wszName) {
-            wsprintf(szInfo,TEXT("%5d (%8x) %30ls"),pObject->m_dwCookie, &pObject, pObject->m_wszName);
+        if (pObject->m_wszName) {
+            wsprintf(szInfo, TEXT("%5d (%8x) %30ls"), pObject->m_dwCookie, &pObject, pObject->m_wszName);
         } else {
-            wsprintf(szInfo,TEXT("%5d (%8x) %30hs"),pObject->m_dwCookie, &pObject, pObject->m_szName);
+            wsprintf(szInfo, TEXT("%5d (%8x) %30hs"), pObject->m_dwCookie, &pObject, pObject->m_szName);
         }
-        DbgLog((LOG_MEMORY,2,szInfo));
+        DbgLog((LOG_MEMORY, 2, szInfo));
         pObject = pObject->m_pNext;
     }
 
-    wsprintf(szInfo,TEXT("Total object count %5d"),m_dwObjectCount);
-    DbgLog((LOG_MEMORY,2,TEXT("")));
-    DbgLog((LOG_MEMORY,1,szInfo));
+    wsprintf(szInfo, TEXT("Total object count %5d"), m_dwObjectCount);
+    DbgLog((LOG_MEMORY, 2, TEXT("")));
+    DbgLog((LOG_MEMORY, 1, szInfo));
     LeaveCriticalSection(&m_CSDebug);
 }
 
@@ -959,8 +932,8 @@ DWORD WINAPI DbgWaitForSingleObject(HANDLE h)
     return dwWaitResult;
 }
 DWORD WINAPI DbgWaitForMultipleObjects(DWORD nCount,
-                                CONST HANDLE *lpHandles,
-                                BOOL bWaitAll)
+                                       CONST HANDLE* lpHandles,
+                                       BOOL bWaitAll)
 {
     DWORD dwWaitResult;
     do {
@@ -982,33 +955,33 @@ void WINAPI DbgSetWaitTimeout(DWORD dwTimeout)
 
 #ifdef _OBJBASE_H_
 
-    /*  Stuff for printing out our GUID names */
+/*  Stuff for printing out our GUID names */
 
-    GUID_STRING_ENTRY g_GuidNames[] = {
-    #define OUR_GUID_ENTRY(name, l, w1, w2, b1, b2, b3, b4, b5, b6, b7, b8) \
+GUID_STRING_ENTRY g_GuidNames[] = {
+#define OUR_GUID_ENTRY(name, l, w1, w2, b1, b2, b3, b4, b5, b6, b7, b8) \
     { #name, { l, w1, w2, { b1, b2,  b3,  b4,  b5,  b6,  b7,  b8 } } },
-        #include <uuids.h>
-    };
+#include <uuids.h>
+};
 
-    CGuidNameList GuidNames;
-    int g_cGuidNames = sizeof(g_GuidNames) / sizeof(g_GuidNames[0]);
+CGuidNameList GuidNames;
+int g_cGuidNames = sizeof(g_GuidNames) / sizeof(g_GuidNames[0]);
 
-    char *CGuidNameList::operator [] (const GUID &guid)
-    {
-        for (int i = 0; i < g_cGuidNames; i++) {
-            if (g_GuidNames[i].guid == guid) {
-                return g_GuidNames[i].szName;
-            }
+char* CGuidNameList::operator [](const GUID& guid)
+{
+    for (int i = 0; i < g_cGuidNames; i++) {
+        if (g_GuidNames[i].guid == guid) {
+            return g_GuidNames[i].szName;
         }
-        if (guid == GUID_NULL) {
-            return "GUID_NULL";
-        }
-
-	// !!! add something to print FOURCC guids?
-	
-	// shouldn't this print the hex CLSID?
-        return "Unknown GUID Name";
     }
+    if (guid == GUID_NULL) {
+        return "GUID_NULL";
+    }
+
+    // !!! add something to print FOURCC guids?
+
+    // shouldn't this print the hex CLSID?
+    return "Unknown GUID Name";
+}
 
 #endif /* _OBJBASE_H_ */
 
@@ -1022,33 +995,32 @@ CDisp::CDisp(LONGLONG ll, int Format)
     LARGE_INTEGER li;
     li.QuadPart = ll;
     switch (Format) {
-	case CDISP_DEC:
-	{
-	    TCHAR  temp[20];
-	    int pos=20;
-	    temp[--pos] = 0;
-	    int digit;
-	    // always output at least one digit
-	    do {
-		// Get the rightmost digit - we only need the low word
-	        digit = li.LowPart % 10;
-		li.QuadPart /= 10;
-		temp[--pos] = (TCHAR) digit+L'0';
-	    } while (li.QuadPart);
-	    wsprintf(m_String, TEXT("%s"), temp+pos);
-	    break;
-	}
-	case CDISP_HEX:
-	default:
-	    wsprintf(m_String, TEXT("0x%X%8.8X"), li.HighPart, li.LowPart);
+        case CDISP_DEC: {
+            TCHAR  temp[20];
+            int pos = 20;
+            temp[--pos] = 0;
+            int digit;
+            // always output at least one digit
+            do {
+                // Get the rightmost digit - we only need the low word
+                digit = li.LowPart % 10;
+                li.QuadPart /= 10;
+                temp[--pos] = (TCHAR) digit + L'0';
+            } while (li.QuadPart);
+            wsprintf(m_String, TEXT("%s"), temp + pos);
+            break;
+        }
+        case CDISP_HEX:
+        default:
+            wsprintf(m_String, TEXT("0x%X%8.8X"), li.HighPart, li.LowPart);
     }
 };
 
 CDisp::CDisp(REFCLSID clsid)
 {
-    WCHAR strClass[CHARS_IN_GUID+1];
+    WCHAR strClass[CHARS_IN_GUID + 1];
     StringFromGUID2(clsid, strClass, sizeof(strClass) / sizeof(strClass[0]));
-    ASSERT(sizeof(m_String)/sizeof(m_String[0]) >= CHARS_IN_GUID+1);
+    ASSERT(sizeof(m_String) / sizeof(m_String[0]) >= CHARS_IN_GUID + 1);
     wsprintf(m_String, TEXT("%ls"), strClass);
 };
 
@@ -1086,50 +1058,47 @@ CDisp::CDisp(CRefTime llTime)
 
 
 /*  Display pin */
-CDisp::CDisp(IPin *pPin)
+CDisp::CDisp(IPin* pPin)
 {
     PIN_INFO pi;
     TCHAR str[MAX_PIN_NAME];
     CLSID clsid;
 
     if (pPin) {
-       pPin->QueryPinInfo(&pi);
-       pi.pFilter->GetClassID(&clsid);
-       QueryPinInfoReleaseFilter(pi);
-      #ifndef UNICODE
-       WideCharToMultiByte(GetACP(), 0, pi.achName, lstrlenW(pi.achName) + 1,
-                           str, MAX_PIN_NAME, NULL, NULL);
-      #else
-       lstrcpy(str, pi.achName);
-      #endif
+        pPin->QueryPinInfo(&pi);
+        pi.pFilter->GetClassID(&clsid);
+        QueryPinInfoReleaseFilter(pi);
+#ifndef UNICODE
+        WideCharToMultiByte(GetACP(), 0, pi.achName, lstrlenW(pi.achName) + 1,
+                            str, MAX_PIN_NAME, NULL, NULL);
+#else
+        lstrcpy(str, pi.achName);
+#endif
     } else {
-       lstrcpy(str, TEXT("NULL IPin"));
+        lstrcpy(str, TEXT("NULL IPin"));
     }
 
-    m_pString = (PTCHAR) new TCHAR[lstrlen(str)+64];
+    m_pString = (PTCHAR) new TCHAR[lstrlen(str) + 64];
     if (!m_pString) {
-	return;
+        return;
     }
 
     wsprintf(m_pString, TEXT("%hs(%s)"), GuidNames[clsid], str);
 }
 
 /*  Display filter or pin */
-CDisp::CDisp(IUnknown *pUnk)
+CDisp::CDisp(IUnknown* pUnk)
 {
-    IBaseFilter *pf;
-    HRESULT hr = pUnk->QueryInterface(IID_IBaseFilter, (void **)&pf);
-    if(SUCCEEDED(hr))
-    {
+    IBaseFilter* pf;
+    HRESULT hr = pUnk->QueryInterface(IID_IBaseFilter, (void**)&pf);
+    if (SUCCEEDED(hr)) {
         FILTER_INFO fi;
         hr = pf->QueryFilterInfo(&fi);
-        if(SUCCEEDED(hr))
-        {
+        if (SUCCEEDED(hr)) {
             QueryFilterInfoReleaseGraph(fi);
 
             m_pString = new TCHAR[lstrlenW(fi.achName)  + 1];
-            if(m_pString)
-            {
+            if (m_pString) {
                 wsprintf(m_pString, TEXT("%ls"), fi.achName);
             }
         }
@@ -1139,10 +1108,9 @@ CDisp::CDisp(IUnknown *pUnk)
         return;
     }
 
-    IPin *pp;
-    hr = pUnk->QueryInterface(IID_IPin, (void **)&pp);
-    if(SUCCEEDED(hr))
-    {
+    IPin* pp;
+    hr = pUnk->QueryInterface(IID_IPin, (void**)&pp);
+    if (SUCCEEDED(hr)) {
         CDisp::CDisp(pp);
         pp->Release();
         return;
@@ -1157,7 +1125,7 @@ CDisp::~CDisp()
 CDispBasic::~CDispBasic()
 {
     if (m_pString != m_String) {
-	delete [] m_pString;
+        delete [] m_pString;
     }
 }
 
@@ -1166,7 +1134,7 @@ CDisp::CDisp(double d)
 #ifdef DEBUG
     _stprintf(m_String, TEXT("%.16g"), d);
 #else
-    wsprintf(m_String, TEXT("%d.%03d"), (int) d, (int) ((d - (int) d) * 1000));
+    wsprintf(m_String, TEXT("%d.%03d"), (int) d, (int)((d - (int) d) * 1000));
 #endif
 }
 
@@ -1178,189 +1146,187 @@ CDisp::CDisp(double d)
    succeed as we do not accept input types unless the format is big enough */
 
 #ifdef DEBUG
-void WINAPI DisplayType(LPTSTR label, const AM_MEDIA_TYPE *pmtIn)
+void WINAPI DisplayType(LPTSTR label, const AM_MEDIA_TYPE* pmtIn)
 {
 
     /* Dump the GUID types and a short description */
 
-    DbgLog((LOG_TRACE,5,TEXT("")));
-    DbgLog((LOG_TRACE,2,TEXT("%s  M type %hs  S type %hs"), label,
-	    GuidNames[pmtIn->majortype],
-	    GuidNames[pmtIn->subtype]));
-    DbgLog((LOG_TRACE,5,TEXT("Subtype description %s"),GetSubtypeName(&pmtIn->subtype)));
+    DbgLog((LOG_TRACE, 5, TEXT("")));
+    DbgLog((LOG_TRACE, 2, TEXT("%s  M type %hs  S type %hs"), label,
+            GuidNames[pmtIn->majortype],
+            GuidNames[pmtIn->subtype]));
+    DbgLog((LOG_TRACE, 5, TEXT("Subtype description %s"), GetSubtypeName(&pmtIn->subtype)));
 
     /* Dump the generic media types */
 
     if (pmtIn->bTemporalCompression) {
-	DbgLog((LOG_TRACE,5,TEXT("Temporally compressed")));
+        DbgLog((LOG_TRACE, 5, TEXT("Temporally compressed")));
     } else {
-	DbgLog((LOG_TRACE,5,TEXT("Not temporally compressed")));
+        DbgLog((LOG_TRACE, 5, TEXT("Not temporally compressed")));
     }
 
     if (pmtIn->bFixedSizeSamples) {
-	DbgLog((LOG_TRACE,5,TEXT("Sample size %d"),pmtIn->lSampleSize));
+        DbgLog((LOG_TRACE, 5, TEXT("Sample size %d"), pmtIn->lSampleSize));
     } else {
-	DbgLog((LOG_TRACE,5,TEXT("Variable size samples")));
+        DbgLog((LOG_TRACE, 5, TEXT("Variable size samples")));
     }
 
     if (pmtIn->formattype == FORMAT_VideoInfo) {
-	/* Dump the contents of the BITMAPINFOHEADER structure */
-	BITMAPINFOHEADER *pbmi = HEADER(pmtIn->pbFormat);
-	VIDEOINFOHEADER *pVideoInfo = (VIDEOINFOHEADER *)pmtIn->pbFormat;
+        /* Dump the contents of the BITMAPINFOHEADER structure */
+        BITMAPINFOHEADER* pbmi = HEADER(pmtIn->pbFormat);
+        VIDEOINFOHEADER* pVideoInfo = (VIDEOINFOHEADER*)pmtIn->pbFormat;
 
-	DbgLog((LOG_TRACE,5,TEXT("Source rectangle (Left %d Top %d Right %d Bottom %d)"),
-	       pVideoInfo->rcSource.left,
-	       pVideoInfo->rcSource.top,
-	       pVideoInfo->rcSource.right,
-	       pVideoInfo->rcSource.bottom));
+        DbgLog((LOG_TRACE, 5, TEXT("Source rectangle (Left %d Top %d Right %d Bottom %d)"),
+                pVideoInfo->rcSource.left,
+                pVideoInfo->rcSource.top,
+                pVideoInfo->rcSource.right,
+                pVideoInfo->rcSource.bottom));
 
-	DbgLog((LOG_TRACE,5,TEXT("Target rectangle (Left %d Top %d Right %d Bottom %d)"),
-	       pVideoInfo->rcTarget.left,
-	       pVideoInfo->rcTarget.top,
-	       pVideoInfo->rcTarget.right,
-	       pVideoInfo->rcTarget.bottom));
+        DbgLog((LOG_TRACE, 5, TEXT("Target rectangle (Left %d Top %d Right %d Bottom %d)"),
+                pVideoInfo->rcTarget.left,
+                pVideoInfo->rcTarget.top,
+                pVideoInfo->rcTarget.right,
+                pVideoInfo->rcTarget.bottom));
 
-	DbgLog((LOG_TRACE,5,TEXT("Size of BITMAPINFO structure %d"),pbmi->biSize));
-	if (pbmi->biCompression < 256) {
-	    DbgLog((LOG_TRACE,2,TEXT("%dx%dx%d bit  (%d)"),
-		    pbmi->biWidth, pbmi->biHeight,
-		    pbmi->biBitCount, pbmi->biCompression));
-	} else {
-	    DbgLog((LOG_TRACE,2,TEXT("%dx%dx%d bit '%4.4hs'"),
-		    pbmi->biWidth, pbmi->biHeight,
-		    pbmi->biBitCount, &pbmi->biCompression));
-	}
+        DbgLog((LOG_TRACE, 5, TEXT("Size of BITMAPINFO structure %d"), pbmi->biSize));
+        if (pbmi->biCompression < 256) {
+            DbgLog((LOG_TRACE, 2, TEXT("%dx%dx%d bit  (%d)"),
+                    pbmi->biWidth, pbmi->biHeight,
+                    pbmi->biBitCount, pbmi->biCompression));
+        } else {
+            DbgLog((LOG_TRACE, 2, TEXT("%dx%dx%d bit '%4.4hs'"),
+                    pbmi->biWidth, pbmi->biHeight,
+                    pbmi->biBitCount, &pbmi->biCompression));
+        }
 
-	DbgLog((LOG_TRACE,2,TEXT("Image size %d"),pbmi->biSizeImage));
-	DbgLog((LOG_TRACE,5,TEXT("Planes %d"),pbmi->biPlanes));
-	DbgLog((LOG_TRACE,5,TEXT("X Pels per metre %d"),pbmi->biXPelsPerMeter));
-	DbgLog((LOG_TRACE,5,TEXT("Y Pels per metre %d"),pbmi->biYPelsPerMeter));
-	DbgLog((LOG_TRACE,5,TEXT("Colours used %d"),pbmi->biClrUsed));
+        DbgLog((LOG_TRACE, 2, TEXT("Image size %d"), pbmi->biSizeImage));
+        DbgLog((LOG_TRACE, 5, TEXT("Planes %d"), pbmi->biPlanes));
+        DbgLog((LOG_TRACE, 5, TEXT("X Pels per metre %d"), pbmi->biXPelsPerMeter));
+        DbgLog((LOG_TRACE, 5, TEXT("Y Pels per metre %d"), pbmi->biYPelsPerMeter));
+        DbgLog((LOG_TRACE, 5, TEXT("Colours used %d"), pbmi->biClrUsed));
 
     } else if (pmtIn->majortype == MEDIATYPE_Audio) {
-	DbgLog((LOG_TRACE,2,TEXT("     Format type %hs"),
-	    GuidNames[pmtIn->formattype]));
-	DbgLog((LOG_TRACE,2,TEXT("     Subtype %hs"),
-	    GuidNames[pmtIn->subtype]));
+        DbgLog((LOG_TRACE, 2, TEXT("     Format type %hs"),
+                GuidNames[pmtIn->formattype]));
+        DbgLog((LOG_TRACE, 2, TEXT("     Subtype %hs"),
+                GuidNames[pmtIn->subtype]));
 
-	if ((pmtIn->subtype != MEDIASUBTYPE_MPEG1Packet)
-	  && (pmtIn->cbFormat >= sizeof(PCMWAVEFORMAT)))
-	{
-	    /* Dump the contents of the WAVEFORMATEX type-specific format structure */
+        if ((pmtIn->subtype != MEDIASUBTYPE_MPEG1Packet)
+                && (pmtIn->cbFormat >= sizeof(PCMWAVEFORMAT))) {
+            /* Dump the contents of the WAVEFORMATEX type-specific format structure */
 
-	    WAVEFORMATEX *pwfx = (WAVEFORMATEX *) pmtIn->pbFormat;
-            DbgLog((LOG_TRACE,2,TEXT("wFormatTag %u"), pwfx->wFormatTag));
-            DbgLog((LOG_TRACE,2,TEXT("nChannels %u"), pwfx->nChannels));
-            DbgLog((LOG_TRACE,2,TEXT("nSamplesPerSec %lu"), pwfx->nSamplesPerSec));
-            DbgLog((LOG_TRACE,2,TEXT("nAvgBytesPerSec %lu"), pwfx->nAvgBytesPerSec));
-            DbgLog((LOG_TRACE,2,TEXT("nBlockAlign %u"), pwfx->nBlockAlign));
-            DbgLog((LOG_TRACE,2,TEXT("wBitsPerSample %u"), pwfx->wBitsPerSample));
+            WAVEFORMATEX* pwfx = (WAVEFORMATEX*) pmtIn->pbFormat;
+            DbgLog((LOG_TRACE, 2, TEXT("wFormatTag %u"), pwfx->wFormatTag));
+            DbgLog((LOG_TRACE, 2, TEXT("nChannels %u"), pwfx->nChannels));
+            DbgLog((LOG_TRACE, 2, TEXT("nSamplesPerSec %lu"), pwfx->nSamplesPerSec));
+            DbgLog((LOG_TRACE, 2, TEXT("nAvgBytesPerSec %lu"), pwfx->nAvgBytesPerSec));
+            DbgLog((LOG_TRACE, 2, TEXT("nBlockAlign %u"), pwfx->nBlockAlign));
+            DbgLog((LOG_TRACE, 2, TEXT("wBitsPerSample %u"), pwfx->wBitsPerSample));
 
             /* PCM uses a WAVEFORMAT and does not have the extra size field */
 
             if (pmtIn->cbFormat >= sizeof(WAVEFORMATEX)) {
-                DbgLog((LOG_TRACE,2,TEXT("cbSize %u"), pwfx->cbSize));
+                DbgLog((LOG_TRACE, 2, TEXT("cbSize %u"), pwfx->cbSize));
             }
-	} else {
-	}
+        } else {
+        }
 
     } else {
-	DbgLog((LOG_TRACE,2,TEXT("     Format type %hs"),
-	    GuidNames[pmtIn->formattype]));
-	// !!!! should add code to dump wave format, others
+        DbgLog((LOG_TRACE, 2, TEXT("     Format type %hs"),
+                GuidNames[pmtIn->formattype]));
+        // !!!! should add code to dump wave format, others
     }
 }
 
 
-void WINAPI DumpGraph(IFilterGraph *pGraph, DWORD dwLevel)
+void WINAPI DumpGraph(IFilterGraph* pGraph, DWORD dwLevel)
 {
-    if( !pGraph )
-    {
+    if (!pGraph) {
         return;
     }
 
-    IEnumFilters *pFilters;
+    IEnumFilters* pFilters;
 
-    DbgLog((LOG_TRACE,dwLevel,TEXT("DumpGraph [%x]"), pGraph));
+    DbgLog((LOG_TRACE, dwLevel, TEXT("DumpGraph [%x]"), pGraph));
 
     if (FAILED(pGraph->EnumFilters(&pFilters))) {
-	DbgLog((LOG_TRACE,dwLevel,TEXT("EnumFilters failed!")));
+        DbgLog((LOG_TRACE, dwLevel, TEXT("EnumFilters failed!")));
     }
 
-    IBaseFilter *pFilter;
-    ULONG	n;
+    IBaseFilter* pFilter;
+    ULONG   n;
     while (pFilters->Next(1, &pFilter, &n) == S_OK) {
-	FILTER_INFO	info;
+        FILTER_INFO info;
 
-	if (FAILED(pFilter->QueryFilterInfo(&info))) {
-	    DbgLog((LOG_TRACE,dwLevel,TEXT("    Filter [%x]  -- failed QueryFilterInfo"), pFilter));
-	} else {
-	    QueryFilterInfoReleaseGraph(info);
+        if (FAILED(pFilter->QueryFilterInfo(&info))) {
+            DbgLog((LOG_TRACE, dwLevel, TEXT("    Filter [%x]  -- failed QueryFilterInfo"), pFilter));
+        } else {
+            QueryFilterInfoReleaseGraph(info);
 
-	    // !!! should QueryVendorInfo here!
-	
-	    DbgLog((LOG_TRACE,dwLevel,TEXT("    Filter [%x]  '%ls'"), pFilter, info.achName));
+            // !!! should QueryVendorInfo here!
 
-	    IEnumPins *pins;
+            DbgLog((LOG_TRACE, dwLevel, TEXT("    Filter [%x]  '%ls'"), pFilter, info.achName));
 
-	    if (FAILED(pFilter->EnumPins(&pins))) {
-		DbgLog((LOG_TRACE,dwLevel,TEXT("EnumPins failed!")));
-	    } else {
+            IEnumPins* pins;
 
-		IPin *pPin;
-		while (pins->Next(1, &pPin, &n) == S_OK) {
-		    PIN_INFO	info;
+            if (FAILED(pFilter->EnumPins(&pins))) {
+                DbgLog((LOG_TRACE, dwLevel, TEXT("EnumPins failed!")));
+            } else {
 
-		    if (FAILED(pPin->QueryPinInfo(&info))) {
-			DbgLog((LOG_TRACE,dwLevel,TEXT("          Pin [%x]  -- failed QueryPinInfo"), pPin));
-		    } else {
-			QueryPinInfoReleaseFilter(info);
+                IPin* pPin;
+                while (pins->Next(1, &pPin, &n) == S_OK) {
+                    PIN_INFO    info;
 
-			IPin *pPinConnected = NULL;
+                    if (FAILED(pPin->QueryPinInfo(&info))) {
+                        DbgLog((LOG_TRACE, dwLevel, TEXT("          Pin [%x]  -- failed QueryPinInfo"), pPin));
+                    } else {
+                        QueryPinInfoReleaseFilter(info);
 
-			HRESULT hr = pPin->ConnectedTo(&pPinConnected);
+                        IPin* pPinConnected = NULL;
 
-			if (pPinConnected) {
-			    DbgLog((LOG_TRACE,dwLevel,TEXT("          Pin [%x]  '%ls' [%sput]")
-							   TEXT("  Connected to pin [%x]"),
-				    pPin, info.achName,
-				    info.dir == PINDIR_INPUT ? TEXT("In") : TEXT("Out"),
-				    pPinConnected));
+                        HRESULT hr = pPin->ConnectedTo(&pPinConnected);
 
-			    pPinConnected->Release();
+                        if (pPinConnected) {
+                            DbgLog((LOG_TRACE, dwLevel, TEXT("          Pin [%x]  '%ls' [%sput]")
+                                    TEXT("  Connected to pin [%x]"),
+                                    pPin, info.achName,
+                                    info.dir == PINDIR_INPUT ? TEXT("In") : TEXT("Out"),
+                                    pPinConnected));
 
-			    // perhaps we should really dump the type both ways as a sanity
-			    // check?
-			    if (info.dir == PINDIR_OUTPUT) {
-				AM_MEDIA_TYPE mt;
+                            pPinConnected->Release();
 
-				hr = pPin->ConnectionMediaType(&mt);
+                            // perhaps we should really dump the type both ways as a sanity
+                            // check?
+                            if (info.dir == PINDIR_OUTPUT) {
+                                AM_MEDIA_TYPE mt;
 
-				if (SUCCEEDED(hr)) {
-				    DisplayType(TEXT("Connection type"), &mt);
+                                hr = pPin->ConnectionMediaType(&mt);
 
-				    FreeMediaType(mt);
-				}
-			    }
-			} else {
-			    DbgLog((LOG_TRACE,dwLevel,
-				    TEXT("          Pin [%x]  '%ls' [%sput]"),
-				    pPin, info.achName,
-				    info.dir == PINDIR_INPUT ? TEXT("In") : TEXT("Out")));
+                                if (SUCCEEDED(hr)) {
+                                    DisplayType(TEXT("Connection type"), &mt);
 
-			}
-		    }
+                                    FreeMediaType(mt);
+                                }
+                            }
+                        } else {
+                            DbgLog((LOG_TRACE, dwLevel,
+                                    TEXT("          Pin [%x]  '%ls' [%sput]"),
+                                    pPin, info.achName,
+                                    info.dir == PINDIR_INPUT ? TEXT("In") : TEXT("Out")));
 
-		    pPin->Release();
+                        }
+                    }
 
-		}
+                    pPin->Release();
 
-		pins->Release();
-	    }
+                }
 
-	}
-	
-	pFilter->Release();
+                pins->Release();
+            }
+
+        }
+
+        pFilter->Release();
     }
 
     pFilters->Release();

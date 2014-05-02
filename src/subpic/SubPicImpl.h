@@ -35,40 +35,40 @@ protected:
 
     CSize m_maxsize, m_size;
     CRect m_vidrect;
-	CSize	m_VirtualTextureSize;
-	CPoint	m_VirtualTextureTopLeft;
+    CSize   m_VirtualTextureSize;
+    CPoint  m_VirtualTextureTopLeft;
 
-	/*
+    /*
 
-	                          Texture
-	        +-------+---------------------------------+
-	        |       .                                 |   .
-	        |       .             m_maxsize           |       .
-	 TextureTopLeft .<=============================== |======>    .           Video
-	        | . . . +-------------------------------- | -----+       +-----------------------------------+
-	        |       |                         .       |      |       |  m_vidrect                        |
-	        |       |                         .       |      |       |                                   |
-	        |       |                         .       |      |       |                                   |
-	        |       |        +-----------+    .       |      |       |                                   |
-	        |       |        | m_rcDirty |    .       |      |       |                                   |
-	        |       |        |           |    .       |      |       |                                   |
-	        |       |        +-----------+    .       |      |       |                                   |
-	        |       +-------------------------------- | -----+       |                                   |
-	        |                    m_size               |              |                                   |
-	        |       <=========================>       |              |                                   |
-	        |                                         |              |                                   |
-	        |                                         |              +-----------------------------------+
-	        |                                         |          .
-	        |                                         |      .
-	        |                                         |   .
-	        +-----------------------------------------+
-	                   m_VirtualTextureSize
-	        <=========================================>
+                              Texture
+            +-------+---------------------------------+
+            |       .                                 |   .
+            |       .             m_maxsize           |       .
+     TextureTopLeft .<=============================== |======>    .           Video
+            | . . . +-------------------------------- | -----+       +-----------------------------------+
+            |       |                         .       |      |       |  m_vidrect                        |
+            |       |                         .       |      |       |                                   |
+            |       |                         .       |      |       |                                   |
+            |       |        +-----------+    .       |      |       |                                   |
+            |       |        | m_rcDirty |    .       |      |       |                                   |
+            |       |        |           |    .       |      |       |                                   |
+            |       |        +-----------+    .       |      |       |                                   |
+            |       +-------------------------------- | -----+       |                                   |
+            |                    m_size               |              |                                   |
+            |       <=========================>       |              |                                   |
+            |                                         |              |                                   |
+            |                                         |              +-----------------------------------+
+            |                                         |          .
+            |                                         |      .
+            |                                         |   .
+            +-----------------------------------------+
+                       m_VirtualTextureSize
+            <=========================================>
 
-	*/
+    */
 
     CSubPicImplHelper();
-    
+
     // ISubPic
 
     STDMETHODIMP_(REFERENCE_TIME) GetStart() const;
@@ -91,13 +91,13 @@ protected:
 
     //STDMETHODIMP AlphaBlt(const RECT* pSrc, const RECT* pDst, SubPicDesc* pTarget) = 0;
 
-	STDMETHODIMP SetVirtualTextureSize (const SIZE pSize, const POINT pTopLeft);
-	STDMETHODIMP GetSourceAndDest(SIZE* pSize, RECT* pRcSource, RECT* pRcDest);
+    STDMETHODIMP SetVirtualTextureSize(const SIZE pSize, const POINT pTopLeft);
+    STDMETHODIMP GetSourceAndDest(SIZE* pSize, RECT* pRcSource, RECT* pRcDest);
 
-	STDMETHODIMP_(REFERENCE_TIME) GetSegmentStart();
-	STDMETHODIMP_(REFERENCE_TIME) GetSegmentStop();
-	STDMETHODIMP_(void) SetSegmentStart(REFERENCE_TIME rtStart);
-	STDMETHODIMP_(void) SetSegmentStop(REFERENCE_TIME rtStop);
+    STDMETHODIMP_(REFERENCE_TIME) GetSegmentStart();
+    STDMETHODIMP_(REFERENCE_TIME) GetSegmentStop();
+    STDMETHODIMP_(void) SetSegmentStart(REFERENCE_TIME rtStart);
+    STDMETHODIMP_(void) SetSegmentStop(REFERENCE_TIME rtStop);
 };
 
 class CSubPicImpl : public CUnknown, public CSubPicImplHelper, public ISubPic
@@ -110,45 +110,36 @@ public:
 
     // ISubPic
 
-    STDMETHODIMP_(REFERENCE_TIME) GetStart() const
-    {
+    STDMETHODIMP_(REFERENCE_TIME) GetStart() const {
         return CSubPicImplHelper::GetStart();
     }
-    STDMETHODIMP_(REFERENCE_TIME) GetStop() const
-    {
+    STDMETHODIMP_(REFERENCE_TIME) GetStop() const {
         return CSubPicImplHelper::GetStop();
     }
-    STDMETHODIMP_(void) SetStart(REFERENCE_TIME rtStart)
-    {
+    STDMETHODIMP_(void) SetStart(REFERENCE_TIME rtStart) {
         return CSubPicImplHelper::SetStart(rtStart);
     }
-    STDMETHODIMP_(void) SetStop(REFERENCE_TIME rtStop)
-    {
+    STDMETHODIMP_(void) SetStop(REFERENCE_TIME rtStop) {
         return CSubPicImplHelper::SetStop(rtStop);
     }
 
     STDMETHODIMP GetDesc(SubPicDesc& spd) const = 0;
-    STDMETHODIMP CopyTo(ISubPic* pSubPic)
-    {
+    STDMETHODIMP CopyTo(ISubPic* pSubPic) {
         return CSubPicImplHelper::CopyTo(pSubPic);
     }
 
     STDMETHODIMP ClearDirtyRect(DWORD color) = 0;
-    STDMETHODIMP GetDirtyRect(RECT* pDirtyRect) const
-    {
+    STDMETHODIMP GetDirtyRect(RECT* pDirtyRect) const {
         return CSubPicImplHelper::GetDirtyRect(pDirtyRect);
     }
-    STDMETHODIMP SetDirtyRect(RECT* pDirtyRect /*[in]*/)
-    {
+    STDMETHODIMP SetDirtyRect(RECT* pDirtyRect /*[in]*/) {
         return CSubPicImplHelper::SetDirtyRect(pDirtyRect);
     }
 
-    STDMETHODIMP GetMaxSize(SIZE* pMaxSize) const
-    {
+    STDMETHODIMP GetMaxSize(SIZE* pMaxSize) const {
         return CSubPicImplHelper::GetMaxSize(pMaxSize);
     }
-    STDMETHODIMP SetSize(SIZE size, RECT vidrect)
-    {
+    STDMETHODIMP SetSize(SIZE size, RECT vidrect) {
         return CSubPicImplHelper::SetSize(size, vidrect);
     }
 
@@ -157,29 +148,23 @@ public:
 
     STDMETHODIMP AlphaBlt(const RECT* pSrc, const RECT* pDst, SubPicDesc* pTarget) = 0;
 
-	STDMETHODIMP SetVirtualTextureSize (const SIZE pSize, const POINT pTopLeft)
-    {
+    STDMETHODIMP SetVirtualTextureSize(const SIZE pSize, const POINT pTopLeft) {
         return CSubPicImplHelper::SetVirtualTextureSize(pSize, pTopLeft);
     }
-	STDMETHODIMP GetSourceAndDest(SIZE* pSize, RECT* pRcSource, RECT* pRcDest)
-    {
+    STDMETHODIMP GetSourceAndDest(SIZE* pSize, RECT* pRcSource, RECT* pRcDest) {
         return CSubPicImplHelper::GetSourceAndDest(pSize, pRcSource, pRcDest);
     }
 
-	STDMETHODIMP_(REFERENCE_TIME) GetSegmentStart()
-    {
+    STDMETHODIMP_(REFERENCE_TIME) GetSegmentStart() {
         return CSubPicImplHelper::GetSegmentStart();
     }
-	STDMETHODIMP_(REFERENCE_TIME) GetSegmentStop()
-    {
+    STDMETHODIMP_(REFERENCE_TIME) GetSegmentStop() {
         return CSubPicImplHelper::GetSegmentStop();
     }
-	STDMETHODIMP_(void) SetSegmentStart(REFERENCE_TIME rtStart)
-    {
+    STDMETHODIMP_(void) SetSegmentStart(REFERENCE_TIME rtStart) {
         return CSubPicImplHelper::SetSegmentStart(rtStart);
     }
-	STDMETHODIMP_(void) SetSegmentStop(REFERENCE_TIME rtStop)
-    {
+    STDMETHODIMP_(void) SetSegmentStop(REFERENCE_TIME rtStop) {
         return CSubPicImplHelper::SetSegmentStop(rtStop);
     }
 };
@@ -189,50 +174,42 @@ class CSubPicExImpl : public CUnknown, public CSubPicImplHelper, public ISubPicE
 protected:
     CAtlList<CRect> m_rectListDirty;
 
-public:	
+public:
     CSubPicExImpl();
 
     DECLARE_IUNKNOWN;
     STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
-    
+
     // ISubPic
 
-    STDMETHODIMP_(REFERENCE_TIME) GetStart() const
-    {
+    STDMETHODIMP_(REFERENCE_TIME) GetStart() const {
         return CSubPicImplHelper::GetStart();
     }
-    STDMETHODIMP_(REFERENCE_TIME) GetStop() const
-    {
+    STDMETHODIMP_(REFERENCE_TIME) GetStop() const {
         return CSubPicImplHelper::GetStop();
     }
-    STDMETHODIMP_(void) SetStart(REFERENCE_TIME rtStart)
-    {
+    STDMETHODIMP_(void) SetStart(REFERENCE_TIME rtStart) {
         return CSubPicImplHelper::SetStart(rtStart);
     }
-    STDMETHODIMP_(void) SetStop(REFERENCE_TIME rtStop)
-    {
+    STDMETHODIMP_(void) SetStop(REFERENCE_TIME rtStop) {
         return CSubPicImplHelper::SetStop(rtStop);
     }
 
     STDMETHODIMP GetDesc(SubPicDesc& spd) const = 0;
-    STDMETHODIMP CopyTo(ISubPic* pSubPic)
-    {
+    STDMETHODIMP CopyTo(ISubPic* pSubPic) {
         return CSubPicImplHelper::CopyTo(pSubPic);
     }
 
     STDMETHODIMP ClearDirtyRect(DWORD color) = 0;
-    STDMETHODIMP GetDirtyRect(RECT* pDirtyRect) const
-    {
+    STDMETHODIMP GetDirtyRect(RECT* pDirtyRect) const {
         return CSubPicImplHelper::GetDirtyRect(pDirtyRect);
     }
     STDMETHODIMP SetDirtyRect(RECT* pDirtyRect /*[in]*/);
 
-    STDMETHODIMP GetMaxSize(SIZE* pMaxSize) const
-    {
+    STDMETHODIMP GetMaxSize(SIZE* pMaxSize) const {
         return CSubPicImplHelper::GetMaxSize(pMaxSize);
     }
-    STDMETHODIMP SetSize(SIZE size, RECT vidrect)
-    {
+    STDMETHODIMP SetSize(SIZE size, RECT vidrect) {
         return CSubPicImplHelper::SetSize(size, vidrect);
     }
 
@@ -241,29 +218,23 @@ public:
 
     STDMETHODIMP AlphaBlt(const RECT* pSrc, const RECT* pDst, SubPicDesc* pTarget) = 0;
 
-    STDMETHODIMP SetVirtualTextureSize (const SIZE pSize, const POINT pTopLeft)
-    {
+    STDMETHODIMP SetVirtualTextureSize(const SIZE pSize, const POINT pTopLeft) {
         return CSubPicImplHelper::SetVirtualTextureSize(pSize, pTopLeft);
     }
-    STDMETHODIMP GetSourceAndDest(SIZE* pSize, RECT* pRcSource, RECT* pRcDest)
-    {
+    STDMETHODIMP GetSourceAndDest(SIZE* pSize, RECT* pRcSource, RECT* pRcDest) {
         return CSubPicImplHelper::GetSourceAndDest(pSize, pRcSource, pRcDest);
     }
 
-    STDMETHODIMP_(REFERENCE_TIME) GetSegmentStart()
-    {
+    STDMETHODIMP_(REFERENCE_TIME) GetSegmentStart() {
         return CSubPicImplHelper::GetSegmentStart();
     }
-    STDMETHODIMP_(REFERENCE_TIME) GetSegmentStop()
-    {
+    STDMETHODIMP_(REFERENCE_TIME) GetSegmentStop() {
         return CSubPicImplHelper::GetSegmentStop();
     }
-    STDMETHODIMP_(void) SetSegmentStart(REFERENCE_TIME rtStart)
-    {
+    STDMETHODIMP_(void) SetSegmentStart(REFERENCE_TIME rtStart) {
         return CSubPicImplHelper::SetSegmentStart(rtStart);
     }
-    STDMETHODIMP_(void) SetSegmentStop(REFERENCE_TIME rtStop)
-    {
+    STDMETHODIMP_(void) SetSegmentStop(REFERENCE_TIME rtStop) {
         return CSubPicImplHelper::SetSegmentStop(rtStop);
     }
 
@@ -313,9 +284,9 @@ private:
     CSize m_cursize;
     CRect m_curvidrect;
     bool m_fDynamicWriteOnly;
-    
+
     bool Alloc(bool fStatic, ISubPic** ppSubPic);
-    
+
     virtual bool AllocEx(bool fStatic, ISubPicEx** ppSubPic) = 0;
 protected:
     CComPtr<ISubPicEx> m_pStatic;

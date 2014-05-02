@@ -17,16 +17,14 @@ private:
     int _end;
 public:
     CAutoTiming(const TCHAR* szBlkName, const int level = 15)
-        : _szBlkName(szBlkName), _level(level)
-    {
+        : _szBlkName(szBlkName), _level(level) {
         _start = GetTickCount();
         DbgLog((LOG_TIMING, _level, TEXT("%s:start at %d ms"), _szBlkName, _start));
     }
 
-    ~CAutoTiming()
-    {
+    ~CAutoTiming() {
         _end = GetTickCount();
-        DbgLog((LOG_TIMING, _level, TEXT("%s:(%d,%d)total %d ms"), _szBlkName, _start, _end, _end-_start));
+        DbgLog((LOG_TIMING, _level, TEXT("%s:(%d,%d)total %d ms"), _szBlkName, _start, _end, _end - _start));
     }
 };
 

@@ -18,10 +18,10 @@
 
 //  Implements CRenderedInputPin class
 
-CRenderedInputPin::CRenderedInputPin(TCHAR *pObjectName,
-                                     CBaseFilter *pFilter,
-                                     CCritSec *pLock,
-                                     HRESULT *phr,
+CRenderedInputPin::CRenderedInputPin(TCHAR* pObjectName,
+                                     CBaseFilter* pFilter,
+                                     CCritSec* pLock,
+                                     HRESULT* phr,
                                      LPCWSTR pName) :
     CBaseInputPin(pObjectName, pFilter, pLock, phr, pName),
     m_bAtEndOfStream(FALSE),
@@ -29,10 +29,10 @@ CRenderedInputPin::CRenderedInputPin(TCHAR *pObjectName,
 {
 }
 #ifdef UNICODE
-CRenderedInputPin::CRenderedInputPin(CHAR *pObjectName,
-                                     CBaseFilter *pFilter,
-                                     CCritSec *pLock,
-                                     HRESULT *phr,
+CRenderedInputPin::CRenderedInputPin(CHAR* pObjectName,
+                                     CBaseFilter* pFilter,
+                                     CCritSec* pLock,
+                                     HRESULT* phr,
                                      LPCWSTR pName) :
     CBaseInputPin(pObjectName, pFilter, pLock, phr, pName),
     m_bAtEndOfStream(FALSE),
@@ -105,7 +105,7 @@ void CRenderedInputPin::DoCompleteHandling()
     ASSERT(m_bAtEndOfStream);
     if (!m_bCompleteNotified) {
         m_bCompleteNotified = TRUE;
-        m_pFilter->NotifyEvent(EC_COMPLETE, S_OK, (LONG_PTR)(IBaseFilter *)m_pFilter);
+        m_pFilter->NotifyEvent(EC_COMPLETE, S_OK, (LONG_PTR)(IBaseFilter*)m_pFilter);
     }
 }
 

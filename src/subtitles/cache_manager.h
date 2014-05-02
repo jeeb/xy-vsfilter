@@ -10,18 +10,16 @@
 #include "flyweight_base_types.h"
 
 template<class CahcheKey>
-class XyCacheKeyTraits:public CElementTraits<CahcheKey>
-{    
+class XyCacheKeyTraits: public CElementTraits<CahcheKey>
+{
 public:
-    static inline ULONG Hash(const CahcheKey& key)
-    {
+    static inline ULONG Hash(const CahcheKey& key) {
         return key.GetHashValue();
     }
     static inline bool CompareElements(
         const CahcheKey& element1,
-        const CahcheKey& element2)
-    {
-        return ( (element1==element2)!=0 );
+        const CahcheKey& element2) {
+        return ((element1 == element2) != 0);
     }
 };
 
@@ -36,8 +34,7 @@ public:
     bool operator==(const TextInfoCacheKey& key)const;
 
     ULONG UpdateHashValue();
-    inline ULONG GetHashValue()const
-    {
+    inline ULONG GetHashValue()const {
         return m_hash_value;
     }
 };
@@ -45,50 +42,43 @@ public:
 class PathDataCacheKey
 {
 public:
-    PathDataCacheKey(const CWord& word):m_style(word.m_style)
-    {
-        const CPolygon *tmp = dynamic_cast<const CPolygon *>(&word);
-        if (tmp)
-        {
+    PathDataCacheKey(const CWord& word): m_style(word.m_style) {
+        const CPolygon* tmp = dynamic_cast<const CPolygon*>(&word);
+        if (tmp) {
             m_scalex = tmp->m_scalex;
             m_scaley = tmp->m_scaley;
-        }
-        else
-        {
+        } else {
             m_scalex = 0;
             m_scaley = 0;
         }
         m_str_id = word.m_str.GetId();
     }
     PathDataCacheKey(const PathDataCacheKey& key)
-        :m_str_id(key.m_str_id)
-        ,m_scalex(key.m_scalex)
-        ,m_scaley(key.m_scaley)
-        ,m_style(key.m_style)
-        ,m_hash_value(key.m_hash_value){}
-    bool operator==(const PathDataCacheKey& key)const
-    {
-        return m_str_id==key.m_str_id 
-            && fabs(m_scalex-key.m_scalex)<0.000001
-            && fabs(m_scaley-key.m_scaley)<0.000001 
-            && ( m_style==key.m_style || CompareSTSStyle(m_style, key.m_style) );
+        : m_str_id(key.m_str_id)
+        , m_scalex(key.m_scalex)
+        , m_scaley(key.m_scaley)
+        , m_style(key.m_style)
+        , m_hash_value(key.m_hash_value) {}
+    bool operator==(const PathDataCacheKey& key)const {
+        return m_str_id == key.m_str_id
+               && fabs(m_scalex - key.m_scalex) < 0.000001
+               && fabs(m_scaley - key.m_scaley) < 0.000001
+               && (m_style == key.m_style || CompareSTSStyle(m_style, key.m_style));
     }
-    bool operator==(const CWord& key)const
-    {
+    bool operator==(const CWord& key)const {
         return operator==(PathDataCacheKey(key));
     }
 
     static bool CompareSTSStyle(const STSStyle& lhs, const STSStyle& rhs);
-    
+
     ULONG UpdateHashValue();
-    inline ULONG GetHashValue()const
-    {
+    inline ULONG GetHashValue()const {
         return m_hash_value;
     }
 public:
     ULONG m_hash_value;
 protected:
-    double m_scalex, m_scaley;//for CPolygon 
+    double m_scalex, m_scaley;//for CPolygon
     XyFwStringW::IdType m_str_id;
     FwSTSStyle m_style;
 };
@@ -96,17 +86,16 @@ protected:
 class ScanLineData2CacheKey: public PathDataCacheKey
 {
 public:
-    ScanLineData2CacheKey(const CWord& word, const POINT& org):PathDataCacheKey(word),m_org(org) { }
+    ScanLineData2CacheKey(const CWord& word, const POINT& org): PathDataCacheKey(word), m_org(org) { }
     ScanLineData2CacheKey(const ScanLineData2CacheKey& key)
-        :PathDataCacheKey(key)
-        ,m_org(key.m_org)
-        ,m_hash_value(key.m_hash_value) { }
+        : PathDataCacheKey(key)
+        , m_org(key.m_org)
+        , m_hash_value(key.m_hash_value) { }
 
     bool operator==(const ScanLineData2CacheKey& key)const;
 
     ULONG UpdateHashValue();
-    inline ULONG GetHashValue()const
-    {
+    inline ULONG GetHashValue()const {
         return m_hash_value;
     }
 public:
@@ -117,32 +106,30 @@ public:
 class OverlayNoBlurKey: public ScanLineData2CacheKey
 {
 public:
-    OverlayNoBlurKey(const CWord& word, const POINT& p, const POINT& org):ScanLineData2CacheKey(word,org),m_p(p) {}
-    OverlayNoBlurKey(const OverlayNoBlurKey& key):ScanLineData2CacheKey(key),m_p(key.m_p),m_hash_value(key.m_hash_value) {}
+    OverlayNoBlurKey(const CWord& word, const POINT& p, const POINT& org): ScanLineData2CacheKey(word, org), m_p(p) {}
+    OverlayNoBlurKey(const OverlayNoBlurKey& key): ScanLineData2CacheKey(key), m_p(key.m_p), m_hash_value(key.m_hash_value) {}
 
     bool operator==(const OverlayNoBlurKey& key)const;
 
     ULONG UpdateHashValue();
-    inline ULONG GetHashValue()const
-    {
+    inline ULONG GetHashValue()const {
         return m_hash_value;
     }
 public:
     ULONG m_hash_value;
-    POINT m_p;    
+    POINT m_p;
 };
 
 class OverlayKey: public OverlayNoBlurKey
 {
 public:
-    OverlayKey(const CWord& word, const POINT& p, const POINT& org):OverlayNoBlurKey(word, p, org) {}
-    OverlayKey(const OverlayKey& key):OverlayNoBlurKey(key), m_hash_value(key.m_hash_value) {}
+    OverlayKey(const CWord& word, const POINT& p, const POINT& org): OverlayNoBlurKey(word, p, org) {}
+    OverlayKey(const OverlayKey& key): OverlayNoBlurKey(key), m_hash_value(key.m_hash_value) {}
 
     bool operator==(const OverlayKey& key)const;
 
     ULONG UpdateHashValue();
-    inline ULONG GetHashValue()const
-    {
+    inline ULONG GetHashValue()const {
         return m_hash_value;
     }
 public:
@@ -152,12 +139,11 @@ public:
 class ScanLineDataCacheKey
 {
 public:
-    ScanLineDataCacheKey(const SharedPtrConstPathData& path_data):m_path_data(path_data){}
+    ScanLineDataCacheKey(const SharedPtrConstPathData& path_data): m_path_data(path_data) {}
     bool operator==(const ScanLineDataCacheKey& key)const;
 
     ULONG UpdateHashValue();
-    inline ULONG GetHashValue()const
-    {
+    inline ULONG GetHashValue()const {
         return m_hash_value;
     }
 public:
@@ -165,18 +151,17 @@ public:
     SharedPtrConstPathData m_path_data;
 };
 
-class OverlayNoOffsetKey:public ScanLineDataCacheKey
+class OverlayNoOffsetKey: public ScanLineDataCacheKey
 {
 public:
     OverlayNoOffsetKey(const SharedPtrConstPathData& path_data, int xsub, int ysub, int border_x, int border_y)
         : ScanLineDataCacheKey(path_data)
-        , m_border( border_x+(border_y<<16) )
-        , m_rasterize_sub( xsub+(ysub<<16) ){}
+        , m_border(border_x + (border_y << 16))
+        , m_rasterize_sub(xsub + (ysub << 16)) {}
     bool operator==(const OverlayNoOffsetKey& key)const;
 
     ULONG UpdateHashValue();
-    inline ULONG GetHashValue()const
-    {
+    inline ULONG GetHashValue()const {
         return m_hash_value;
     }
 public:
@@ -189,12 +174,11 @@ public:
 class ClipperAlphaMaskCacheKey
 {
 public:
-    ClipperAlphaMaskCacheKey(const SharedPtrCClipper& clipper):m_clipper(clipper){}
+    ClipperAlphaMaskCacheKey(const SharedPtrCClipper& clipper): m_clipper(clipper) {}
     bool operator==(const ClipperAlphaMaskCacheKey& key)const;
 
     ULONG UpdateHashValue();
-    inline ULONG GetHashValue()const
-    {
+    inline ULONG GetHashValue()const {
         return m_hash_value;
     }
 public:
@@ -211,8 +195,7 @@ public:
     bool operator==(const DrawItemHashKey& hash_key) const;
 
     ULONG UpdateHashValue();
-    inline ULONG GetHashValue()const
-    {
+    inline ULONG GetHashValue()const {
         return m_hash_value;
     }
 public:
@@ -235,8 +218,7 @@ public:
     bool operator==(const GroupedDrawItemsHashKey& key) const;
 
     ULONG UpdateHashValue();
-    inline ULONG GetHashValue()const
-    {
+    inline ULONG GetHashValue()const {
         return m_hash_value;
     }
 public:
@@ -252,28 +234,28 @@ private:
     friend struct GroupedDrawItems;
 };
 
-class PathDataTraits:public CElementTraits<PathData>
+class PathDataTraits: public CElementTraits<PathData>
 {
 public:
     static ULONG Hash(const PathData& key);
 };
 
-class ClipperTraits:public CElementTraits<CClipper>
+class ClipperTraits: public CElementTraits<CClipper>
 {
 public:
     static ULONG Hash(const CClipper& key);
 };
 
-typedef EnhancedXyMru<
-    TextInfoCacheKey, 
-    CText::SharedPtrTextInfo, 
-    XyCacheKeyTraits<TextInfoCacheKey>
+typedef EnhancedXyMru <
+TextInfoCacheKey,
+CText::SharedPtrTextInfo,
+XyCacheKeyTraits<TextInfoCacheKey>
 > TextInfoMruCache;
 
-typedef EnhancedXyMru<
-    CStringW, 
-    CRenderedTextSubtitle::SharedPtrConstAssTagList, 
-    CStringElementTraits<CStringW>
+typedef EnhancedXyMru <
+CStringW,
+CRenderedTextSubtitle::SharedPtrConstAssTagList,
+CStringElementTraits<CStringW>
 > AssTagListMruCache;
 
 typedef EnhancedXyMru<PathDataCacheKey, SharedPtrConstPathData, XyCacheKeyTraits<PathDataCacheKey>> PathDataMruCache;
@@ -297,7 +279,7 @@ typedef EnhancedXyMru<std::size_t, SharedPtrXyBitmap> BitmapMruCache;
 class CacheManager
 {
 public:
-    static const int BITMAP_MRU_CACHE_ITEM_NUM = 64;//for test only 
+    static const int BITMAP_MRU_CACHE_ITEM_NUM = 64;//for test only
     static const int CLIPPER_MRU_CACHE_ITEM_NUM = 48;
 
     static const int TEXT_INFO_CACHE_ITEM_NUM = 2048;

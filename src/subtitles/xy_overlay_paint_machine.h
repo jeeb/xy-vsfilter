@@ -17,24 +17,23 @@ typedef ::boost::shared_ptr<OverlayKey> SharedPtrOverlayKey;
 class CWordPaintMachine
 {
 public:
-    enum LAYER 
-    {
+    enum LAYER {
         SHADOW = 0
-        , OUTLINE
+                 , OUTLINE
         , BODY
     };
 public:
     static void CreatePaintMachines(const SharedPtrCWord& word
-        , const CPointCoor2& shadow_pos, const CPointCoor2& outline_pos, const CPointCoor2& body_pos
-        , const CPointCoor2& org
-        , SharedPtrOverlayPaintMachine *shadow, SharedPtrOverlayPaintMachine *outline, SharedPtrOverlayPaintMachine *body);
+                                    , const CPointCoor2& shadow_pos, const CPointCoor2& outline_pos, const CPointCoor2& body_pos
+                                    , const CPointCoor2& org
+                                    , SharedPtrOverlayPaintMachine* shadow, SharedPtrOverlayPaintMachine* outline, SharedPtrOverlayPaintMachine* body);
 
     static void PaintBody(const SharedPtrCWord& word, const CPointCoor2& p, const CPointCoor2& org, SharedPtrOverlay* overlay);
 
     void Paint(LAYER layer, SharedPtrOverlay* overlay);
     const SharedPtrOverlayKey& GetHashKey(LAYER layer);
 private:
-    CWordPaintMachine(){}
+    CWordPaintMachine() {}
 
     void PaintBody(const SharedPtrCWord& word, const CPointCoor2& p, SharedPtrOverlay* overlay);
     void PaintOutline(const SharedPtrCWord& word, const CPointCoor2& p, SharedPtrOverlay* overlay);
@@ -59,7 +58,7 @@ public:
     OverlayPaintMachine(const SharedCWordPaintMachine& inner_paint_machine, CWordPaintMachine::LAYER layer)
         : m_inner_paint_machine(inner_paint_machine)
         , m_layer(layer) {}
- 
+
     void Paint(SharedPtrOverlay* overlay);
     CRectCoor2 CalcDirtyRect();//return a 8x8 supersampled rect
     const SharedPtrOverlayKey& GetHashKey();
