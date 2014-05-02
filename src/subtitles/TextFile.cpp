@@ -257,7 +257,7 @@ BOOL CTextFile::ReadString(CStringA& str)
         }
     } else if (m_encoding == UTF8) {
         int nBytesRead = 0;
-        BYTE buffer[3];
+        BYTE buffer[4];
         bool bValid = true;
 
         while (Read(&buffer[0], sizeof(buffer[0])) == sizeof(buffer[0])) {
