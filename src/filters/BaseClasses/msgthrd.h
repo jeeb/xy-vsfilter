@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 // File: MsgThrd.h
 //
-// Desc: DirectShow base classes - provides support for a worker thread 
+// Desc: DirectShow base classes - provides support for a worker thread
 //       class to which one can asynchronously post messages.
 //
 // Copyright (c) 1992-2002 Microsoft Corporation.  All rights reserved.
@@ -10,14 +10,15 @@
 
 // Message class - really just a structure.
 //
-class CMsg {
+class CMsg
+{
 public:
     UINT uMsg;
     DWORD dwFlags;
     LPVOID lpParam;
-    CAMEvent *pEvent;
+    CAMEvent* pEvent;
 
-    CMsg(UINT u, DWORD dw, LPVOID lp, CAMEvent *pEvnt)
+    CMsg(UINT u, DWORD dw, LPVOID lp, CAMEvent* pEvnt)
         : uMsg(u), dwFlags(dw), lpParam(lp), pEvent(pEvnt) {}
 
     CMsg()
@@ -29,7 +30,8 @@ public:
 // that it is prompted to perform particaular tasks by responding to messages
 // posted to its message queue.
 //
-class AM_NOVTABLE CMsgThread {
+class AM_NOVTABLE CMsgThread
+{
 private:
     static DWORD WINAPI DefaultThreadProc(LPVOID lpParam);
     DWORD               m_ThreadId;
@@ -47,18 +49,17 @@ protected:
 public:
     CMsgThread()
         : m_ThreadId(0),
-        m_hThread(NULL),
-        m_lWaiting(0),
-        m_hSem(NULL),
-        // make a list with a cache of 5 items
-        m_ThreadQueue(NAME("MsgThread list"), 5)
-        {
-        }
+          m_hThread(NULL),
+          m_lWaiting(0),
+          m_hSem(NULL),
+          // make a list with a cache of 5 items
+          m_ThreadQueue(NAME("MsgThread list"), 5) {
+    }
 
     ~CMsgThread();
     // override this if you want to block on other things as well
     // as the message loop
-    void virtual GetThreadMsg(CMsg *msg);
+    void virtual GetThreadMsg(CMsg* msg);
 
     // override this if you want to do something on thread startup
     virtual void OnThreadInit() {
@@ -100,7 +101,7 @@ public:
 
 
     void PutThreadMsg(UINT uMsg, DWORD dwMsgFlags,
-                      LPVOID lpMsgParam, CAMEvent *pEvent = NULL) {
+                      LPVOID lpMsgParam, CAMEvent* pEvent = NULL) {
         CAutoLock lck(&m_Lock);
         CMsg* pMsg = new CMsg(uMsg, dwMsgFlags, lpMsgParam, pEvent);
         m_ThreadQueue.AddTail(pMsg);
@@ -115,6 +116,6 @@ public:
     // the creator thread.
     //
     virtual LRESULT ThreadMessageProc(
-        UINT uMsg, DWORD dwFlags, LPVOID lpParam, CAMEvent *pEvent) = 0;
+        UINT uMsg, DWORD dwFlags, LPVOID lpParam, CAMEvent* pEvent) = 0;
 };
 

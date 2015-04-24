@@ -28,10 +28,8 @@
 
 BOOL WINAPI PossiblyEatMessage(HWND hwndDrain, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    if (hwndDrain != NULL && !InSendMessage())
-    {
-        switch (uMsg)
-        {
+    if (hwndDrain != NULL && !InSendMessage()) {
+        switch (uMsg) {
             case WM_CHAR:
             case WM_DEADCHAR:
             case WM_KEYDOWN:
@@ -82,13 +80,13 @@ BOOL WINAPI PossiblyEatMessage(HWND hwndDrain, UINT uMsg, WPARAM wParam, LPARAM 
 // more direct and efficient mechanism as many values may be changed in one
 
 CBaseControlWindow::CBaseControlWindow(
-                        CBaseFilter *pFilter,        // Owning filter
-                        CCritSec *pInterfaceLock,    // Locking object
-                        TCHAR *pName,                // Object description
-                        LPUNKNOWN pUnk,              // Normal COM ownership
-                        HRESULT *phr) :              // OLE return code
+    CBaseFilter* pFilter,        // Owning filter
+    CCritSec* pInterfaceLock,    // Locking object
+    TCHAR* pName,                // Object description
+    LPUNKNOWN pUnk,              // Normal COM ownership
+    HRESULT* phr) :              // OLE return code
 
-    CBaseVideoWindow(pName,pUnk),
+    CBaseVideoWindow(pName, pUnk),
     m_pInterfaceLock(pInterfaceLock),
     m_hwndOwner(NULL),
     m_hwndDrain(NULL),
@@ -111,14 +109,14 @@ CBaseControlWindow::CBaseControlWindow(
 
 STDMETHODIMP CBaseControlWindow::put_Caption(BSTR strCaption)
 {
-    CheckPointer(strCaption,E_POINTER);
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
+    CheckPointer(strCaption, E_POINTER);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
 #ifdef UNICODE
     SetWindowText(m_hwnd, strCaption);
 #else
     CHAR Caption[CAPTION];
 
-    WideCharToMultiByte(CP_ACP,0,strCaption,-1,Caption,CAPTION,NULL,NULL);
+    WideCharToMultiByte(CP_ACP, 0, strCaption, -1, Caption, CAPTION, NULL, NULL);
     SetWindowText(m_hwnd, Caption);
 #endif
     return NOERROR;
@@ -131,22 +129,22 @@ STDMETHODIMP CBaseControlWindow::put_Caption(BSTR strCaption)
 // BSTR is a normal C string with the length at position (-1), we use the
 // WriteBSTR helper function to create the caption to try and avoid OLE32
 
-STDMETHODIMP CBaseControlWindow::get_Caption(BSTR *pstrCaption)
+STDMETHODIMP CBaseControlWindow::get_Caption(BSTR* pstrCaption)
 {
-    CheckPointer(pstrCaption,E_POINTER);
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
+    CheckPointer(pstrCaption, E_POINTER);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
     WCHAR WideCaption[CAPTION];
 
 #ifdef UNICODE
-    GetWindowText(m_hwnd,WideCaption,CAPTION);
+    GetWindowText(m_hwnd, WideCaption, CAPTION);
 #else
     // Convert the ASCII caption to a UNICODE string
 
     TCHAR Caption[CAPTION];
-    GetWindowText(m_hwnd,Caption,CAPTION);
-    MultiByteToWideChar(CP_ACP,0,Caption,-1,WideCaption,CAPTION);
+    GetWindowText(m_hwnd, Caption, CAPTION);
+    MultiByteToWideChar(CP_ACP, 0, Caption, -1, WideCaption, CAPTION);
 #endif
-    return WriteBSTR(pstrCaption,WideCaption);
+    return WriteBSTR(pstrCaption, WideCaption);
 }
 
 
@@ -154,34 +152,34 @@ STDMETHODIMP CBaseControlWindow::get_Caption(BSTR *pstrCaption)
 
 STDMETHODIMP CBaseControlWindow::put_WindowStyleEx(long WindowStyleEx)
 {
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
 
     // Should we be taking off WS_EX_TOPMOST
 
-    if (GetWindowLong(m_hwnd,GWL_EXSTYLE) & WS_EX_TOPMOST) {
+    if (GetWindowLong(m_hwnd, GWL_EXSTYLE) & WS_EX_TOPMOST) {
         if ((WindowStyleEx & WS_EX_TOPMOST) == 0) {
-            SendMessage(m_hwnd,m_ShowStageTop,(WPARAM) FALSE,(LPARAM) 0);
+            SendMessage(m_hwnd, m_ShowStageTop, (WPARAM) FALSE, (LPARAM) 0);
         }
     }
 
     // Likewise should we be adding WS_EX_TOPMOST
 
     if (WindowStyleEx & WS_EX_TOPMOST) {
-        SendMessage(m_hwnd,m_ShowStageTop,(WPARAM) TRUE,(LPARAM) 0);
+        SendMessage(m_hwnd, m_ShowStageTop, (WPARAM) TRUE, (LPARAM) 0);
         WindowStyleEx &= (~WS_EX_TOPMOST);
-        if (WindowStyleEx == 0) return NOERROR;
+        if (WindowStyleEx == 0) { return NOERROR; }
     }
-    return DoSetWindowStyle(WindowStyleEx,GWL_EXSTYLE);
+    return DoSetWindowStyle(WindowStyleEx, GWL_EXSTYLE);
 }
 
 
 // Gets the current GWL_EXSTYLE base window style
 
-STDMETHODIMP CBaseControlWindow::get_WindowStyleEx(long *pWindowStyleEx)
+STDMETHODIMP CBaseControlWindow::get_WindowStyleEx(long* pWindowStyleEx)
 {
-    CheckPointer(pWindowStyleEx,E_POINTER);
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
-    return DoGetWindowStyle(pWindowStyleEx,GWL_EXSTYLE);
+    CheckPointer(pWindowStyleEx, E_POINTER);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
+    return DoGetWindowStyle(pWindowStyleEx, GWL_EXSTYLE);
 }
 
 
@@ -192,27 +190,27 @@ STDMETHODIMP CBaseControlWindow::put_WindowStyle(long WindowStyle)
     // These styles cannot be changed dynamically
 
     if ((WindowStyle & WS_DISABLED) ||
-        (WindowStyle & WS_ICONIC) ||
-        (WindowStyle & WS_MAXIMIZE) ||
-        (WindowStyle & WS_MINIMIZE) ||
-        (WindowStyle & WS_HSCROLL) ||
-        (WindowStyle & WS_VSCROLL)) {
+            (WindowStyle & WS_ICONIC) ||
+            (WindowStyle & WS_MAXIMIZE) ||
+            (WindowStyle & WS_MINIMIZE) ||
+            (WindowStyle & WS_HSCROLL) ||
+            (WindowStyle & WS_VSCROLL)) {
 
-            return E_INVALIDARG;
+        return E_INVALIDARG;
     }
 
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
-    return DoSetWindowStyle(WindowStyle,GWL_STYLE);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
+    return DoSetWindowStyle(WindowStyle, GWL_STYLE);
 }
 
 
 // Get the current GWL_STYLE base window style
 
-STDMETHODIMP CBaseControlWindow::get_WindowStyle(long *pWindowStyle)
+STDMETHODIMP CBaseControlWindow::get_WindowStyle(long* pWindowStyle)
 {
-    CheckPointer(pWindowStyle,E_POINTER);
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
-    return DoGetWindowStyle(pWindowStyle,GWL_STYLE);
+    CheckPointer(pWindowStyle, E_POINTER);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
+    return DoGetWindowStyle(pWindowStyle, GWL_STYLE);
 }
 
 
@@ -223,16 +221,16 @@ STDMETHODIMP CBaseControlWindow::get_WindowStyle(long *pWindowStyle)
 // In most cases the client will call get_WindowStyle before they call this
 // and then AND and OR in extra bit settings according to the requirements
 
-HRESULT CBaseControlWindow::DoSetWindowStyle(long Style,long WindowLong)
+HRESULT CBaseControlWindow::DoSetWindowStyle(long Style, long WindowLong)
 {
     RECT WindowRect;
 
     // Get the window's visibility before setting the style
     BOOL bVisible = IsWindowVisible(m_hwnd);
-    EXECUTE_ASSERT(GetWindowRect(m_hwnd,&WindowRect));
+    EXECUTE_ASSERT(GetWindowRect(m_hwnd, &WindowRect));
 
     // Set the new style flags for the window
-    SetWindowLong(m_hwnd,WindowLong,Style);
+    SetWindowLong(m_hwnd, WindowLong, Style);
     UINT WindowFlags = SWP_SHOWWINDOW | SWP_FRAMECHANGED | SWP_NOACTIVATE;
     WindowFlags |= SWP_NOZORDER | SWP_NOSIZE | SWP_NOMOVE;
 
@@ -242,7 +240,7 @@ HRESULT CBaseControlWindow::DoSetWindowStyle(long Style,long WindowLong)
 
         SetWindowPos(m_hwnd,            // Base window handle
                      HWND_TOP,          // Just a place holder
-                     0,0,0,0,           // Leave size and position
+                     0, 0, 0, 0,        // Leave size and position
                      WindowFlags);      // Just draw it again
 
         return NOERROR;
@@ -261,10 +259,10 @@ HRESULT CBaseControlWindow::DoSetWindowStyle(long Style,long WindowLong)
 
     SetWindowPos(m_hwnd,            // Base window handle
                  HWND_TOP,          // Just a place holder
-                 0,0,0,0,           // Leave size and position
+                 0, 0, 0, 0,        // Leave size and position
                  WindowFlags);      // Just draw it again
 
-    ShowWindow(m_hwnd,SW_HIDE);
+    ShowWindow(m_hwnd, SW_HIDE);
 
     if (GetParent(m_hwnd)) {
 
@@ -284,9 +282,9 @@ HRESULT CBaseControlWindow::DoSetWindowStyle(long Style,long WindowLong)
 
 // Get the current base window style (either GWL_STYLE or GWL_EXSTYLE)
 
-HRESULT CBaseControlWindow::DoGetWindowStyle(long *pStyle,long WindowLong)
+HRESULT CBaseControlWindow::DoGetWindowStyle(long* pStyle, long WindowLong)
 {
-    *pStyle = GetWindowLong(m_hwnd,WindowLong);
+    *pStyle = GetWindowLong(m_hwnd, WindowLong);
     return NOERROR;
 }
 
@@ -298,7 +296,7 @@ HRESULT CBaseControlWindow::DoGetWindowStyle(long *pStyle,long WindowLong)
 
 STDMETHODIMP CBaseControlWindow::put_WindowState(long WindowState)
 {
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
     DoShowWindow(WindowState);
     return NOERROR;
 }
@@ -310,10 +308,10 @@ STDMETHODIMP CBaseControlWindow::put_WindowState(long WindowState)
 // or maximised then the SW_MINIMIZE or SW_MAXIMIZE is set respectively. The
 // other SW bit settings are really set commands not readable output values
 
-STDMETHODIMP CBaseControlWindow::get_WindowState(long *pWindowState)
+STDMETHODIMP CBaseControlWindow::get_WindowState(long* pWindowState)
 {
-    CheckPointer(pWindowState,E_POINTER);
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
+    CheckPointer(pWindowState, E_POINTER);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
     ASSERT(pWindowState);
     *pWindowState = FALSE;
 
@@ -353,7 +351,7 @@ STDMETHODIMP CBaseControlWindow::get_WindowState(long *pWindowState)
 
 STDMETHODIMP CBaseControlWindow::put_BackgroundPalette(long BackgroundPalette)
 {
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
     CAutoLock cWindowLock(&m_WindowLock);
 
     // Check this is a valid automation boolean type
@@ -367,7 +365,7 @@ STDMETHODIMP CBaseControlWindow::put_BackgroundPalette(long BackgroundPalette)
     // Make sure the window realises any palette it has again
 
     m_bBackground = (BackgroundPalette == OATRUE ? TRUE : FALSE);
-    PostMessage(m_hwnd,m_RealizePalette,0,0);
+    PostMessage(m_hwnd, m_RealizePalette, 0, 0);
     PaintWindow(FALSE);
 
     return NOERROR;
@@ -377,10 +375,10 @@ STDMETHODIMP CBaseControlWindow::put_BackgroundPalette(long BackgroundPalette)
 // This returns the current background realisation setting
 
 STDMETHODIMP
-CBaseControlWindow::get_BackgroundPalette(long *pBackgroundPalette)
+CBaseControlWindow::get_BackgroundPalette(long* pBackgroundPalette)
 {
-    CheckPointer(pBackgroundPalette,E_POINTER);
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
+    CheckPointer(pBackgroundPalette, E_POINTER);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
     CAutoLock cWindowLock(&m_WindowLock);
 
     // Get the current background palette setting
@@ -394,7 +392,7 @@ CBaseControlWindow::get_BackgroundPalette(long *pBackgroundPalette)
 
 STDMETHODIMP CBaseControlWindow::put_Visible(long Visible)
 {
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
 
     // Check this is a valid automation boolean type
 
@@ -414,10 +412,10 @@ STDMETHODIMP CBaseControlWindow::put_Visible(long Visible)
 
 // Return OATRUE if the window is currently visible otherwise OAFALSE
 
-STDMETHODIMP CBaseControlWindow::get_Visible(long *pVisible)
+STDMETHODIMP CBaseControlWindow::get_Visible(long* pVisible)
 {
-    CheckPointer(pVisible,E_POINTER);
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
+    CheckPointer(pVisible, E_POINTER);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
 
     // See if the base window has a WS_VISIBLE style - this will return TRUE
     // even if the window is completely obscured by other desktop windows, we
@@ -435,12 +433,12 @@ STDMETHODIMP CBaseControlWindow::get_Visible(long *pVisible)
 
 STDMETHODIMP CBaseControlWindow::put_Left(long Left)
 {
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
     BOOL bSuccess;
     RECT WindowRect;
 
     // Get the current window position in a RECT
-    EXECUTE_ASSERT(GetWindowRect(m_hwnd,&WindowRect));
+    EXECUTE_ASSERT(GetWindowRect(m_hwnd, &WindowRect));
 
     if (GetParent(m_hwnd)) {
 
@@ -472,13 +470,13 @@ STDMETHODIMP CBaseControlWindow::put_Left(long Left)
 
 // Return the current base window left position
 
-STDMETHODIMP CBaseControlWindow::get_Left(long *pLeft)
+STDMETHODIMP CBaseControlWindow::get_Left(long* pLeft)
 {
-    CheckPointer(pLeft,E_POINTER);
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
+    CheckPointer(pLeft, E_POINTER);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
     RECT WindowRect;
 
-    EXECUTE_ASSERT(GetWindowRect(m_hwnd,&WindowRect));
+    EXECUTE_ASSERT(GetWindowRect(m_hwnd, &WindowRect));
     *pLeft = WindowRect.left;
     return NOERROR;
 }
@@ -491,7 +489,7 @@ STDMETHODIMP CBaseControlWindow::get_Left(long *pLeft)
 
 STDMETHODIMP CBaseControlWindow::put_Width(long Width)
 {
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
     BOOL bSuccess;
     RECT WindowRect;
 
@@ -499,7 +497,7 @@ STDMETHODIMP CBaseControlWindow::put_Width(long Width)
     // get back from GetWindowRect is in left,top,right and bottom while the
     // coordinates SetWindowPos wants are left,top,width and height values
 
-    EXECUTE_ASSERT(GetWindowRect(m_hwnd,&WindowRect));
+    EXECUTE_ASSERT(GetWindowRect(m_hwnd, &WindowRect));
 
     if (GetParent(m_hwnd)) {
 
@@ -530,13 +528,13 @@ STDMETHODIMP CBaseControlWindow::put_Width(long Width)
 
 // Return the current base window width
 
-STDMETHODIMP CBaseControlWindow::get_Width(long *pWidth)
+STDMETHODIMP CBaseControlWindow::get_Width(long* pWidth)
 {
-    CheckPointer(pWidth,E_POINTER);
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
+    CheckPointer(pWidth, E_POINTER);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
     RECT WindowRect;
 
-    EXECUTE_ASSERT(GetWindowRect(m_hwnd,&WindowRect));
+    EXECUTE_ASSERT(GetWindowRect(m_hwnd, &WindowRect));
     *pWidth = WindowRect.right - WindowRect.left;
     return NOERROR;
 }
@@ -548,12 +546,12 @@ STDMETHODIMP CBaseControlWindow::get_Width(long *pWidth)
 
 STDMETHODIMP CBaseControlWindow::put_Top(long Top)
 {
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
     BOOL bSuccess;
     RECT WindowRect;
 
     // Get the current window position in a RECT
-    EXECUTE_ASSERT(GetWindowRect(m_hwnd,&WindowRect));
+    EXECUTE_ASSERT(GetWindowRect(m_hwnd, &WindowRect));
 
     if (GetParent(m_hwnd)) {
 
@@ -585,13 +583,13 @@ STDMETHODIMP CBaseControlWindow::put_Top(long Top)
 
 // Return the current base window top position
 
-STDMETHODIMP CBaseControlWindow::get_Top(long *pTop)
+STDMETHODIMP CBaseControlWindow::get_Top(long* pTop)
 {
-    CheckPointer(pTop,E_POINTER);
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
+    CheckPointer(pTop, E_POINTER);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
     RECT WindowRect;
 
-    EXECUTE_ASSERT(GetWindowRect(m_hwnd,&WindowRect));
+    EXECUTE_ASSERT(GetWindowRect(m_hwnd, &WindowRect));
     *pTop = WindowRect.top;
     return NOERROR;
 }
@@ -604,7 +602,7 @@ STDMETHODIMP CBaseControlWindow::get_Top(long *pTop)
 
 STDMETHODIMP CBaseControlWindow::put_Height(long Height)
 {
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
     BOOL bSuccess;
     RECT WindowRect;
 
@@ -612,7 +610,7 @@ STDMETHODIMP CBaseControlWindow::put_Height(long Height)
     // get back from GetWindowRect is in left,top,right and bottom while the
     // coordinates SetWindowPos wants are left,top,width and height values
 
-    EXECUTE_ASSERT(GetWindowRect(m_hwnd,&WindowRect));
+    EXECUTE_ASSERT(GetWindowRect(m_hwnd, &WindowRect));
 
     if (GetParent(m_hwnd)) {
 
@@ -639,13 +637,13 @@ STDMETHODIMP CBaseControlWindow::put_Height(long Height)
 
 // Return the current base window height
 
-STDMETHODIMP CBaseControlWindow::get_Height(long *pHeight)
+STDMETHODIMP CBaseControlWindow::get_Height(long* pHeight)
 {
-    CheckPointer(pHeight,E_POINTER);
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
+    CheckPointer(pHeight, E_POINTER);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
     RECT WindowRect;
 
-    EXECUTE_ASSERT(GetWindowRect(m_hwnd,&WindowRect));
+    EXECUTE_ASSERT(GetWindowRect(m_hwnd, &WindowRect));
     *pHeight = WindowRect.bottom - WindowRect.top;
     return NOERROR;
 }
@@ -666,26 +664,26 @@ STDMETHODIMP CBaseControlWindow::put_Owner(OAHWND Owner)
 {
     // Check we are connected otherwise reject the call
 
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
     m_hwndOwner = (HWND) Owner;
     HWND hwndParent = m_hwndOwner;
 
     // Add or remove WS_CHILD as appropriate
 
-    LONG Style = GetWindowLong(m_hwnd,GWL_STYLE);
+    LONG Style = GetWindowLong(m_hwnd, GWL_STYLE);
     if (Owner == NULL) {
         Style &= (~WS_CHILD);
     } else {
         Style |= (WS_CHILD);
     }
-    SetWindowLong(m_hwnd,GWL_STYLE,Style);
+    SetWindowLong(m_hwnd, GWL_STYLE, Style);
 
     // Don't call this with the filter locked
 
-    SetParent(m_hwnd,hwndParent);
+    SetParent(m_hwnd, hwndParent);
 
     PaintWindow(TRUE);
-    NOTE1("Changed parent %lx",hwndParent);
+    NOTE1("Changed parent %lx", hwndParent);
 
     return NOERROR;
 }
@@ -697,10 +695,10 @@ STDMETHODIMP CBaseControlWindow::put_Owner(OAHWND Owner)
 // If an application sets the owner we call SetParent, however that returns
 // NULL until the WS_CHILD bit is set on, so we store the owner internally
 
-STDMETHODIMP CBaseControlWindow::get_Owner(OAHWND *Owner)
+STDMETHODIMP CBaseControlWindow::get_Owner(OAHWND* Owner)
 {
-    CheckPointer(Owner,E_POINTER);
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
+    CheckPointer(Owner, E_POINTER);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
     *Owner = (OAHWND) m_hwndOwner;
     return NOERROR;
 }
@@ -715,7 +713,7 @@ STDMETHODIMP CBaseControlWindow::put_MessageDrain(OAHWND Drain)
 {
     // Check we are connected otherwise reject the call
 
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
     m_hwndDrain = (HWND) Drain;
     return NOERROR;
 }
@@ -723,10 +721,10 @@ STDMETHODIMP CBaseControlWindow::put_MessageDrain(OAHWND Drain)
 
 // Return the current message drain
 
-STDMETHODIMP CBaseControlWindow::get_MessageDrain(OAHWND *Drain)
+STDMETHODIMP CBaseControlWindow::get_MessageDrain(OAHWND* Drain)
 {
-    CheckPointer(Drain,E_POINTER);
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
+    CheckPointer(Drain, E_POINTER);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
     *Drain = (OAHWND) m_hwndDrain;
     return NOERROR;
 }
@@ -745,7 +743,7 @@ CBaseControlWindow::NotifyOwnerMessage(OAHWND hwnd,    // Window handle
                                        LONG_PTR wParam,  // Parameters
                                        LONG_PTR lParam)  // for message
 {
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
 
     // Only interested in these Windows messages
 
@@ -764,16 +762,16 @@ CBaseControlWindow::NotifyOwnerMessage(OAHWND hwnd,    // Window handle
             if (m_hwndOwner == NULL) {
                 return NOERROR;
             }
-            SendMessage(m_hwnd,uMsg,(WPARAM)wParam,(LPARAM)lParam);
-	    break;
+            SendMessage(m_hwnd, uMsg, (WPARAM)wParam, (LPARAM)lParam);
+            break;
 
-	// do NOT fwd WM_MOVE. the parameters are the location of the parent
-	// window, NOT what the renderer should be looking at.  But we need
-	// to make sure the overlay is moved with the parent window, so we
-	// do this.
-	case WM_MOVE:
-	    PostMessage(m_hwnd,WM_PAINT,0,0);
-	    break;
+        // do NOT fwd WM_MOVE. the parameters are the location of the parent
+        // window, NOT what the renderer should be looking at.  But we need
+        // to make sure the overlay is moved with the parent window, so we
+        // do this.
+        case WM_MOVE:
+            PostMessage(m_hwnd, WM_PAINT, 0, 0);
+            break;
     }
     return NOERROR;
 }
@@ -795,7 +793,7 @@ STDMETHODIMP CBaseControlWindow::SetWindowForeground(long Focus)
 
     // We shouldn't lock as this sends a message
 
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
     BOOL bFocus = (Focus == OATRUE ? TRUE : FALSE);
     DoSetWindowForeground(bFocus);
 
@@ -809,9 +807,9 @@ STDMETHODIMP CBaseControlWindow::SetWindowForeground(long Focus)
 // occur as each of them gets updated (they are better set at design time)
 
 STDMETHODIMP
-CBaseControlWindow::SetWindowPosition(long Left,long Top,long Width,long Height)
+CBaseControlWindow::SetWindowPosition(long Left, long Top, long Width, long Height)
 {
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
     BOOL bSuccess;
 
     // Set the new size and position
@@ -842,20 +840,20 @@ CBaseControlWindow::SetWindowPosition(long Left,long Top,long Width,long Height)
 // therefore more suitable to a live environment rather than design time
 
 STDMETHODIMP
-CBaseControlWindow::GetWindowPosition(long *pLeft,long *pTop,long *pWidth,long *pHeight)
+CBaseControlWindow::GetWindowPosition(long* pLeft, long* pTop, long* pWidth, long* pHeight)
 {
     // Should check the pointers are not NULL
 
-    CheckPointer(pLeft,E_POINTER);
-    CheckPointer(pTop,E_POINTER);
-    CheckPointer(pWidth,E_POINTER);
-    CheckPointer(pHeight,E_POINTER);
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
+    CheckPointer(pLeft, E_POINTER);
+    CheckPointer(pTop, E_POINTER);
+    CheckPointer(pWidth, E_POINTER);
+    CheckPointer(pHeight, E_POINTER);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
     RECT WindowRect;
 
     // Get the current window coordinates
 
-    EXECUTE_ASSERT(GetWindowRect(m_hwnd,&WindowRect));
+    EXECUTE_ASSERT(GetWindowRect(m_hwnd, &WindowRect));
 
     // Convert the RECT into left,top,width and height values
 
@@ -875,27 +873,27 @@ CBaseControlWindow::GetWindowPosition(long *pLeft,long *pTop,long *pWidth,long *
 // maximised) then this returns the same coordinates as GetWindowPosition
 
 STDMETHODIMP
-CBaseControlWindow::GetRestorePosition(long *pLeft,long *pTop,long *pWidth,long *pHeight)
+CBaseControlWindow::GetRestorePosition(long* pLeft, long* pTop, long* pWidth, long* pHeight)
 {
     // Should check the pointers are not NULL
 
-    CheckPointer(pLeft,E_POINTER);
-    CheckPointer(pTop,E_POINTER);
-    CheckPointer(pWidth,E_POINTER);
-    CheckPointer(pHeight,E_POINTER);
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
+    CheckPointer(pLeft, E_POINTER);
+    CheckPointer(pTop, E_POINTER);
+    CheckPointer(pWidth, E_POINTER);
+    CheckPointer(pHeight, E_POINTER);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
 
     // Use GetWindowPlacement to find the restore position
 
     WINDOWPLACEMENT Place;
     Place.length = sizeof(WINDOWPLACEMENT);
-    EXECUTE_ASSERT(GetWindowPlacement(m_hwnd,&Place));
+    EXECUTE_ASSERT(GetWindowPlacement(m_hwnd, &Place));
 
     RECT WorkArea;
 
     // We must take into account any task bar present
 
-    if (SystemParametersInfo(SPI_GETWORKAREA,0,&WorkArea,FALSE) == TRUE) {
+    if (SystemParametersInfo(SPI_GETWORKAREA, 0, &WorkArea, FALSE) == TRUE) {
         if (GetParent(m_hwnd) == NULL) {
             Place.rcNormalPosition.top += WorkArea.top;
             Place.rcNormalPosition.bottom += WorkArea.top;
@@ -920,10 +918,10 @@ CBaseControlWindow::GetRestorePosition(long *pLeft,long *pTop,long *pWidth,long 
 // action is to paint this colour in the Windows background colour (defined
 // as value COLOR_WINDOW) We reset to this default when we're disconnected
 
-STDMETHODIMP CBaseControlWindow::get_BorderColor(long *Color)
+STDMETHODIMP CBaseControlWindow::get_BorderColor(long* Color)
 {
-    CheckPointer(Color,E_POINTER);
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
+    CheckPointer(Color, E_POINTER);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
     *Color = (long) m_BorderColour;
     return NOERROR;
 }
@@ -933,7 +931,7 @@ STDMETHODIMP CBaseControlWindow::get_BorderColor(long *Color)
 
 STDMETHODIMP CBaseControlWindow::put_BorderColor(long Color)
 {
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
 
     // Have the window repainted with the new border colour
 
@@ -945,10 +943,10 @@ STDMETHODIMP CBaseControlWindow::put_BorderColor(long Color)
 
 // Delegate fullscreen handling to plug in distributor
 
-STDMETHODIMP CBaseControlWindow::get_FullScreenMode(long *FullScreenMode)
+STDMETHODIMP CBaseControlWindow::get_FullScreenMode(long* FullScreenMode)
 {
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
-    CheckPointer(FullScreenMode,E_POINTER);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
+    CheckPointer(FullScreenMode, E_POINTER);
     return E_NOTIMPL;
 }
 
@@ -968,7 +966,7 @@ STDMETHODIMP CBaseControlWindow::put_FullScreenMode(long FullScreenMode)
 
 STDMETHODIMP CBaseControlWindow::put_AutoShow(long AutoShow)
 {
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
 
     // Check this is a valid automation boolean type
 
@@ -987,10 +985,10 @@ STDMETHODIMP CBaseControlWindow::put_AutoShow(long AutoShow)
 // when we connect and disconnect and through this interface all of which are
 // controlled and serialised by means of the main renderer critical section
 
-STDMETHODIMP CBaseControlWindow::get_AutoShow(long *AutoShow)
+STDMETHODIMP CBaseControlWindow::get_AutoShow(long* AutoShow)
 {
-    CheckPointer(AutoShow,E_POINTER);
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
+    CheckPointer(AutoShow, E_POINTER);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
     *AutoShow = (m_bAutoShow == TRUE ? OATRUE : OAFALSE);
     return NOERROR;
 }
@@ -1002,16 +1000,16 @@ STDMETHODIMP CBaseControlWindow::get_AutoShow(long *AutoShow)
 // cards have a minimum stretch factor depending on the overlay surface size
 
 STDMETHODIMP
-CBaseControlWindow::GetMinIdealImageSize(long *pWidth,long *pHeight)
+CBaseControlWindow::GetMinIdealImageSize(long* pWidth, long* pHeight)
 {
-    CheckPointer(pWidth,E_POINTER);
-    CheckPointer(pHeight,E_POINTER);
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
+    CheckPointer(pWidth, E_POINTER);
+    CheckPointer(pHeight, E_POINTER);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
     FILTER_STATE State;
 
     // Must not be stopped for this to work correctly
 
-    m_pFilter->GetState(0,&State);
+    m_pFilter->GetState(0, &State);
     if (State == State_Stopped) {
         return VFW_E_WRONG_STATE;
     }
@@ -1029,16 +1027,16 @@ CBaseControlWindow::GetMinIdealImageSize(long *pWidth,long *pHeight)
 // cards have a maximum stretch factor depending on the overlay surface size
 
 STDMETHODIMP
-CBaseControlWindow::GetMaxIdealImageSize(long *pWidth,long *pHeight)
+CBaseControlWindow::GetMaxIdealImageSize(long* pWidth, long* pHeight)
 {
-    CheckPointer(pWidth,E_POINTER);
-    CheckPointer(pHeight,E_POINTER);
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
+    CheckPointer(pWidth, E_POINTER);
+    CheckPointer(pHeight, E_POINTER);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
     FILTER_STATE State;
 
     // Must not be stopped for this to work correctly
 
-    m_pFilter->GetState(0,&State);
+    m_pFilter->GetState(0, &State);
     if (State == State_Stopped) {
         return VFW_E_WRONG_STATE;
     }
@@ -1055,7 +1053,7 @@ CBaseControlWindow::GetMaxIdealImageSize(long *pWidth,long *pHeight)
 STDMETHODIMP
 CBaseControlWindow::HideCursor(long HideCursor)
 {
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
 
     // Check this is a valid automation boolean type
 
@@ -1072,10 +1070,10 @@ CBaseControlWindow::HideCursor(long HideCursor)
 
 // Returns whether we have the cursor hidden or not
 
-STDMETHODIMP CBaseControlWindow::IsCursorHidden(long *CursorHidden)
+STDMETHODIMP CBaseControlWindow::IsCursorHidden(long* CursorHidden)
 {
-    CheckPointer(CursorHidden,E_POINTER);
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
+    CheckPointer(CursorHidden, E_POINTER);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
     *CursorHidden = (m_bCursorHidden == TRUE ? OATRUE : OAFALSE);
     return NOERROR;
 }
@@ -1089,13 +1087,13 @@ STDMETHODIMP CBaseControlWindow::IsCursorHidden(long *CursorHidden)
 // more direct and efficient mechanism as many values may be changed in one
 
 CBaseControlVideo::CBaseControlVideo(
-                        CBaseFilter *pFilter,        // Owning filter
-                        CCritSec *pInterfaceLock,    // Locking object
-                        TCHAR *pName,                // Object description
-                        LPUNKNOWN pUnk,              // Normal COM ownership
-                        HRESULT *phr) :              // OLE return code
+    CBaseFilter* pFilter,        // Owning filter
+    CCritSec* pInterfaceLock,    // Locking object
+    TCHAR* pName,                // Object description
+    LPUNKNOWN pUnk,              // Normal COM ownership
+    HRESULT* phr) :              // OLE return code
 
-    CBaseBasicVideo(pName,pUnk),
+    CBaseBasicVideo(pName, pUnk),
     m_pFilter(pFilter),
     m_pInterfaceLock(pInterfaceLock),
     m_pPin(NULL)
@@ -1107,15 +1105,16 @@ CBaseControlVideo::CBaseControlVideo(
 
 // Return an approximate average time per frame
 
-STDMETHODIMP CBaseControlVideo::get_AvgTimePerFrame(REFTIME *pAvgTimePerFrame)
+STDMETHODIMP CBaseControlVideo::get_AvgTimePerFrame(REFTIME* pAvgTimePerFrame)
 {
-    CheckPointer(pAvgTimePerFrame,E_POINTER);
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
+    CheckPointer(pAvgTimePerFrame, E_POINTER);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
     CAutoLock cInterfaceLock(m_pInterfaceLock);
 
-    VIDEOINFOHEADER *pVideoInfo = GetVideoFormat();
-    if (pVideoInfo == NULL)
-    return E_OUTOFMEMORY;
+    VIDEOINFOHEADER* pVideoInfo = GetVideoFormat();
+    if (pVideoInfo == NULL) {
+        return E_OUTOFMEMORY;
+    }
     COARefTime AvgTime(pVideoInfo->AvgTimePerFrame);
     *pAvgTimePerFrame = (REFTIME) AvgTime;
 
@@ -1125,15 +1124,16 @@ STDMETHODIMP CBaseControlVideo::get_AvgTimePerFrame(REFTIME *pAvgTimePerFrame)
 
 // Return an approximate bit rate for the video
 
-STDMETHODIMP CBaseControlVideo::get_BitRate(long *pBitRate)
+STDMETHODIMP CBaseControlVideo::get_BitRate(long* pBitRate)
 {
-    CheckPointer(pBitRate,E_POINTER);
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
+    CheckPointer(pBitRate, E_POINTER);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
     CAutoLock cInterfaceLock(m_pInterfaceLock);
 
-    VIDEOINFOHEADER *pVideoInfo = GetVideoFormat();
-    if (pVideoInfo == NULL)
-    return E_OUTOFMEMORY;
+    VIDEOINFOHEADER* pVideoInfo = GetVideoFormat();
+    if (pVideoInfo == NULL) {
+        return E_OUTOFMEMORY;
+    }
     *pBitRate = pVideoInfo->dwBitRate;
     return NOERROR;
 }
@@ -1141,15 +1141,16 @@ STDMETHODIMP CBaseControlVideo::get_BitRate(long *pBitRate)
 
 // Return an approximate bit error rate
 
-STDMETHODIMP CBaseControlVideo::get_BitErrorRate(long *pBitErrorRate)
+STDMETHODIMP CBaseControlVideo::get_BitErrorRate(long* pBitErrorRate)
 {
-    CheckPointer(pBitErrorRate,E_POINTER);
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
+    CheckPointer(pBitErrorRate, E_POINTER);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
     CAutoLock cInterfaceLock(m_pInterfaceLock);
 
-    VIDEOINFOHEADER *pVideoInfo = GetVideoFormat();
-    if (pVideoInfo == NULL)
-    return E_OUTOFMEMORY;
+    VIDEOINFOHEADER* pVideoInfo = GetVideoFormat();
+    if (pVideoInfo == NULL) {
+        return E_OUTOFMEMORY;
+    }
     *pBitErrorRate = pVideoInfo->dwBitErrorRate;
     return NOERROR;
 }
@@ -1157,15 +1158,16 @@ STDMETHODIMP CBaseControlVideo::get_BitErrorRate(long *pBitErrorRate)
 
 // This returns the current video width
 
-STDMETHODIMP CBaseControlVideo::get_VideoWidth(long *pVideoWidth)
+STDMETHODIMP CBaseControlVideo::get_VideoWidth(long* pVideoWidth)
 {
-    CheckPointer(pVideoWidth,E_POINTER);
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
+    CheckPointer(pVideoWidth, E_POINTER);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
     CAutoLock cInterfaceLock(m_pInterfaceLock);
 
-    VIDEOINFOHEADER *pVideoInfo = GetVideoFormat();
-    if (pVideoInfo == NULL)
-    return E_OUTOFMEMORY;
+    VIDEOINFOHEADER* pVideoInfo = GetVideoFormat();
+    if (pVideoInfo == NULL) {
+        return E_OUTOFMEMORY;
+    }
     *pVideoWidth = pVideoInfo->bmiHeader.biWidth;
     return NOERROR;
 }
@@ -1173,15 +1175,16 @@ STDMETHODIMP CBaseControlVideo::get_VideoWidth(long *pVideoWidth)
 
 // This returns the current video height
 
-STDMETHODIMP CBaseControlVideo::get_VideoHeight(long *pVideoHeight)
+STDMETHODIMP CBaseControlVideo::get_VideoHeight(long* pVideoHeight)
 {
-    CheckPointer(pVideoHeight,E_POINTER);
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
+    CheckPointer(pVideoHeight, E_POINTER);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
     CAutoLock cInterfaceLock(m_pInterfaceLock);
 
-    VIDEOINFOHEADER *pVideoInfo = GetVideoFormat();
-    if (pVideoInfo == NULL)
-    return E_OUTOFMEMORY;
+    VIDEOINFOHEADER* pVideoInfo = GetVideoFormat();
+    if (pVideoInfo == NULL) {
+        return E_OUTOFMEMORY;
+    }
     *pVideoHeight = pVideoInfo->bmiHeader.biHeight;
     return NOERROR;
 }
@@ -1196,20 +1199,21 @@ STDMETHODIMP CBaseControlVideo::get_VideoHeight(long *pVideoHeight)
 
 STDMETHODIMP CBaseControlVideo::GetVideoPaletteEntries(long StartIndex,
                                                        long Entries,
-                                                       long *pRetrieved,
-                                                       long *pPalette)
+                                                       long* pRetrieved,
+                                                       long* pPalette)
 {
-    CheckPointer(pRetrieved,E_POINTER);
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
+    CheckPointer(pRetrieved, E_POINTER);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
     CAutoLock cInterfaceLock(m_pInterfaceLock);
     CMediaType MediaType;
 
     // Get the video format from the derived class
 
-    VIDEOINFOHEADER *pVideoInfo = GetVideoFormat();
-    if (pVideoInfo == NULL)
-    return E_OUTOFMEMORY;
-    BITMAPINFOHEADER *pHeader = HEADER(pVideoInfo);
+    VIDEOINFOHEADER* pVideoInfo = GetVideoFormat();
+    if (pVideoInfo == NULL) {
+        return E_OUTOFMEMORY;
+    }
+    BITMAPINFOHEADER* pHeader = HEADER(pVideoInfo);
 
     // Is the current format palettised
 
@@ -1235,17 +1239,17 @@ STDMETHODIMP CBaseControlVideo::GetVideoPaletteEntries(long StartIndex,
     // Correct the number we can retrieve
 
     LONG Available = (LONG) pHeader->biClrUsed - StartIndex;
-    *pRetrieved = max(0,min(Available,Entries));
+    *pRetrieved = max(0, min(Available, Entries));
     if (*pRetrieved == 0) {
         return S_FALSE;
     }
 
     // Copy the palette entries to the output buffer
 
-    PALETTEENTRY *pEntries = (PALETTEENTRY *) pPalette;
-    RGBQUAD *pColours = COLORS(pVideoInfo) + StartIndex;
+    PALETTEENTRY* pEntries = (PALETTEENTRY*) pPalette;
+    RGBQUAD* pColours = COLORS(pVideoInfo) + StartIndex;
 
-    for (LONG Count = 0;Count < *pRetrieved;Count++) {
+    for (LONG Count = 0; Count < *pRetrieved; Count++) {
         pEntries[Count].peRed = pColours[Count].rgbRed;
         pEntries[Count].peGreen = pColours[Count].rgbGreen;
         pEntries[Count].peBlue = pColours[Count].rgbBlue;
@@ -1260,17 +1264,18 @@ STDMETHODIMP CBaseControlVideo::GetVideoPaletteEntries(long StartIndex,
 // cannot access the renderer media type directly as the window object thread
 // may be updating it since dynamic format changes may change these values
 
-STDMETHODIMP CBaseControlVideo::GetVideoSize(long *pWidth,long *pHeight)
+STDMETHODIMP CBaseControlVideo::GetVideoSize(long* pWidth, long* pHeight)
 {
-    CheckPointer(pWidth,E_POINTER);
-    CheckPointer(pHeight,E_POINTER);
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
+    CheckPointer(pWidth, E_POINTER);
+    CheckPointer(pHeight, E_POINTER);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
     CAutoLock cInterfaceLock(m_pInterfaceLock);
 
     // Get the video format from the derived class
-    VIDEOINFOHEADER *pVideoInfo = GetVideoFormat();
-    if (pVideoInfo == NULL)
-    return E_OUTOFMEMORY;
+    VIDEOINFOHEADER* pVideoInfo = GetVideoFormat();
+    if (pVideoInfo == NULL) {
+        return E_OUTOFMEMORY;
+    }
     *pWidth = pVideoInfo->bmiHeader.biWidth;
     *pHeight = pVideoInfo->bmiHeader.biHeight;
     return NOERROR;
@@ -1282,9 +1287,9 @@ STDMETHODIMP CBaseControlVideo::GetVideoSize(long *pWidth,long *pHeight)
 // Then pass the rectangle on to the window object to set the source
 
 STDMETHODIMP
-CBaseControlVideo::SetSourcePosition(long Left,long Top,long Width,long Height)
+CBaseControlVideo::SetSourcePosition(long Left, long Top, long Width, long Height)
 {
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
     CAutoLock cInterfaceLock(m_pInterfaceLock);
     RECT SourceRect;
     SourceRect.left = Left;
@@ -1314,13 +1319,13 @@ CBaseControlVideo::SetSourcePosition(long Left,long Top,long Width,long Height)
 // object returns through GetSourceRect) which requires a little work
 
 STDMETHODIMP
-CBaseControlVideo::GetSourcePosition(long *pLeft,long *pTop,long *pWidth,long *pHeight)
+CBaseControlVideo::GetSourcePosition(long* pLeft, long* pTop, long* pWidth, long* pHeight)
 {
-    CheckPointer(pLeft,E_POINTER);
-    CheckPointer(pTop,E_POINTER);
-    CheckPointer(pWidth,E_POINTER);
-    CheckPointer(pHeight,E_POINTER);
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
+    CheckPointer(pLeft, E_POINTER);
+    CheckPointer(pTop, E_POINTER);
+    CheckPointer(pWidth, E_POINTER);
+    CheckPointer(pHeight, E_POINTER);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
     RECT SourceRect;
 
     CAutoLock cInterfaceLock(m_pInterfaceLock);
@@ -1340,9 +1345,9 @@ CBaseControlVideo::GetSourcePosition(long *pLeft,long *pTop,long *pWidth,long *p
 // Then pass the rectangle on to the window object to set the destination
 
 STDMETHODIMP
-CBaseControlVideo::SetDestinationPosition(long Left,long Top,long Width,long Height)
+CBaseControlVideo::SetDestinationPosition(long Left, long Top, long Width, long Height)
 {
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
     CAutoLock cInterfaceLock(m_pInterfaceLock);
     RECT DestinationRect;
 
@@ -1373,15 +1378,15 @@ CBaseControlVideo::SetDestinationPosition(long Left,long Top,long Width,long Hei
 // object returns through GetDestinationRect) which requires a little work
 
 STDMETHODIMP
-CBaseControlVideo::GetDestinationPosition(long *pLeft,long *pTop,long *pWidth,long *pHeight)
+CBaseControlVideo::GetDestinationPosition(long* pLeft, long* pTop, long* pWidth, long* pHeight)
 {
     // Should check the pointers are not NULL
 
-    CheckPointer(pLeft,E_POINTER);
-    CheckPointer(pTop,E_POINTER);
-    CheckPointer(pWidth,E_POINTER);
-    CheckPointer(pHeight,E_POINTER);
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
+    CheckPointer(pLeft, E_POINTER);
+    CheckPointer(pTop, E_POINTER);
+    CheckPointer(pWidth, E_POINTER);
+    CheckPointer(pHeight, E_POINTER);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
     RECT DestinationRect;
 
     CAutoLock cInterfaceLock(m_pInterfaceLock);
@@ -1403,7 +1408,7 @@ CBaseControlVideo::GetDestinationPosition(long *pLeft,long *pTop,long *pWidth,lo
 
 STDMETHODIMP CBaseControlVideo::put_SourceLeft(long SourceLeft)
 {
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
     CAutoLock cInterfaceLock(m_pInterfaceLock);
     RECT SourceRect;
     GetSourceRect(&SourceRect);
@@ -1429,10 +1434,10 @@ STDMETHODIMP CBaseControlVideo::put_SourceLeft(long SourceLeft)
 
 // Return the current left source video position
 
-STDMETHODIMP CBaseControlVideo::get_SourceLeft(long *pSourceLeft)
+STDMETHODIMP CBaseControlVideo::get_SourceLeft(long* pSourceLeft)
 {
-    CheckPointer(pSourceLeft,E_POINTER);
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
+    CheckPointer(pSourceLeft, E_POINTER);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
     CAutoLock cInterfaceLock(m_pInterfaceLock);
     RECT SourceRect;
 
@@ -1448,7 +1453,7 @@ STDMETHODIMP CBaseControlVideo::get_SourceLeft(long *pSourceLeft)
 
 STDMETHODIMP CBaseControlVideo::put_SourceWidth(long SourceWidth)
 {
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
     CAutoLock cInterfaceLock(m_pInterfaceLock);
     RECT SourceRect;
     GetSourceRect(&SourceRect);
@@ -1473,10 +1478,10 @@ STDMETHODIMP CBaseControlVideo::put_SourceWidth(long SourceWidth)
 
 // Return the current source width
 
-STDMETHODIMP CBaseControlVideo::get_SourceWidth(long *pSourceWidth)
+STDMETHODIMP CBaseControlVideo::get_SourceWidth(long* pSourceWidth)
 {
-    CheckPointer(pSourceWidth,E_POINTER);
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
+    CheckPointer(pSourceWidth, E_POINTER);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
     CAutoLock cInterfaceLock(m_pInterfaceLock);
     RECT SourceRect;
 
@@ -1493,7 +1498,7 @@ STDMETHODIMP CBaseControlVideo::get_SourceWidth(long *pSourceWidth)
 
 STDMETHODIMP CBaseControlVideo::put_SourceTop(long SourceTop)
 {
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
     CAutoLock cInterfaceLock(m_pInterfaceLock);
     RECT SourceRect;
     GetSourceRect(&SourceRect);
@@ -1519,10 +1524,10 @@ STDMETHODIMP CBaseControlVideo::put_SourceTop(long SourceTop)
 
 // Return the current top position
 
-STDMETHODIMP CBaseControlVideo::get_SourceTop(long *pSourceTop)
+STDMETHODIMP CBaseControlVideo::get_SourceTop(long* pSourceTop)
 {
-    CheckPointer(pSourceTop,E_POINTER);
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
+    CheckPointer(pSourceTop, E_POINTER);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
     CAutoLock cInterfaceLock(m_pInterfaceLock);
     RECT SourceRect;
 
@@ -1536,7 +1541,7 @@ STDMETHODIMP CBaseControlVideo::get_SourceTop(long *pSourceTop)
 
 STDMETHODIMP CBaseControlVideo::put_SourceHeight(long SourceHeight)
 {
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
     CAutoLock cInterfaceLock(m_pInterfaceLock);
     RECT SourceRect;
     GetSourceRect(&SourceRect);
@@ -1561,10 +1566,10 @@ STDMETHODIMP CBaseControlVideo::put_SourceHeight(long SourceHeight)
 
 // Return the current source height
 
-STDMETHODIMP CBaseControlVideo::get_SourceHeight(long *pSourceHeight)
+STDMETHODIMP CBaseControlVideo::get_SourceHeight(long* pSourceHeight)
 {
-    CheckPointer(pSourceHeight,E_POINTER);
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
+    CheckPointer(pSourceHeight, E_POINTER);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
     CAutoLock cInterfaceLock(m_pInterfaceLock);
     RECT SourceRect;
 
@@ -1581,7 +1586,7 @@ STDMETHODIMP CBaseControlVideo::get_SourceHeight(long *pSourceHeight)
 
 STDMETHODIMP CBaseControlVideo::put_DestinationLeft(long DestinationLeft)
 {
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
     CAutoLock cInterfaceLock(m_pInterfaceLock);
     RECT DestinationRect;
     GetTargetRect(&DestinationRect);
@@ -1607,10 +1612,10 @@ STDMETHODIMP CBaseControlVideo::put_DestinationLeft(long DestinationLeft)
 
 // Return the left position for the destination rectangle
 
-STDMETHODIMP CBaseControlVideo::get_DestinationLeft(long *pDestinationLeft)
+STDMETHODIMP CBaseControlVideo::get_DestinationLeft(long* pDestinationLeft)
 {
-    CheckPointer(pDestinationLeft,E_POINTER);
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
+    CheckPointer(pDestinationLeft, E_POINTER);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
     CAutoLock cInterfaceLock(m_pInterfaceLock);
     RECT DestinationRect;
 
@@ -1624,7 +1629,7 @@ STDMETHODIMP CBaseControlVideo::get_DestinationLeft(long *pDestinationLeft)
 
 STDMETHODIMP CBaseControlVideo::put_DestinationWidth(long DestinationWidth)
 {
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
     CAutoLock cInterfaceLock(m_pInterfaceLock);
     RECT DestinationRect;
     GetTargetRect(&DestinationRect);
@@ -1649,10 +1654,10 @@ STDMETHODIMP CBaseControlVideo::put_DestinationWidth(long DestinationWidth)
 
 // Return the width for the destination rectangle
 
-STDMETHODIMP CBaseControlVideo::get_DestinationWidth(long *pDestinationWidth)
+STDMETHODIMP CBaseControlVideo::get_DestinationWidth(long* pDestinationWidth)
 {
-    CheckPointer(pDestinationWidth,E_POINTER);
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
+    CheckPointer(pDestinationWidth, E_POINTER);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
     CAutoLock cInterfaceLock(m_pInterfaceLock);
     RECT DestinationRect;
 
@@ -1669,7 +1674,7 @@ STDMETHODIMP CBaseControlVideo::get_DestinationWidth(long *pDestinationWidth)
 
 STDMETHODIMP CBaseControlVideo::put_DestinationTop(long DestinationTop)
 {
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
     CAutoLock cInterfaceLock(m_pInterfaceLock);
     RECT DestinationRect;
     GetTargetRect(&DestinationRect);
@@ -1695,10 +1700,10 @@ STDMETHODIMP CBaseControlVideo::put_DestinationTop(long DestinationTop)
 
 // Return the top position for the destination rectangle
 
-STDMETHODIMP CBaseControlVideo::get_DestinationTop(long *pDestinationTop)
+STDMETHODIMP CBaseControlVideo::get_DestinationTop(long* pDestinationTop)
 {
-    CheckPointer(pDestinationTop,E_POINTER);
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
+    CheckPointer(pDestinationTop, E_POINTER);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
     CAutoLock cInterfaceLock(m_pInterfaceLock);
     RECT DestinationRect;
 
@@ -1712,7 +1717,7 @@ STDMETHODIMP CBaseControlVideo::get_DestinationTop(long *pDestinationTop)
 
 STDMETHODIMP CBaseControlVideo::put_DestinationHeight(long DestinationHeight)
 {
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
     CAutoLock cInterfaceLock(m_pInterfaceLock);
     RECT DestinationRect;
     GetTargetRect(&DestinationRect);
@@ -1737,10 +1742,10 @@ STDMETHODIMP CBaseControlVideo::put_DestinationHeight(long DestinationHeight)
 
 // Return the height for the destination rectangle
 
-STDMETHODIMP CBaseControlVideo::get_DestinationHeight(long *pDestinationHeight)
+STDMETHODIMP CBaseControlVideo::get_DestinationHeight(long* pDestinationHeight)
 {
-    CheckPointer(pDestinationHeight,E_POINTER);
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
+    CheckPointer(pDestinationHeight, E_POINTER);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
     CAutoLock cInterfaceLock(m_pInterfaceLock);
     RECT DestinationRect;
 
@@ -1754,7 +1759,7 @@ STDMETHODIMP CBaseControlVideo::get_DestinationHeight(long *pDestinationHeight)
 
 STDMETHODIMP CBaseControlVideo::SetDefaultSourcePosition()
 {
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
     CAutoLock cInterfaceLock(m_pInterfaceLock);
     HRESULT hr = SetDefaultSourceRect();
     if (FAILED(hr)) {
@@ -1768,7 +1773,7 @@ STDMETHODIMP CBaseControlVideo::SetDefaultSourcePosition()
 
 STDMETHODIMP CBaseControlVideo::IsUsingDefaultSource()
 {
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
     CAutoLock cInterfaceLock(m_pInterfaceLock);
     return IsDefaultSourceRect();
 }
@@ -1778,7 +1783,7 @@ STDMETHODIMP CBaseControlVideo::IsUsingDefaultSource()
 
 STDMETHODIMP CBaseControlVideo::SetDefaultDestinationPosition()
 {
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
     CAutoLock cInterfaceLock(m_pInterfaceLock);
     HRESULT hr = SetDefaultTargetRect();
     if (FAILED(hr)) {
@@ -1792,7 +1797,7 @@ STDMETHODIMP CBaseControlVideo::SetDefaultDestinationPosition()
 
 STDMETHODIMP CBaseControlVideo::IsUsingDefaultDestination()
 {
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
     CAutoLock cInterfaceLock(m_pInterfaceLock);
     return IsDefaultTargetRect();
 }
@@ -1801,31 +1806,32 @@ STDMETHODIMP CBaseControlVideo::IsUsingDefaultDestination()
 // Return a copy of the current image in the video renderer
 
 STDMETHODIMP
-CBaseControlVideo::GetCurrentImage(long *pBufferSize,long *pVideoImage)
+CBaseControlVideo::GetCurrentImage(long* pBufferSize, long* pVideoImage)
 {
-    CheckPointer(pBufferSize,E_POINTER);
-    CheckConnected(m_pPin,VFW_E_NOT_CONNECTED);
+    CheckPointer(pBufferSize, E_POINTER);
+    CheckConnected(m_pPin, VFW_E_NOT_CONNECTED);
     CAutoLock cInterfaceLock(m_pInterfaceLock);
     FILTER_STATE State;
 
     // Make sure we are in a paused state
 
     if (pVideoImage != NULL) {
-        m_pFilter->GetState(0,&State);
+        m_pFilter->GetState(0, &State);
         if (State != State_Paused) {
             return VFW_E_NOT_PAUSED;
         }
-        return GetStaticImage(pBufferSize,pVideoImage);
+        return GetStaticImage(pBufferSize, pVideoImage);
     }
 
     // Just return the memory required
 
-    VIDEOINFOHEADER *pVideoInfo = GetVideoFormat();
-    if (pVideoInfo == NULL)
-    return E_OUTOFMEMORY;
+    VIDEOINFOHEADER* pVideoInfo = GetVideoFormat();
+    if (pVideoInfo == NULL) {
+        return E_OUTOFMEMORY;
+    }
     RECT SourceRect;
     GetSourceRect(&SourceRect);
-    return GetImageSize(pVideoInfo,pBufferSize,&SourceRect);
+    return GetImageSize(pVideoInfo, pBufferSize, &SourceRect);
 }
 
 
@@ -1836,9 +1842,9 @@ CBaseControlVideo::GetCurrentImage(long *pBufferSize,long *pVideoImage)
 // be called are much looser. To calculate the memory required we synthesize
 // a VIDEOINFO that takes into account the source rectangle that's being used
 
-HRESULT CBaseControlVideo::GetImageSize(VIDEOINFOHEADER *pVideoInfo,
-                                        LONG *pBufferSize,
-                                        RECT *pSourceRect)
+HRESULT CBaseControlVideo::GetImageSize(VIDEOINFOHEADER* pVideoInfo,
+                                        LONG* pBufferSize,
+                                        RECT* pSourceRect)
 {
     NOTE("Entering GetImageSize");
     ASSERT(pSourceRect);
@@ -1881,15 +1887,15 @@ HRESULT CBaseControlVideo::GetImageSize(VIDEOINFOHEADER *pVideoInfo,
 // be NULL when passed to GetCurrentImage in which case GetImageSize will be
 // called instead, which will just do the calculation of the memory required
 
-HRESULT CBaseControlVideo::CopyImage(IMediaSample *pMediaSample,
-                                     VIDEOINFOHEADER *pVideoInfo,
-                                     LONG *pBufferSize,
-                                     BYTE *pVideoImage,
-                                     RECT *pSourceRect)
+HRESULT CBaseControlVideo::CopyImage(IMediaSample* pMediaSample,
+                                     VIDEOINFOHEADER* pVideoInfo,
+                                     LONG* pBufferSize,
+                                     BYTE* pVideoImage,
+                                     RECT* pSourceRect)
 {
     NOTE("Entering CopyImage");
     ASSERT(pSourceRect);
-    BYTE *pCurrentImage;
+    BYTE* pCurrentImage;
 
     // Check we have an image to copy
 
@@ -1926,10 +1932,10 @@ HRESULT CBaseControlVideo::CopyImage(IMediaSample *pMediaSample,
     // Copy the BITMAPINFO
 
     CopyMemory((PVOID)pVideoImage, (PVOID)&pVideoInfo->bmiHeader, Size);
-    ((BITMAPINFOHEADER *)pVideoImage)->biWidth = WIDTH(pSourceRect);
-    ((BITMAPINFOHEADER *)pVideoImage)->biHeight = HEIGHT(pSourceRect);
-    ((BITMAPINFOHEADER *)pVideoImage)->biSizeImage = DIBSIZE(bih);
-    BYTE *pImageData = pVideoImage + Size;
+    ((BITMAPINFOHEADER*)pVideoImage)->biWidth = WIDTH(pSourceRect);
+    ((BITMAPINFOHEADER*)pVideoImage)->biHeight = HEIGHT(pSourceRect);
+    ((BITMAPINFOHEADER*)pVideoImage)->biSizeImage = DIBSIZE(bih);
+    BYTE* pImageData = pVideoImage + Size;
 
     // Get the pointer to it's image data
 
@@ -1948,9 +1954,9 @@ HRESULT CBaseControlVideo::CopyImage(IMediaSample *pMediaSample,
 
     // Even money on this GP faulting sometime...
 
-    for (LONG Line = 0;Line < HEIGHT(pSourceRect);Line++) {
+    for (LONG Line = 0; Line < HEIGHT(pSourceRect); Line++) {
         CopyMemory((PVOID)pImageData, (PVOID)pCurrentImage, ScanLine);
-        pImageData += DIBWIDTHBYTES(*(BITMAPINFOHEADER *)pVideoImage);
+        pImageData += DIBWIDTHBYTES(*(BITMAPINFOHEADER*)pVideoImage);
         pCurrentImage += DIBWIDTHBYTES(pVideoInfo->bmiHeader);
     }
     return NOERROR;
@@ -1966,15 +1972,16 @@ HRESULT CBaseControlVideo::OnVideoSizeChange()
 {
     // Get the video format from the derived class
 
-    VIDEOINFOHEADER *pVideoInfo = GetVideoFormat();
-    if (pVideoInfo == NULL)
-    return E_OUTOFMEMORY;
+    VIDEOINFOHEADER* pVideoInfo = GetVideoFormat();
+    if (pVideoInfo == NULL) {
+        return E_OUTOFMEMORY;
+    }
     WORD Width = (WORD) pVideoInfo->bmiHeader.biWidth;
     WORD Height = (WORD) pVideoInfo->bmiHeader.biHeight;
 
     return m_pFilter->NotifyEvent(EC_VIDEO_SIZE_CHANGED,
-                                  MAKELPARAM(Width,Height),
-                                  MAKEWPARAM(0,0));
+                                  MAKELPARAM(Width, Height),
+                                  MAKEWPARAM(0, 0));
 }
 
 
@@ -1986,19 +1993,19 @@ HRESULT CBaseControlVideo::OnVideoSizeChange()
 // that the rectangle is used up to, but not including, the right column and
 // bottom row of pixels, see the Win32 documentation on RECT for more details
 
-HRESULT CBaseControlVideo::CheckSourceRect(RECT *pSourceRect)
+HRESULT CBaseControlVideo::CheckSourceRect(RECT* pSourceRect)
 {
-    CheckPointer(pSourceRect,E_POINTER);
-    LONG Width,Height;
-    GetVideoSize(&Width,&Height);
+    CheckPointer(pSourceRect, E_POINTER);
+    LONG Width, Height;
+    GetVideoSize(&Width, &Height);
 
     // Check the coordinates are greater than zero
     // and that the rectangle is valid (left<right, top<bottom)
 
     if ((pSourceRect->left >= pSourceRect->right) ||
-       (pSourceRect->left < 0) ||
-       (pSourceRect->top >= pSourceRect->bottom) ||
-       (pSourceRect->top < 0)) {
+            (pSourceRect->left < 0) ||
+            (pSourceRect->top >= pSourceRect->bottom) ||
+            (pSourceRect->top < 0)) {
 
         return E_INVALIDARG;
     }
@@ -2006,7 +2013,7 @@ HRESULT CBaseControlVideo::CheckSourceRect(RECT *pSourceRect)
     // Check the coordinates are less than the extents
 
     if ((pSourceRect->right > Width) ||
-        (pSourceRect->bottom > Height)) {
+            (pSourceRect->bottom > Height)) {
 
         return E_INVALIDARG;
     }
@@ -2023,7 +2030,7 @@ HRESULT CBaseControlVideo::CheckSourceRect(RECT *pSourceRect)
 // that the rectangle is used up to, but not including, the right column and
 // bottom row of pixels, see the Win32 documentation on RECT for more details
 
-HRESULT CBaseControlVideo::CheckTargetRect(RECT *pTargetRect)
+HRESULT CBaseControlVideo::CheckTargetRect(RECT* pTargetRect)
 {
     // Check the pointer is valid
 
@@ -2035,7 +2042,7 @@ HRESULT CBaseControlVideo::CheckTargetRect(RECT *pTargetRect)
 
     if (pTargetRect->left > pTargetRect->right ||
             pTargetRect->top > pTargetRect->bottom) {
-                return E_INVALIDARG;
+        return E_INVALIDARG;
     }
 
     // Check the rectangle has valid coordinates

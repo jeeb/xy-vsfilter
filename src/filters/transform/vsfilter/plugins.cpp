@@ -1,20 +1,20 @@
-/* 
- *	Copyright (C) 2003-2006 Gabest
- *	http://www.gabest.org
+/*
+ *  Copyright (C) 2003-2006 Gabest
+ *  http://www.gabest.org
  *
  *  This Program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2, or (at your option)
  *  any later version.
- *   
+ *
  *  This Program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  *  GNU General Public License for more details.
- *   
+ *
  *  You should have received a copy of the GNU General Public License
  *  along with GNU Make; see the file COPYING.  If not, write to
- *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA. 
+ *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
  *  http://www.gnu.org/copyleft/gpl.html
  *
  */
@@ -49,328 +49,290 @@ using namespace DirectVobSubXyOptions;
 namespace Plugin
 {
 
-class CFilter : public CUnknown, public CDirectVobSub, public CAMThread, public CCritSec
-{
-private:
-	CString m_fn;
-
-protected:
-	float m_fps;
-	CCritSec m_csSubLock;
-	CComPtr<ISimpleSubPicProvider> m_simple_provider;
-	CComPtr<ISubPicProvider> m_pSubPicProvider;
-	DWORD_PTR m_SubPicProviderId;
-
-    CSimpleTextSubtitle::YCbCrMatrix m_script_selected_yuv;
-    CSimpleTextSubtitle::YCbCrRange m_script_selected_range;
-
-    bool m_fLazyInit;
-public:
-    CFilter() : CUnknown(NAME("CFilter"), NULL), m_fps(-1), m_SubPicProviderId(0), m_fLazyInit(false)
+    class CFilter : public CUnknown, public CDirectVobSub, public CAMThread, public CCritSec
     {
-        //fix me: should not do init here
-        CacheManager::GetPathDataMruCache()->SetMaxItemNum(m_xy_int_opt[INT_PATH_DATA_CACHE_MAX_ITEM_NUM]);
-        CacheManager::GetScanLineData2MruCache()->SetMaxItemNum(m_xy_int_opt[INT_SCAN_LINE_DATA_CACHE_MAX_ITEM_NUM]);
-        CacheManager::GetOverlayNoBlurMruCache()->SetMaxItemNum(m_xy_int_opt[INT_OVERLAY_NO_BLUR_CACHE_MAX_ITEM_NUM]);
-        CacheManager::GetOverlayMruCache()->SetMaxItemNum(m_xy_int_opt[INT_OVERLAY_CACHE_MAX_ITEM_NUM]);
+    private:
+        CString m_fn;
 
-        XyFwGroupedDrawItemsHashKey::GetCacher()->SetMaxItemNum(m_xy_int_opt[INT_BITMAP_MRU_CACHE_ITEM_NUM]);
-        CacheManager::GetBitmapMruCache()->SetMaxItemNum(m_xy_int_opt[INT_BITMAP_MRU_CACHE_ITEM_NUM]);
+    protected:
+        float m_fps;
+        CCritSec m_csSubLock;
+        CComPtr<ISimpleSubPicProvider> m_simple_provider;
+        CComPtr<ISubPicProvider> m_pSubPicProvider;
+        DWORD_PTR m_SubPicProviderId;
 
-        CacheManager::GetClipperAlphaMaskMruCache()->SetMaxItemNum(m_xy_int_opt[INT_CLIPPER_MRU_CACHE_ITEM_NUM]);
-        CacheManager::GetTextInfoCache()->SetMaxItemNum(m_xy_int_opt[INT_TEXT_INFO_CACHE_ITEM_NUM]);
-        CacheManager::GetAssTagListMruCache()->SetMaxItemNum(m_xy_int_opt[INT_ASS_TAG_LIST_CACHE_ITEM_NUM]);
+        CSimpleTextSubtitle::YCbCrMatrix m_script_selected_yuv;
+        CSimpleTextSubtitle::YCbCrRange m_script_selected_range;
 
-        SubpixelPositionControler::GetGlobalControler().SetSubpixelLevel( static_cast<SubpixelPositionControler::SUBPIXEL_LEVEL>(m_xy_int_opt[INT_SUBPIXEL_POS_LEVEL]) );
-        
-        m_script_selected_yuv = CSimpleTextSubtitle::YCbCrMatrix_AUTO;
-        m_script_selected_range = CSimpleTextSubtitle::YCbCrRange_AUTO;
+        bool m_fLazyInit;
+    public:
+        CFilter() : CUnknown(NAME("CFilter"), NULL), m_fps(-1), m_SubPicProviderId(0), m_fLazyInit(false) {
+            //fix me: should not do init here
+            CacheManager::GetPathDataMruCache()->SetMaxItemNum(m_xy_int_opt[INT_PATH_DATA_CACHE_MAX_ITEM_NUM]);
+            CacheManager::GetScanLineData2MruCache()->SetMaxItemNum(m_xy_int_opt[INT_SCAN_LINE_DATA_CACHE_MAX_ITEM_NUM]);
+            CacheManager::GetOverlayNoBlurMruCache()->SetMaxItemNum(m_xy_int_opt[INT_OVERLAY_NO_BLUR_CACHE_MAX_ITEM_NUM]);
+            CacheManager::GetOverlayMruCache()->SetMaxItemNum(m_xy_int_opt[INT_OVERLAY_CACHE_MAX_ITEM_NUM]);
 
-        CAMThread::Create();
-    }
-	virtual ~CFilter() {CAMThread::CallWorker(0);}
+            XyFwGroupedDrawItemsHashKey::GetCacher()->SetMaxItemNum(m_xy_int_opt[INT_BITMAP_MRU_CACHE_ITEM_NUM]);
+            CacheManager::GetBitmapMruCache()->SetMaxItemNum(m_xy_int_opt[INT_BITMAP_MRU_CACHE_ITEM_NUM]);
 
-    DECLARE_IUNKNOWN;
-    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv)
+            CacheManager::GetClipperAlphaMaskMruCache()->SetMaxItemNum(m_xy_int_opt[INT_CLIPPER_MRU_CACHE_ITEM_NUM]);
+            CacheManager::GetTextInfoCache()->SetMaxItemNum(m_xy_int_opt[INT_TEXT_INFO_CACHE_ITEM_NUM]);
+            CacheManager::GetAssTagListMruCache()->SetMaxItemNum(m_xy_int_opt[INT_ASS_TAG_LIST_CACHE_ITEM_NUM]);
+
+            SubpixelPositionControler::GetGlobalControler().SetSubpixelLevel(static_cast<SubpixelPositionControler::SUBPIXEL_LEVEL>(m_xy_int_opt[INT_SUBPIXEL_POS_LEVEL]));
+
+            m_script_selected_yuv = CSimpleTextSubtitle::YCbCrMatrix_AUTO;
+            m_script_selected_range = CSimpleTextSubtitle::YCbCrRange_AUTO;
+
+            CAMThread::Create();
+        }
+        virtual ~CFilter() {CAMThread::CallWorker(0);}
+
+        DECLARE_IUNKNOWN;
+        STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv) {
+            CheckPointer(ppv, E_POINTER);
+
+            return QI(IDirectVobSub)
+                   QI(IDirectVobSub2)
+                   QI(IDirectVobSubXy)
+                   QI(IFilterVersion)
+                   __super::NonDelegatingQueryInterface(riid, ppv);
+        }
+
+        CString GetFileName() {CAutoLock cAutoLock(this); return m_fn;}
+        void SetFileName(CString fn) {CAutoLock cAutoLock(this); m_fn = fn;}
+
+        void SetYuvMatrix(SubPicDesc& dst) {
+            ColorConvTable::YuvMatrixType yuv_matrix = ColorConvTable::BT601;
+            ColorConvTable::YuvRangeType yuv_range = ColorConvTable::RANGE_TV;
+
+            if (m_xy_int_opt[INT_COLOR_SPACE] == CDirectVobSub::YuvMatrix_AUTO) {
+                switch (m_script_selected_yuv) {
+                    case CSimpleTextSubtitle::YCbCrMatrix_BT601:
+                        yuv_matrix = ColorConvTable::BT601;
+                        break;
+                    case CSimpleTextSubtitle::YCbCrMatrix_BT709:
+                        yuv_matrix = ColorConvTable::BT709;
+                        break;
+                    case CSimpleTextSubtitle::YCbCrMatrix_AUTO:
+                    default:
+                        yuv_matrix = ColorConvTable::BT601;
+                        break;
+                }
+            } else {
+                switch (m_xy_int_opt[INT_COLOR_SPACE]) {
+                    case CDirectVobSub::BT_601:
+                        yuv_matrix = ColorConvTable::BT601;
+                        break;
+                    case CDirectVobSub::BT_709:
+                        yuv_matrix = ColorConvTable::BT709;
+                        break;
+                    case CDirectVobSub::GUESS:
+                        yuv_matrix = (dst.w > m_bt601Width || dst.h > m_bt601Height) ? ColorConvTable::BT709 : ColorConvTable::BT601;
+                        break;
+                }
+            }
+
+            if (m_xy_int_opt[INT_YUV_RANGE] == CDirectVobSub::YuvRange_Auto) {
+                switch (m_script_selected_range) {
+                    case CSimpleTextSubtitle::YCbCrRange_PC:
+                        yuv_range = ColorConvTable::RANGE_PC;
+                        break;
+                    case CSimpleTextSubtitle::YCbCrRange_TV:
+                        yuv_range = ColorConvTable::RANGE_TV;
+                        break;
+                    case CSimpleTextSubtitle::YCbCrRange_AUTO:
+                    default:
+                        yuv_range = ColorConvTable::RANGE_TV;
+                        break;
+                }
+            } else {
+                switch (m_xy_int_opt[INT_YUV_RANGE]) {
+                    case CDirectVobSub::YuvRange_TV:
+                        yuv_range = ColorConvTable::RANGE_TV;
+                        break;
+                    case CDirectVobSub::YuvRange_PC:
+                        yuv_range = ColorConvTable::RANGE_PC;
+                        break;
+                    case CDirectVobSub::YuvRange_Auto:
+                        yuv_range = ColorConvTable::RANGE_TV;
+                        break;
+                }
+            }
+
+            ColorConvTable::SetDefaultConvType(yuv_matrix, yuv_range);
+        }
+
+        bool Render(SubPicDesc& dst, REFERENCE_TIME rt, float fps) {
+            if (!m_pSubPicProvider) {
+                return (false);
+            }
+
+            if (!m_fLazyInit) {
+                m_fLazyInit = true;
+
+                SetYuvMatrix(dst);
+            }
+            CSize size(dst.w, dst.h);
+
+            if (!m_simple_provider) {
+                HRESULT hr;
+                if (!(m_simple_provider = new SimpleSubPicProvider2(dst.type, size, size, CRect(CPoint(0, 0), size), this, &hr)) || FAILED(hr)) {
+                    m_simple_provider = NULL;
+                    return (false);
+                }
+                XySetSize(SIZE_ORIGINAL_VIDEO, size);
+            }
+
+            if (m_SubPicProviderId != (DWORD_PTR)(ISubPicProvider*)m_pSubPicProvider) {
+                CSize playres(0, 0);
+                CLSID clsid;
+                CComQIPtr<IPersist> tmp = m_pSubPicProvider;
+                tmp->GetClassID(&clsid);
+                if (clsid == __uuidof(CRenderedTextSubtitle)) {
+                    CRenderedTextSubtitle* pRTS = dynamic_cast<CRenderedTextSubtitle*>((ISubPicProvider*)m_pSubPicProvider);
+                    playres = pRTS->m_dstScreenSize;
+                }
+                XySetSize(SIZE_ASS_PLAY_RESOLUTION, playres);
+
+                m_simple_provider->SetSubPicProvider(m_pSubPicProvider);
+                m_SubPicProviderId = (DWORD_PTR)(ISubPicProvider*)m_pSubPicProvider;
+            }
+
+            CComPtr<ISimpleSubPic> pSubPic;
+            if (!m_simple_provider->LookupSubPic(rt, &pSubPic)) {
+                return (false);
+            }
+
+            if (dst.type == MSP_RGB32 || dst.type == MSP_RGB24 || dst.type == MSP_RGB16 || dst.type == MSP_RGB15) {
+                dst.h = -dst.h;
+            }
+            pSubPic->AlphaBlt(&dst);
+
+            return (true);
+        }
+
+        DWORD ThreadProc() {
+            SetThreadPriority(m_hThread, THREAD_PRIORITY_LOWEST);
+
+            CAtlArray<HANDLE> handles;
+            handles.Add(GetRequestHandle());
+
+            CString fn = GetFileName();
+            CFileStatus fs;
+            fs.m_mtime = 0;
+            CFileGetStatus(fn, fs);
+
+            while (1) {
+                DWORD i = WaitForMultipleObjects(handles.GetCount(), handles.GetData(), FALSE, 1000);
+
+                if (WAIT_OBJECT_0 == i) {
+                    Reply(S_OK);
+                    break;
+                } else if (WAIT_OBJECT_0 + 1 >= i && i <= WAIT_OBJECT_0 + handles.GetCount()) {
+                    if (FindNextChangeNotification(handles[i - WAIT_OBJECT_0])) {
+                        CFileStatus fs2;
+                        fs2.m_mtime = 0;
+                        CFileGetStatus(fn, fs2);
+
+                        if (fs.m_mtime < fs2.m_mtime) {
+                            fs.m_mtime = fs2.m_mtime;
+
+                            if (CComQIPtr<ISubStream> pSubStream = m_pSubPicProvider) {
+                                CAutoLock cAutoLock(&m_csSubLock);
+                                pSubStream->Reload();
+                            }
+                        }
+                    }
+                } else if (WAIT_TIMEOUT == i) {
+                    CString fn2 = GetFileName();
+
+                    if (fn != fn2) {
+                        CPath p(fn2);
+                        p.RemoveFileSpec();
+                        HANDLE h = FindFirstChangeNotification(p, FALSE, FILE_NOTIFY_CHANGE_LAST_WRITE);
+                        if (h != INVALID_HANDLE_VALUE) {
+                            fn = fn2;
+                            handles.SetCount(1);
+                            handles.Add(h);
+                        }
+                    }
+                } else { // if(WAIT_ABANDONED_0 == i || WAIT_FAILED == i)
+                    break;
+                }
+            }
+
+            m_hThread = 0;
+
+            for (size_t i = 1; i < handles.GetCount(); i++) {
+                FindCloseChangeNotification(handles[i]);
+            }
+
+            return 0;
+        }
+    };
+
+    class CVobSubFilter : virtual public CFilter
     {
-        CheckPointer(ppv, E_POINTER);
-        
-        return QI(IDirectVobSub)
-            QI(IDirectVobSub2)
-            QI(IDirectVobSubXy)
-            QI(IFilterVersion)
-            __super::NonDelegatingQueryInterface(riid, ppv);
-    }
-    
-	CString GetFileName() {CAutoLock cAutoLock(this); return m_fn;}
-	void SetFileName(CString fn) {CAutoLock cAutoLock(this); m_fn = fn;}
+    public:
+        CVobSubFilter(CString fn = _T("")) {
+            if (!fn.IsEmpty()) { Open(fn); }
+        }
 
-    void SetYuvMatrix(SubPicDesc& dst)
+        bool Open(CString fn) {
+            SetFileName(_T(""));
+            m_pSubPicProvider = NULL;
+
+            if (CVobSubFile* vsf = new CVobSubFile(&m_csSubLock)) {
+                m_pSubPicProvider = (ISubPicProvider*)vsf;
+                if (vsf->Open(CString(fn))) { SetFileName(fn); }
+                else { m_pSubPicProvider = NULL; }
+            }
+
+            return !!m_pSubPicProvider;
+        }
+    };
+
+    class CTextSubFilter : virtual public CFilter
     {
-        ColorConvTable::YuvMatrixType yuv_matrix = ColorConvTable::BT601;
-        ColorConvTable::YuvRangeType yuv_range = ColorConvTable::RANGE_TV;
+        int m_CharSet;
 
-        if ( m_xy_int_opt[INT_COLOR_SPACE]==CDirectVobSub::YuvMatrix_AUTO )
-        {
-            switch(m_script_selected_yuv)
-            {
-            case CSimpleTextSubtitle::YCbCrMatrix_BT601:
-                yuv_matrix = ColorConvTable::BT601;
-                break;
-            case CSimpleTextSubtitle::YCbCrMatrix_BT709:
-                yuv_matrix = ColorConvTable::BT709;
-                break;
-            case CSimpleTextSubtitle::YCbCrMatrix_AUTO:
-            default:
-                yuv_matrix = ColorConvTable::BT601;                
-                break;
+    public:
+        CTextSubFilter(CString fn = _T(""), int CharSet = DEFAULT_CHARSET, float fps = -1)
+            : m_CharSet(CharSet) {
+            m_fps = fps;
+            if (!fn.IsEmpty()) { Open(fn, CharSet); }
+        }
+
+        int GetCharSet() {return (m_CharSet);}
+
+        bool Open(CString fn, int CharSet = DEFAULT_CHARSET) {
+            SetFileName(_T(""));
+            m_pSubPicProvider = NULL;
+
+            if (!m_pSubPicProvider) {
+                if (ssf::CRenderer* ssf = new ssf::CRenderer(&m_csSubLock)) {
+                    m_pSubPicProvider = (ISubPicProvider*)ssf;
+                    if (ssf->Open(CString(fn))) { SetFileName(fn); }
+                    else { m_pSubPicProvider = NULL; }
+                }
             }
-        }
-        else
-        {
-            switch(m_xy_int_opt[INT_COLOR_SPACE])
-            {
-            case CDirectVobSub::BT_601:
-                yuv_matrix = ColorConvTable::BT601;
-                break;
-            case CDirectVobSub::BT_709:
-                yuv_matrix = ColorConvTable::BT709;
-                break;
-            case CDirectVobSub::GUESS:
-                yuv_matrix = (dst.w > m_bt601Width || dst.h > m_bt601Height) ? ColorConvTable::BT709 : ColorConvTable::BT601;
-                break;
+
+            if (!m_pSubPicProvider) {
+                if (CRenderedTextSubtitle* rts = new CRenderedTextSubtitle(&m_csSubLock)) {
+                    m_pSubPicProvider = (ISubPicProvider*)rts;
+                    if (rts->Open(CString(fn), CharSet)) { SetFileName(fn); }
+                    else { m_pSubPicProvider = NULL; }
+
+                    m_script_selected_yuv = rts->m_eYCbCrMatrix;
+                    m_script_selected_range = rts->m_eYCbCrRange;
+                }
             }
+
+            return !!m_pSubPicProvider;
         }
-
-        if( m_xy_int_opt[INT_YUV_RANGE]==CDirectVobSub::YuvRange_Auto )
-        {
-            switch(m_script_selected_range)
-            {
-            case CSimpleTextSubtitle::YCbCrRange_PC:
-                yuv_range = ColorConvTable::RANGE_PC;
-                break;
-            case CSimpleTextSubtitle::YCbCrRange_TV:
-                yuv_range = ColorConvTable::RANGE_TV;
-                break;
-            case CSimpleTextSubtitle::YCbCrRange_AUTO:
-            default:        
-                yuv_range = ColorConvTable::RANGE_TV;
-                break;
-            }
-        }
-        else
-        {
-            switch(m_xy_int_opt[INT_YUV_RANGE])
-            {
-            case CDirectVobSub::YuvRange_TV:
-                yuv_range = ColorConvTable::RANGE_TV;
-                break;
-            case CDirectVobSub::YuvRange_PC:
-                yuv_range = ColorConvTable::RANGE_PC;
-                break;
-            case CDirectVobSub::YuvRange_Auto:
-                yuv_range = ColorConvTable::RANGE_TV;
-                break;
-            }
-        }
-
-        ColorConvTable::SetDefaultConvType(yuv_matrix, yuv_range);
-    }
-
-    bool Render(SubPicDesc& dst, REFERENCE_TIME rt, float fps)
-    {
-        if(!m_pSubPicProvider)
-            return(false);
-
-        if(!m_fLazyInit)
-        {
-            m_fLazyInit = true;
-
-            SetYuvMatrix(dst);
-        }
-        CSize size(dst.w, dst.h);
-
-        if(!m_simple_provider)
-        {
-            HRESULT hr;
-            if(!(m_simple_provider = new SimpleSubPicProvider2(dst.type, size, size, CRect(CPoint(0,0), size), this, &hr)) || FAILED(hr))
-            {
-                m_simple_provider = NULL;
-                return(false);
-            }
-            XySetSize(SIZE_ORIGINAL_VIDEO, size);
-        }
-
-        if(m_SubPicProviderId != (DWORD_PTR)(ISubPicProvider*)m_pSubPicProvider)
-        {
-            CSize playres(0,0);
-            CLSID clsid;
-            CComQIPtr<IPersist> tmp = m_pSubPicProvider;
-            tmp->GetClassID(&clsid);
-            if(clsid == __uuidof(CRenderedTextSubtitle))
-            {
-                CRenderedTextSubtitle* pRTS = dynamic_cast<CRenderedTextSubtitle*>((ISubPicProvider*)m_pSubPicProvider);
-                playres = pRTS->m_dstScreenSize;
-            }
-            XySetSize(SIZE_ASS_PLAY_RESOLUTION, playres);
-
-            m_simple_provider->SetSubPicProvider(m_pSubPicProvider);
-            m_SubPicProviderId = (DWORD_PTR)(ISubPicProvider*)m_pSubPicProvider;
-        }
-
-		CComPtr<ISimpleSubPic> pSubPic;
-		if(!m_simple_provider->LookupSubPic(rt, &pSubPic))
-			return(false);
-
-        if(dst.type == MSP_RGB32 || dst.type == MSP_RGB24 || dst.type == MSP_RGB16 || dst.type == MSP_RGB15)
-            dst.h = -dst.h;
-        pSubPic->AlphaBlt(&dst);
-
-        return(true);
-    }
-
-	DWORD ThreadProc()
-	{
-		SetThreadPriority(m_hThread, THREAD_PRIORITY_LOWEST);
-
-		CAtlArray<HANDLE> handles;
-		handles.Add(GetRequestHandle());
-
-		CString fn = GetFileName();
-		CFileStatus fs;
-		fs.m_mtime = 0;
-		CFileGetStatus(fn, fs);
-
-		while(1)
-		{
-			DWORD i = WaitForMultipleObjects(handles.GetCount(), handles.GetData(), FALSE, 1000);
-
-			if(WAIT_OBJECT_0 == i)
-			{
-				Reply(S_OK);
-				break;
-			}
-			else if(WAIT_OBJECT_0 + 1 >= i && i <= WAIT_OBJECT_0 + handles.GetCount())
-			{
-				if(FindNextChangeNotification(handles[i - WAIT_OBJECT_0]))
-				{
-					CFileStatus fs2;
-					fs2.m_mtime = 0;
-					CFileGetStatus(fn, fs2);
-
-					if(fs.m_mtime < fs2.m_mtime)
-					{
-						fs.m_mtime = fs2.m_mtime;
-
-						if(CComQIPtr<ISubStream> pSubStream = m_pSubPicProvider)
-						{
-							CAutoLock cAutoLock(&m_csSubLock);
-							pSubStream->Reload();
-						}
-					}
-				}
-			}
-			else if(WAIT_TIMEOUT == i)
-			{
-				CString fn2 = GetFileName();
-
-				if(fn != fn2)
-				{
-					CPath p(fn2);
-					p.RemoveFileSpec();
-					HANDLE h = FindFirstChangeNotification(p, FALSE, FILE_NOTIFY_CHANGE_LAST_WRITE); 
-					if(h != INVALID_HANDLE_VALUE)
-					{
-						fn = fn2;
-						handles.SetCount(1);
-						handles.Add(h);
-					}
-				}
-			}
-			else // if(WAIT_ABANDONED_0 == i || WAIT_FAILED == i)
-			{
-				break;
-			}
-		}
-
-		m_hThread = 0;
-
-		for(size_t i = 1; i < handles.GetCount(); i++)
-			FindCloseChangeNotification(handles[i]);
-
-		return 0;
-	}
-};
-
-class CVobSubFilter : virtual public CFilter
-{
-public:
-	CVobSubFilter(CString fn = _T(""))
-	{
-		if(!fn.IsEmpty()) Open(fn);
-	}
-
-	bool Open(CString fn)
-	{
-		SetFileName(_T(""));
-		m_pSubPicProvider = NULL;
-
-		if(CVobSubFile* vsf = new CVobSubFile(&m_csSubLock))
-		{
-			m_pSubPicProvider = (ISubPicProvider*)vsf;
-			if(vsf->Open(CString(fn))) SetFileName(fn);
-			else m_pSubPicProvider = NULL;
-		}
-
-		return !!m_pSubPicProvider;
-	}
-};
-
-class CTextSubFilter : virtual public CFilter
-{
-	int m_CharSet;
-
-public:
-	CTextSubFilter(CString fn = _T(""), int CharSet = DEFAULT_CHARSET, float fps = -1)
-		: m_CharSet(CharSet)
-	{
-		m_fps = fps;
-		if(!fn.IsEmpty()) Open(fn, CharSet);
-	}
-
-	int GetCharSet() {return(m_CharSet);}
-
-	bool Open(CString fn, int CharSet = DEFAULT_CHARSET)
-	{
-		SetFileName(_T(""));
-		m_pSubPicProvider = NULL;
-
-		if(!m_pSubPicProvider)
-		{
-			if(ssf::CRenderer* ssf = new ssf::CRenderer(&m_csSubLock))
-			{
-				m_pSubPicProvider = (ISubPicProvider*)ssf;
-				if(ssf->Open(CString(fn))) SetFileName(fn);
-				else m_pSubPicProvider = NULL;
-			}
-		}
-
-		if(!m_pSubPicProvider)
-		{
-			if(CRenderedTextSubtitle* rts = new CRenderedTextSubtitle(&m_csSubLock))
-			{
-				m_pSubPicProvider = (ISubPicProvider*)rts;
-				if(rts->Open(CString(fn), CharSet)) SetFileName(fn);
-				else m_pSubPicProvider = NULL;
-
-                m_script_selected_yuv = rts->m_eYCbCrMatrix;
-                m_script_selected_range = rts->m_eYCbCrRange;
-			}
-		}
-
-		return !!m_pSubPicProvider;
-	}
-};
+    };
 
 #ifndef _WIN64
     //
@@ -933,9 +895,9 @@ public:
                 dst.bpp = vi.BitsPerPixel();
                 dst.type =
                     vi.IsRGB32() ? (env->GetVar("RGBA").AsBool() ? MSP_RGBA : MSP_RGB32) :
-                        vi.IsRGB24() ? MSP_RGB24 :
-                        vi.IsYUY2() ? MSP_YUY2 :
-                        -1;
+                    vi.IsRGB24() ? MSP_RGB24 :
+                    vi.IsYUY2() ? MSP_YUY2 :
+                    -1;
 
                 float fps = m_fps > 0 ? m_fps : (float)vi.fps_numerator / vi.fps_denominator;
 
@@ -1053,11 +1015,11 @@ public:
                 dst.bpp = dst.pitch / dst.w * 8; //vi.BitsPerPixel();
                 dst.type =
                     vi.IsRGB32() ? (env->GetVar("RGBA").AsBool() ? MSP_RGBA : MSP_RGB32)  :
-                        vi.IsRGB24() ? MSP_RGB24 :
-                        vi.IsYUY2() ? MSP_YUY2 :
-                /*vi.IsYV12()*/ vi.pixel_type == VideoInfo::CS_YV12 ? (s_fSwapUV ? MSP_IYUV : MSP_YV12) :
-                /*vi.IsIYUV()*/ vi.pixel_type == VideoInfo::CS_IYUV ? (s_fSwapUV ? MSP_YV12 : MSP_IYUV) :
-                        -1;
+                    vi.IsRGB24() ? MSP_RGB24 :
+                    vi.IsYUY2() ? MSP_YUY2 :
+                    /*vi.IsYV12()*/ vi.pixel_type == VideoInfo::CS_YV12 ? (s_fSwapUV ? MSP_IYUV : MSP_YV12) :
+                    /*vi.IsIYUV()*/ vi.pixel_type == VideoInfo::CS_IYUV ? (s_fSwapUV ? MSP_YV12 : MSP_IYUV) :
+                    -1;
 
                 float fps = m_fps > 0 ? m_fps : (float)vi.fps_numerator / vi.fps_denominator;
 

@@ -61,23 +61,24 @@ STDMETHODIMP CSubPicProviderImpl::Unlock()
 
 // ISubPicProviderEx
 
-STDMETHODIMP_(VOID) CSubPicProviderImpl::GetStartStop( POSITION pos, double fps, /*out*/REFERENCE_TIME& start, /*out*/REFERENCE_TIME& stop )
+STDMETHODIMP_(VOID) CSubPicProviderImpl::GetStartStop(POSITION pos, double fps, /*out*/REFERENCE_TIME& start, /*out*/REFERENCE_TIME& stop)
 {
     start = GetStart(pos, fps);
     stop = GetStop(pos, fps);
 }
 
-STDMETHODIMP CSubPicProviderImpl::RenderEx( SubPicDesc& spd, REFERENCE_TIME rt, double fps, CAtlList<CRect>& rectList )
+STDMETHODIMP CSubPicProviderImpl::RenderEx(SubPicDesc& spd, REFERENCE_TIME rt, double fps, CAtlList<CRect>& rectList)
 {
-    CRect cRect = new CRect(0,0,0,0);
+    CRect cRect = new CRect(0, 0, 0, 0);
     HRESULT hr = Render(spd, rt, fps, cRect);
-    if(SUCCEEDED(hr))
+    if (SUCCEEDED(hr)) {
         rectList.AddTail(cRect);
+    }
     return hr;
 }
 
-STDMETHODIMP_(bool) CSubPicProviderImpl::IsColorTypeSupported( int type )
+STDMETHODIMP_(bool) CSubPicProviderImpl::IsColorTypeSupported(int type)
 {
-    return type==MSP_RGBA;
+    return type == MSP_RGBA;
 }
 

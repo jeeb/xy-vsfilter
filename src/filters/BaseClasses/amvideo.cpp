@@ -13,33 +13,33 @@
 
 // These are bit field masks for true colour devices
 
-const DWORD bits555[] = {0x007C00,0x0003E0,0x00001F};
-const DWORD bits565[] = {0x00F800,0x0007E0,0x00001F};
-const DWORD bits888[] = {0xFF0000,0x00FF00,0x0000FF};
+const DWORD bits555[] = {0x007C00, 0x0003E0, 0x00001F};
+const DWORD bits565[] = {0x00F800, 0x0007E0, 0x00001F};
+const DWORD bits888[] = {0xFF0000, 0x00FF00, 0x0000FF};
 
 // This maps bitmap subtypes into a bits per pixel value and also a
 // name. unicode and ansi versions are stored because we have to
 // return a pointer to a static string.
 const struct {
-    const GUID *pSubtype;
+    const GUID* pSubtype;
     WORD BitCount;
-    CHAR *pName;
-    WCHAR *wszName;
-} BitCountMap[] =  { &MEDIASUBTYPE_RGB1,        1,   "RGB Monochrome",     L"RGB Monochrome",   
-                     &MEDIASUBTYPE_RGB4,        4,   "RGB VGA",            L"RGB VGA",          
-                     &MEDIASUBTYPE_RGB8,        8,   "RGB 8",              L"RGB 8",            
-                     &MEDIASUBTYPE_RGB565,      16,  "RGB 565 (16 bit)",   L"RGB 565 (16 bit)", 
-                     &MEDIASUBTYPE_RGB555,      16,  "RGB 555 (16 bit)",   L"RGB 555 (16 bit)", 
-                     &MEDIASUBTYPE_RGB24,       24,  "RGB 24",             L"RGB 24",           
+    CHAR* pName;
+    WCHAR* wszName;
+} BitCountMap[] =  { &MEDIASUBTYPE_RGB1,        1,   "RGB Monochrome",     L"RGB Monochrome",
+                     &MEDIASUBTYPE_RGB4,        4,   "RGB VGA",            L"RGB VGA",
+                     &MEDIASUBTYPE_RGB8,        8,   "RGB 8",              L"RGB 8",
+                     &MEDIASUBTYPE_RGB565,      16,  "RGB 565 (16 bit)",   L"RGB 565 (16 bit)",
+                     &MEDIASUBTYPE_RGB555,      16,  "RGB 555 (16 bit)",   L"RGB 555 (16 bit)",
+                     &MEDIASUBTYPE_RGB24,       24,  "RGB 24",             L"RGB 24",
                      &MEDIASUBTYPE_RGB32,       32,  "RGB 32",             L"RGB 32",
                      &MEDIASUBTYPE_ARGB32,    32,  "ARGB 32",             L"ARGB 32",
-                     &MEDIASUBTYPE_Overlay,     0,   "Overlay",            L"Overlay",          
-                     &GUID_NULL,                0,   "UNKNOWN",            L"UNKNOWN"           
-};
+                     &MEDIASUBTYPE_Overlay,     0,   "Overlay",            L"Overlay",
+                     &GUID_NULL,                0,   "UNKNOWN",            L"UNKNOWN"
+                   };
 
 // Return the size of the bitmap as defined by this header
 
-STDAPI_(DWORD) GetBitmapSize(const BITMAPINFOHEADER *pHeader)
+STDAPI_(DWORD) GetBitmapSize(const BITMAPINFOHEADER* pHeader)
 {
     return DIBSIZE(*pHeader);
 }
@@ -48,9 +48,9 @@ STDAPI_(DWORD) GetBitmapSize(const BITMAPINFOHEADER *pHeader)
 // This is called if the header has a 16 bit colour depth and needs to work
 // out the detailed type from the bit fields (either RGB 565 or RGB 555)
 
-STDAPI_(const GUID) GetTrueColorType(const BITMAPINFOHEADER *pbmiHeader)
+STDAPI_(const GUID) GetTrueColorType(const BITMAPINFOHEADER* pbmiHeader)
 {
-    BITMAPINFO *pbmInfo = (BITMAPINFO *) pbmiHeader;
+    BITMAPINFO* pbmInfo = (BITMAPINFO*) pbmiHeader;
     ASSERT(pbmiHeader->biBitCount == 16);
 
     // If its BI_RGB then it's RGB 555 by default
@@ -61,7 +61,7 @@ STDAPI_(const GUID) GetTrueColorType(const BITMAPINFOHEADER *pbmiHeader)
 
     // Compare the bit fields with RGB 555
 
-    DWORD *pMask = (DWORD *) pbmInfo->bmiColors;
+    DWORD* pMask = (DWORD*) pbmInfo->bmiColors;
     if (pMask[0] == bits555[0]) {
         if (pMask[1] == bits555[1]) {
             if (pMask[2] == bits555[2]) {
@@ -72,7 +72,7 @@ STDAPI_(const GUID) GetTrueColorType(const BITMAPINFOHEADER *pbmiHeader)
 
     // Compare the bit fields with RGB 565
 
-    pMask = (DWORD *) pbmInfo->bmiColors;
+    pMask = (DWORD*) pbmInfo->bmiColors;
     if (pMask[0] == bits565[0]) {
         if (pMask[1] == bits565[1]) {
             if (pMask[2] == bits565[2]) {
@@ -90,7 +90,7 @@ STDAPI_(const GUID) GetTrueColorType(const BITMAPINFOHEADER *pbmiHeader)
 // type with MEDIATYPE_VIDEO and the subtype with a GUID that matches the bit
 // count, for example if it is an eight bit image then MEDIASUBTYPE_RGB8
 
-STDAPI_(const GUID) GetBitmapSubtype(const BITMAPINFOHEADER *pbmiHeader)
+STDAPI_(const GUID) GetBitmapSubtype(const BITMAPINFOHEADER* pbmiHeader)
 {
     ASSERT(pbmiHeader);
 
@@ -105,13 +105,19 @@ STDAPI_(const GUID) GetBitmapSubtype(const BITMAPINFOHEADER *pbmiHeader)
 
     // Map the RGB DIB bit depth to a image GUID
 
-    switch(pbmiHeader->biBitCount) {
-        case 1    :   return MEDIASUBTYPE_RGB1;
-        case 4    :   return MEDIASUBTYPE_RGB4;
-        case 8    :   return MEDIASUBTYPE_RGB8;
-        case 16   :   return GetTrueColorType(pbmiHeader);
-        case 24   :   return MEDIASUBTYPE_RGB24;
-        case 32   :   return MEDIASUBTYPE_RGB32;
+    switch (pbmiHeader->biBitCount) {
+        case 1    :
+            return MEDIASUBTYPE_RGB1;
+        case 4    :
+            return MEDIASUBTYPE_RGB4;
+        case 8    :
+            return MEDIASUBTYPE_RGB8;
+        case 16   :
+            return GetTrueColorType(pbmiHeader);
+        case 24   :
+            return MEDIASUBTYPE_RGB24;
+        case 32   :
+            return MEDIASUBTYPE_RGB32;
     }
     return GUID_NULL;
 }
@@ -121,10 +127,10 @@ STDAPI_(const GUID) GetBitmapSubtype(const BITMAPINFOHEADER *pbmiHeader)
 // We return a WORD bit count as thats what the BITMAPINFOHEADER uses. If the
 // GUID subtype is not found in the table we return an invalid USHRT_MAX
 
-STDAPI_(WORD) GetBitCount(const GUID *pSubtype)
+STDAPI_(WORD) GetBitCount(const GUID* pSubtype)
 {
     ASSERT(pSubtype);
-    const GUID *pMediaSubtype;
+    const GUID* pMediaSubtype;
     INT iPosition = 0;
 
     // Scan the mapping list seeing if the source GUID matches any known
@@ -132,10 +138,10 @@ STDAPI_(WORD) GetBitCount(const GUID *pSubtype)
 
     while (TRUE) {
         pMediaSubtype = BitCountMap[iPosition].pSubtype;
-        if (IsEqualGUID(*pMediaSubtype,GUID_NULL)) {
+        if (IsEqualGUID(*pMediaSubtype, GUID_NULL)) {
             return USHRT_MAX;
         }
-        if (IsEqualGUID(*pMediaSubtype,*pSubtype)) {
+        if (IsEqualGUID(*pMediaSubtype, *pSubtype)) {
             return BitCountMap[iPosition].BitCount;
         }
         iPosition++;
@@ -147,10 +153,10 @@ STDAPI_(WORD) GetBitCount(const GUID *pSubtype)
 // debug purposes. In a retail build this function still returns the names
 // If the subtype isn't found in the lookup table we return string UNKNOWN
 
-int LocateSubtype(const GUID *pSubtype)
+int LocateSubtype(const GUID* pSubtype)
 {
     ASSERT(pSubtype);
-    const GUID *pMediaSubtype;
+    const GUID* pMediaSubtype;
     INT iPosition = 0;
 
     // Scan the mapping list seeing if the source GUID matches any known
@@ -158,13 +164,12 @@ int LocateSubtype(const GUID *pSubtype)
 
     while (TRUE) {
         pMediaSubtype = BitCountMap[iPosition].pSubtype;
-        if (IsEqualGUID(*pMediaSubtype,*pSubtype) ||
-            IsEqualGUID(*pMediaSubtype,GUID_NULL)
-            )
-        {
+        if (IsEqualGUID(*pMediaSubtype, *pSubtype) ||
+                IsEqualGUID(*pMediaSubtype, GUID_NULL)
+           ) {
             break;
         }
-        
+
         iPosition++;
     }
 
@@ -173,12 +178,12 @@ int LocateSubtype(const GUID *pSubtype)
 
 
 
-STDAPI_(WCHAR *) GetSubtypeNameW(const GUID *pSubtype)
+STDAPI_(WCHAR*) GetSubtypeNameW(const GUID* pSubtype)
 {
     return BitCountMap[LocateSubtype(pSubtype)].wszName;
 }
 
-STDAPI_(CHAR *) GetSubtypeNameA(const GUID *pSubtype)
+STDAPI_(CHAR*) GetSubtypeNameA(const GUID* pSubtype)
 {
     return BitCountMap[LocateSubtype(pSubtype)].pName;
 }
@@ -190,7 +195,7 @@ STDAPI_(CHAR *) GetSubtypeNameA(const GUID *pSubtype)
 
 // this is here for people that linked to it directly; most people
 // would use the header file that picks the A or W version.
-STDAPI_(CHAR *) GetSubtypeName(const GUID *pSubtype)
+STDAPI_(CHAR*) GetSubtypeName(const GUID* pSubtype)
 {
     return GetSubtypeNameA(pSubtype);
 }
@@ -210,13 +215,13 @@ STDAPI_(CHAR *) GetSubtypeName(const GUID *pSubtype)
 //     CopyMemory(HEADER(pVideoInfo),pbmi,sizeof(BITMAPINFOHEADER));
 //
 
-STDAPI_(LONG) GetBitmapFormatSize(const BITMAPINFOHEADER *pHeader)
+STDAPI_(LONG) GetBitmapFormatSize(const BITMAPINFOHEADER* pHeader)
 {
-    // Everyone has this to start with this  
+    // Everyone has this to start with this
     LONG Size = SIZE_PREHEADER + pHeader->biSize;
 
     ASSERT(pHeader->biSize >= sizeof(BITMAPINFOHEADER));
-    
+
     // Does this format use a palette, if the number of colours actually used
     // is zero then it is set to the maximum that are allowed for that colour
     // depth (an example is 256 for eight bits). Truecolour formats may also
@@ -253,7 +258,7 @@ STDAPI_(LONG) GetBitmapFormatSize(const BITMAPINFOHEADER *pHeader)
 
 // Returns TRUE if the VIDEOINFO contains a palette
 
-STDAPI_(BOOL) ContainsPalette(const VIDEOINFOHEADER *pVideoInfo)
+STDAPI_(BOOL) ContainsPalette(const VIDEOINFOHEADER* pVideoInfo)
 {
     if (PALETTISED(pVideoInfo) == FALSE) {
         if (pVideoInfo->bmiHeader.biClrUsed == 0) {
@@ -266,7 +271,7 @@ STDAPI_(BOOL) ContainsPalette(const VIDEOINFOHEADER *pVideoInfo)
 
 // Return a pointer to the first entry in a palette
 
-STDAPI_(const RGBQUAD *) GetBitmapPalette(const VIDEOINFOHEADER *pVideoInfo)
+STDAPI_(const RGBQUAD*) GetBitmapPalette(const VIDEOINFOHEADER* pVideoInfo)
 {
     if (pVideoInfo->bmiHeader.biCompression == BI_BITFIELDS) {
         return TRUECOLOR(pVideoInfo)->bmiColors;

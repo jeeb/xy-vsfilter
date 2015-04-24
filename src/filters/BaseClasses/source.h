@@ -40,41 +40,42 @@ class CSourceStream;  // The class that will handle each pin
 //
 // Override construction to provide a means of creating
 // CSourceStream derived objects - ie a way of creating pins.
-class CSource : public CBaseFilter {
+class CSource : public CBaseFilter
+{
 public:
 
-    CSource(TCHAR *pName, LPUNKNOWN lpunk, CLSID clsid, HRESULT *phr);
-    CSource(TCHAR *pName, LPUNKNOWN lpunk, CLSID clsid);
+    CSource(TCHAR* pName, LPUNKNOWN lpunk, CLSID clsid, HRESULT* phr);
+    CSource(TCHAR* pName, LPUNKNOWN lpunk, CLSID clsid);
 #ifdef UNICODE
-    CSource(CHAR *pName, LPUNKNOWN lpunk, CLSID clsid, HRESULT *phr);
-    CSource(CHAR *pName, LPUNKNOWN lpunk, CLSID clsid);
+    CSource(CHAR* pName, LPUNKNOWN lpunk, CLSID clsid, HRESULT* phr);
+    CSource(CHAR* pName, LPUNKNOWN lpunk, CLSID clsid);
 #endif
     ~CSource();
 
     int       GetPinCount(void);
-    CBasePin *GetPin(int n);
+    CBasePin* GetPin(int n);
 
     // -- Utilities --
 
-    CCritSec*	pStateLock(void) { return &m_cStateLock; }	// provide our critical section
+    CCritSec*   pStateLock(void) { return &m_cStateLock; }  // provide our critical section
 
-    HRESULT     AddPin(CSourceStream *);
-    HRESULT     RemovePin(CSourceStream *);
+    HRESULT     AddPin(CSourceStream*);
+    HRESULT     RemovePin(CSourceStream*);
 
     STDMETHODIMP FindPin(
         LPCWSTR Id,
-        IPin ** ppPin
+        IPin** ppPin
     );
 
-    int FindPinNumber(IPin *iPin);
-    
+    int FindPinNumber(IPin* iPin);
+
 protected:
 
     int             m_iPins;       // The number of pins on this filter. Updated by CSourceStream
-    	   			   // constructors & destructors.
-    CSourceStream **m_paStreams;   // the pins on this filter.
+    // constructors & destructors.
+    CSourceStream** m_paStreams;   // the pins on this filter.
 
-    CCritSec m_cStateLock;	// Lock this to serialize function accesses to the filter state
+    CCritSec m_cStateLock;  // Lock this to serialize function accesses to the filter state
 
 };
 
@@ -85,24 +86,25 @@ protected:
 // Use this class to manage a stream of data that comes from a
 // pin.
 // Uses a worker thread to put data on the pin.
-class CSourceStream : public CAMThread, public CBaseOutputPin {
+class CSourceStream : public CAMThread, public CBaseOutputPin
+{
 public:
 
-    CSourceStream(TCHAR *pObjectName,
-                  HRESULT *phr,
-                  CSource *pms,
+    CSourceStream(TCHAR* pObjectName,
+                  HRESULT* phr,
+                  CSource* pms,
                   LPCWSTR pName);
 #ifdef UNICODE
-    CSourceStream(CHAR *pObjectName,
-                  HRESULT *phr,
-                  CSource *pms,
+    CSourceStream(CHAR* pObjectName,
+                  HRESULT* phr,
+                  CSource* pms,
                   LPCWSTR pName);
 #endif
     virtual ~CSourceStream(void);  // virtual destructor ensures derived class destructors are called too.
 
 protected:
 
-    CSource *m_pFilter;	// The parent of this stream
+    CSource* m_pFilter; // The parent of this stream
 
     // *
     // * Data Source
@@ -114,7 +116,7 @@ protected:
 
     // Override this to provide the worker thread a means
     // of processing a buffer
-    virtual HRESULT FillBuffer(IMediaSample *pSamp) PURE;
+    virtual HRESULT FillBuffer(IMediaSample* pSamp) PURE;
 
     // Called as the thread is created/destroyed - use to perform
     // jobs such as start/stop streaming mode
@@ -141,10 +143,10 @@ public:
 
 protected:
     Command GetRequest(void) { return (Command) CAMThread::GetRequest(); }
-    BOOL    CheckRequest(Command *pCom) { return CAMThread::CheckRequest( (DWORD *) pCom); }
+    BOOL    CheckRequest(Command* pCom) { return CAMThread::CheckRequest((DWORD*) pCom); }
 
     // override these if you want to add thread commands
-    virtual DWORD ThreadProc(void);  		// the thread function
+    virtual DWORD ThreadProc(void);         // the thread function
 
     virtual HRESULT DoBufferProcessingLoop(void);    // the loop executed whilst running
 
@@ -154,17 +156,17 @@ protected:
     // *
 
     // If you support more than one media type then override these 2 functions
-    virtual HRESULT CheckMediaType(const CMediaType *pMediaType);
-    virtual HRESULT GetMediaType(int iPosition, CMediaType *pMediaType);  // List pos. 0-n
+    virtual HRESULT CheckMediaType(const CMediaType* pMediaType);
+    virtual HRESULT GetMediaType(int iPosition, CMediaType* pMediaType);  // List pos. 0-n
 
     // If you support only one type then override this fn.
     // This will only be called by the default implementations
     // of CheckMediaType and GetMediaType(int, CMediaType*)
     // You must override this fn. or the above 2!
-    virtual HRESULT GetMediaType(CMediaType *pMediaType) {return E_UNEXPECTED;}
+    virtual HRESULT GetMediaType(CMediaType* pMediaType) {return E_UNEXPECTED;}
 
     STDMETHODIMP QueryId(
-        LPWSTR * Id
+        LPWSTR* Id
     );
 };
 

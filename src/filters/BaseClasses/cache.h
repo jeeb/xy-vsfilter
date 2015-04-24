@@ -31,12 +31,13 @@
 #define __CACHE__
 
 
-class CCache : CBaseObject {
+class CCache : CBaseObject
+{
 
     /* Make copy constructor and assignment operator inaccessible */
 
-    CCache(const CCache &refCache);
-    CCache &operator=(const CCache &refCache);
+    CCache(const CCache& refCache);
+    CCache& operator=(const CCache& refCache);
 
 private:
 
@@ -48,20 +49,20 @@ private:
        and then only add and remove objects from the end position, so in this
        respect the array of object pointers should be treated as a stack */
 
-    CBaseObject **m_ppObjects;
+    CBaseObject** m_ppObjects;
     const INT m_iCacheSize;
     INT m_iUsed;
 
 public:
 
-    CCache(TCHAR *pName,INT iItems);
+    CCache(TCHAR* pName, INT iItems);
     virtual ~CCache();
 
     /* Add an item to the cache */
-    CBaseObject *AddToCache(CBaseObject *pObject);
+    CBaseObject* AddToCache(CBaseObject* pObject);
 
     /* Remove an item from the cache */
-    CBaseObject *RemoveFromCache();
+    CBaseObject* RemoveFromCache();
 
     /* Delete all the objects held in the cache */
     void RemoveAll(void);

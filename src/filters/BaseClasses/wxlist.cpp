@@ -78,7 +78,7 @@ for ( cursor = (list).GetTailPositionI()           \
    cache but no event object so the list cannot be used in calls
    to WaitForSingleObject
 */
-CBaseList::CBaseList(TCHAR *pName,    // Descriptive list name
+CBaseList::CBaseList(TCHAR* pName,    // Descriptive list name
                      INT iItems) :    // Node cache size
 #ifdef DEBUG
     CBaseObject(pName),
@@ -90,7 +90,7 @@ CBaseList::CBaseList(TCHAR *pName,    // Descriptive list name
 {
 } // constructor
 
-CBaseList::CBaseList(TCHAR *pName) :  // Descriptive list name
+CBaseList::CBaseList(TCHAR* pName) :  // Descriptive list name
 #ifdef DEBUG
     CBaseObject(pName),
 #endif
@@ -102,7 +102,7 @@ CBaseList::CBaseList(TCHAR *pName) :  // Descriptive list name
 } // constructor
 
 #ifdef UNICODE
-CBaseList::CBaseList(CHAR *pName,    // Descriptive list name
+CBaseList::CBaseList(CHAR* pName,    // Descriptive list name
                      INT iItems) :    // Node cache size
 #ifdef DEBUG
     CBaseObject(pName),
@@ -114,7 +114,7 @@ CBaseList::CBaseList(CHAR *pName,    // Descriptive list name
 {
 } // constructor
 
-CBaseList::CBaseList(CHAR *pName) :  // Descriptive list name
+CBaseList::CBaseList(CHAR* pName) :  // Descriptive list name
 #ifdef DEBUG
     CBaseObject(pName),
 #endif
@@ -155,9 +155,9 @@ void CBaseList::RemoveAll()
        in serious times of change such as when we are being deleted at
        which point the cache will be deleted anway */
 
-    CNode *pn = m_pFirst;
+    CNode* pn = m_pFirst;
     while (pn) {
-        CNode *op = pn;
+        CNode* op = pn;
         pn = pn->Next();
         delete op;
     }
@@ -215,7 +215,7 @@ int CBaseList::GetCountI() const
    You may still call this function once we return NULL but
    we will continue to return a NULL position value
 */
-void *CBaseList::GetNextI(POSITION& rp) const
+void* CBaseList::GetNextI(POSITION& rp) const
 {
     /* have we reached the end of the list */
 
@@ -225,11 +225,11 @@ void *CBaseList::GetNextI(POSITION& rp) const
 
     /* Lock the object before continuing */
 
-    void *pObject;
+    void* pObject;
 
     /* Copy the original position then step on */
 
-    CNode *pn = (CNode *) rp;
+    CNode* pn = (CNode*) rp;
     ASSERT(pn != NULL);
     rp = (POSITION) pn->Next();
 
@@ -249,14 +249,14 @@ void *CBaseList::GetNextI(POSITION& rp) const
    then locking would only result in a change from one bad
    behaviour to another.
 */
-void *CBaseList::GetI(POSITION p) const
+void* CBaseList::GetI(POSITION p) const
 {
     if (p == NULL) {
         return NULL;
     }
 
-    CNode * pn = (CNode *) p;
-    void *pObject = pn->GetData();
+    CNode* pn = (CNode*) p;
+    void* pObject = pn->GetData();
     // ASSERT(pObject != NULL);    // NULL pointers in the list are allowed.
     return pObject;
 } //Get
@@ -266,11 +266,11 @@ void *CBaseList::GetI(POSITION p) const
 /* Return the first position in the list which holds the given pointer.
    Return NULL if it's not found.
 */
-POSITION CBaseList::FindI( void * pObj) const
+POSITION CBaseList::FindI(void* pObj) const
 {
     POSITION pn;
-    INTERNALTRAVERSELIST(*this, pn){
-        if (GetI(pn)==pObj) {
+    INTERNALTRAVERSELIST(*this, pn) {
+        if (GetI(pn) == pObj) {
             return pn;
         }
     }
@@ -283,7 +283,7 @@ POSITION CBaseList::FindI( void * pObj) const
    from the list, does not free the object itself).
    Return the pointer to its object or NULL if empty
 */
-void *CBaseList::RemoveHeadI()
+void* CBaseList::RemoveHeadI()
 {
     /* All we do is get the head position and ask for that to be deleted.
        We could special case this since some of the code path checking
@@ -301,7 +301,7 @@ void *CBaseList::RemoveHeadI()
    from the list, does not free the object itself).
    Return the pointer to its object or NULL if empty
 */
-void *CBaseList::RemoveTailI()
+void* CBaseList::RemoveTailI()
 {
     /* All we do is get the tail position and ask for that to be deleted.
        We could special case this since some of the code path checking
@@ -323,20 +323,20 @@ void *CBaseList::RemoveTailI()
    it can be used again.
    Remove(NULL) is a harmless no-op - but probably is a wart.
 */
-void *CBaseList::RemoveI(POSITION pos)
+void* CBaseList::RemoveI(POSITION pos)
 {
     /* Lock the critical section before continuing */
 
     // ASSERT (pos!=NULL);     // Removing NULL is to be harmless!
-    if (pos==NULL) return NULL;
+    if (pos == NULL) { return NULL; }
 
 
-    CNode *pCurrent = (CNode *) pos;
+    CNode* pCurrent = (CNode*) pos;
     ASSERT(pCurrent != NULL);
 
     /* Update the previous node */
 
-    CNode *pNode = pCurrent->Prev();
+    CNode* pNode = pCurrent->Prev();
     if (pNode == NULL) {
         m_pFirst = pCurrent->Next();
     } else {
@@ -354,7 +354,7 @@ void *CBaseList::RemoveI(POSITION pos)
 
     /* Get the object this node was looking after */
 
-    void *pObject = pCurrent->GetData();
+    void* pObject = pCurrent->GetData();
 
     // ASSERT(pObject != NULL);    // NULL pointers in the list are allowed.
 
@@ -384,17 +384,17 @@ void *CBaseList::RemoveI(POSITION pos)
    Return the new tail position.
 */
 
-POSITION CBaseList::AddTailI(void *pObject)
+POSITION CBaseList::AddTailI(void* pObject)
 {
     /* Lock the critical section before continuing */
 
-    CNode *pNode;
+    CNode* pNode;
     // ASSERT(pObject);   // NULL pointers in the list are allowed.
 
     /* If there is a node objects in the cache then use
        that otherwise we will have to create a new one */
 
-    pNode = (CNode *) m_Cache.RemoveFromCache();
+    pNode = (CNode*) m_Cache.RemoveFromCache();
     if (pNode == NULL) {
         pNode = new CNode;
     }
@@ -435,15 +435,15 @@ POSITION CBaseList::AddTailI(void *pObject)
 /* Add this object to the head end of our list
    Return the new head position.
 */
-POSITION CBaseList::AddHeadI(void *pObject)
+POSITION CBaseList::AddHeadI(void* pObject)
 {
-    CNode *pNode;
+    CNode* pNode;
     // ASSERT(pObject);  // NULL pointers in the list are allowed.
 
     /* If there is a node objects in the cache then use
        that otherwise we will have to create a new one */
 
-    pNode = (CNode *) m_Cache.RemoveFromCache();
+    pNode = (CNode*) m_Cache.RemoveFromCache();
     if (pNode == NULL) {
         pNode = new CNode;
     }
@@ -482,7 +482,7 @@ POSITION CBaseList::AddHeadI(void *pObject)
    Return TRUE if it all worked, FALSE if it didn't.
    If it fails some elements may have been added.
 */
-BOOL CBaseList::AddTail(CBaseList *pList)
+BOOL CBaseList::AddTail(CBaseList* pList)
 {
     /* lock the object before starting then enumerate
        each entry in the source list and add them one by one to
@@ -492,9 +492,9 @@ BOOL CBaseList::AddTail(CBaseList *pList)
     POSITION pos = pList->GetHeadPositionI();
 
     while (pos) {
-       if (NULL == AddTailI(pList->GetNextI(pos))) {
-           return FALSE;
-       }
+        if (NULL == AddTailI(pList->GetNextI(pos))) {
+            return FALSE;
+        }
     }
     return TRUE;
 } // AddTail(list)
@@ -505,7 +505,7 @@ BOOL CBaseList::AddTail(CBaseList *pList)
    Return TRUE if it all worked, FALSE if it didn't.
    If it fails some elements may have been added.
 */
-BOOL CBaseList::AddHead(CBaseList *pList)
+BOOL CBaseList::AddHead(CBaseList* pList)
 {
     /* lock the object before starting then enumerate
        each entry in the source list and add them one by one to
@@ -518,7 +518,7 @@ BOOL CBaseList::AddHead(CBaseList *pList)
     POSITION pos;
 
     INTERNALREVERSETRAVERSELIST(*pList, pos) {
-        if (NULL== AddHeadI(pList->GetI(pos))){
+        if (NULL == AddHeadI(pList->GetI(pos))) {
             return FALSE;
         }
     }
@@ -532,22 +532,24 @@ BOOL CBaseList::AddHead(CBaseList *pList)
    AddAfter(NULL,x) adds x to the start - same as AddHead
    Return the position of the new object, NULL if it failed
 */
-POSITION  CBaseList::AddAfterI(POSITION pos, void * pObj)
+POSITION  CBaseList::AddAfterI(POSITION pos, void* pObj)
 {
-    if (pos==NULL)
+    if (pos == NULL) {
         return AddHeadI(pObj);
+    }
 
     /* As someone else might be furkling with the list -
        Lock the critical section before continuing
     */
-    CNode *pAfter = (CNode *) pos;
+    CNode* pAfter = (CNode*) pos;
     ASSERT(pAfter != NULL);
-    if (pAfter==m_pLast)
+    if (pAfter == m_pLast) {
         return AddTailI(pObj);
+    }
 
     /* set pnode to point to a new node, preferably from the cache */
 
-    CNode *pNode = (CNode *) m_Cache.RemoveFromCache();
+    CNode* pNode = (CNode*) m_Cache.RemoveFromCache();
     if (pNode == NULL) {
         pNode = new CNode;
     }
@@ -567,7 +569,7 @@ POSITION  CBaseList::AddAfterI(POSITION pos, void * pObj)
     /* It is to be added to the middle of the list - there is a before
        and after node.  Chain it after pAfter, before pBefore.
     */
-    CNode * pBefore = pAfter->Next();
+    CNode* pBefore = pAfter->Next();
     ASSERT(pBefore != NULL);
 
     /* chain it in (set four pointers) */
@@ -584,13 +586,13 @@ POSITION  CBaseList::AddAfterI(POSITION pos, void * pObj)
 
 
 
-BOOL CBaseList::AddAfter(POSITION p, CBaseList *pList)
+BOOL CBaseList::AddAfter(POSITION p, CBaseList* pList)
 {
     POSITION pos;
     INTERNALTRAVERSELIST(*pList, pos) {
         /* p follows along the elements being added */
         p = AddAfterI(p, pList->GetI(pos));
-        if (p==NULL) return FALSE;
+        if (p == NULL) { return FALSE; }
     }
     return TRUE;
 } // AddAfter(list)
@@ -602,19 +604,21 @@ BOOL CBaseList::AddAfter(POSITION p, CBaseList *pList)
    p is still valid after the operation.
    AddBefore(NULL,x) adds x to the end - same as AddTail
 */
-POSITION CBaseList::AddBeforeI(POSITION pos, void * pObj)
+POSITION CBaseList::AddBeforeI(POSITION pos, void* pObj)
 {
-    if (pos==NULL)
+    if (pos == NULL) {
         return AddTailI(pObj);
+    }
 
     /* set pnode to point to a new node, preferably from the cache */
 
-    CNode *pBefore = (CNode *) pos;
+    CNode* pBefore = (CNode*) pos;
     ASSERT(pBefore != NULL);
-    if (pBefore==m_pFirst)
+    if (pBefore == m_pFirst) {
         return AddHeadI(pObj);
+    }
 
-    CNode * pNode = (CNode *) m_Cache.RemoveFromCache();
+    CNode* pNode = (CNode*) m_Cache.RemoveFromCache();
     if (pNode == NULL) {
         pNode = new CNode;
     }
@@ -635,7 +639,7 @@ POSITION CBaseList::AddBeforeI(POSITION pos, void * pObj)
        and after node.  Chain it after pAfter, before pBefore.
     */
 
-    CNode * pAfter = pBefore->Prev();
+    CNode* pAfter = pBefore->Prev();
     ASSERT(pAfter != NULL);
 
     /* chain it in (set four pointers) */
@@ -652,13 +656,13 @@ POSITION CBaseList::AddBeforeI(POSITION pos, void * pObj)
 
 
 
-BOOL CBaseList::AddBefore(POSITION p, CBaseList *pList)
+BOOL CBaseList::AddBefore(POSITION p, CBaseList* pList)
 {
     POSITION pos;
     INTERNALREVERSETRAVERSELIST(*pList, pos) {
         /* p follows along the elements being added */
         p = AddBeforeI(p, pList->GetI(pos));
-        if (p==NULL) return FALSE;
+        if (p == NULL) { return FALSE; }
     }
     return TRUE;
 } // AddBefore(list)
@@ -682,7 +686,7 @@ BOOL CBaseList::AddBefore(POSITION p, CBaseList *pList)
        MoveElementsFromHeadThroughPositionToOtherTail
 */
 BOOL CBaseList::MoveToTail
-        (POSITION pos, CBaseList *pList)
+(POSITION pos, CBaseList* pList)
 {
     /* Algorithm:
        Note that the elements (including their order) in the concatenation
@@ -695,39 +699,44 @@ BOOL CBaseList::MoveToTail
        6. Set/Reset any events
     */
 
-    if (pos==NULL) return TRUE;  // no-op.  Eliminates special cases later.
+    if (pos == NULL) { return TRUE; } // no-op.  Eliminates special cases later.
 
 
     /* Make cMove the number of nodes to move */
-    CNode * p = (CNode *)pos;
+    CNode* p = (CNode*)pos;
     int cMove = 0;            // number of nodes to move
-    while(p!=NULL) {
-       p = p->Prev();
-       ++cMove;
+    while (p != NULL) {
+        p = p->Prev();
+        ++cMove;
     }
 
 
     /* Join the two chains together */
-    if (pList->m_pLast!=NULL)
+    if (pList->m_pLast != NULL) {
         pList->m_pLast->SetNext(m_pFirst);
-    if (m_pFirst!=NULL)
+    }
+    if (m_pFirst != NULL) {
         m_pFirst->SetPrev(pList->m_pLast);
+    }
 
 
     /* set first and last pointers */
-    p = (CNode *)pos;
+    p = (CNode*)pos;
 
-    if (pList->m_pFirst==NULL)
+    if (pList->m_pFirst == NULL) {
         pList->m_pFirst = m_pFirst;
+    }
     m_pFirst = p->Next();
-    if (m_pFirst==NULL)
+    if (m_pFirst == NULL) {
         m_pLast = NULL;
+    }
     pList->m_pLast = p;
 
 
     /* Break the chain after p to create the new pieces */
-    if (m_pFirst!=NULL)
+    if (m_pFirst != NULL) {
         m_pFirst->SetPrev(NULL);
+    }
     p->SetNext(NULL);
 
 
@@ -756,45 +765,50 @@ BOOL CBaseList::MoveToTail
           concatenates foo onto the start of bar and empties foo.
 */
 BOOL CBaseList::MoveToHead
-        (POSITION pos, CBaseList *pList)
+(POSITION pos, CBaseList* pList)
 {
 
     /* See the comments on the algorithm in MoveToTail */
 
-    if (pos==NULL) return TRUE;  // no-op.  Eliminates special cases later.
+    if (pos == NULL) { return TRUE; } // no-op.  Eliminates special cases later.
 
     /* Make cMove the number of nodes to move */
-    CNode * p = (CNode *)pos;
+    CNode* p = (CNode*)pos;
     int cMove = 0;            // number of nodes to move
-    while(p!=NULL) {
-       p = p->Next();
-       ++cMove;
+    while (p != NULL) {
+        p = p->Next();
+        ++cMove;
     }
 
 
     /* Join the two chains together */
-    if (pList->m_pFirst!=NULL)
+    if (pList->m_pFirst != NULL) {
         pList->m_pFirst->SetPrev(m_pLast);
-    if (m_pLast!=NULL)
+    }
+    if (m_pLast != NULL) {
         m_pLast->SetNext(pList->m_pFirst);
+    }
 
 
     /* set first and last pointers */
-    p = (CNode *)pos;
+    p = (CNode*)pos;
 
 
-    if (pList->m_pLast==NULL)
+    if (pList->m_pLast == NULL) {
         pList->m_pLast = m_pLast;
+    }
 
     m_pLast = p->Prev();
-    if (m_pLast==NULL)
+    if (m_pLast == NULL) {
         m_pFirst = NULL;
+    }
     pList->m_pFirst = p;
 
 
     /* Break the chain after p to create the new pieces */
-    if (m_pLast!=NULL)
+    if (m_pLast != NULL) {
         m_pLast->SetNext(NULL);
+    }
     p->SetPrev(NULL);
 
 
@@ -830,12 +844,12 @@ void CBaseList::Reverse()
        Finally set the First/Last pointers
 
     */
-    CNode * p;
+    CNode* p;
 
     // Yes we COULD use a traverse, but it would look funny!
     p = m_pFirst;
-    while (p!=NULL) {
-        CNode * q;
+    while (p != NULL) {
+        CNode* q;
         q = p->Next();
         p->SetNext(p->Prev());
         p->SetPrev(q);
@@ -849,15 +863,15 @@ void CBaseList::Reverse()
 
 #if 0     // old version
 
-    if (m_pFirst==NULL) return;          // empty list
-    if (m_pFirst->Next()==NULL) return;  // single node list
+    if (m_pFirst == NULL) { return; }        // empty list
+    if (m_pFirst->Next() == NULL) { return; } // single node list
 
 
     /* run along forward chain */
-    for ( p = m_pFirst
-        ; p!=NULL
-        ; p = p->Next()
-        ){
+    for (p = m_pFirst
+             ; p != NULL
+            ; p = p->Next()
+        ) {
         p->SetPrev(p->Next());
     }
 
@@ -867,10 +881,10 @@ void CBaseList::Reverse()
 
 
     /* run along new reverse chain i.e. old forward chain again */
-    for ( p = m_pFirst           // start at the old first element
-        ; p->Prev()!=NULL        // while there's a node still to be set
-        ; p = p->Prev()          // work in the same direction as before
-        ){
+    for (p = m_pFirst            // start at the old first element
+             ; p->Prev() != NULL      // while there's a node still to be set
+            ; p = p->Prev()          // work in the same direction as before
+        ) {
         p->Prev()->SetNext(p);
     }
 

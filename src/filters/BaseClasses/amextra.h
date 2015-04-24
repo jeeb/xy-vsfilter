@@ -22,19 +22,19 @@ class CRenderedInputPin : public CBaseInputPin
 {
 public:
 
-    CRenderedInputPin(TCHAR *pObjectName,
-                      CBaseFilter *pFilter,
-                      CCritSec *pLock,
-                      HRESULT *phr,
+    CRenderedInputPin(TCHAR* pObjectName,
+                      CBaseFilter* pFilter,
+                      CCritSec* pLock,
+                      HRESULT* phr,
                       LPCWSTR pName);
 #ifdef UNICODE
-    CRenderedInputPin(CHAR *pObjectName,
-                      CBaseFilter *pFilter,
-                      CCritSec *pLock,
-                      HRESULT *phr,
+    CRenderedInputPin(CHAR* pObjectName,
+                      CBaseFilter* pFilter,
+                      CCritSec* pLock,
+                      HRESULT* phr,
                       LPCWSTR pName);
 #endif
-    
+
     // Override methods to track end of stream state
     STDMETHODIMP EndOfStream();
     STDMETHODIMP EndFlush();

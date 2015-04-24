@@ -14,41 +14,39 @@ class OnceLogger
 {
 public:
     OnceLogger(int id, const log4cplus::Logger& l, const log4cplus::tstring& _msg,
-        const char* _file=NULL, int _line=-1)
-        : logger(l), msg(_msg), file(_file), line(_line)
-    {
+               const char* _file = NULL, int _line = -1)
+        : logger(l), msg(_msg), file(_file), line(_line) {
         using namespace log4cplus;
 
-		if( s_entered[id]>0 )
-			return;
+        if (s_entered[id] > 0) {
+            return;
+        }
 
-		s_entered[id]++;
-        if(logger.isEnabledFor(TRACE_LOG_LEVEL))
-        {
+        s_entered[id]++;
+        if (logger.isEnabledFor(TRACE_LOG_LEVEL)) {
             std::wostringstream buff;
-            buff<<LOG4CPLUS_TEXT("ENTER :")<<msg;
-//            logger.forcedLog(TRACE_LOG_LEVEL, LOG4CPLUS_TEXT("ENTER at ")<<_start<<LOG4CPLUS_TEXT(" ms: ")<<msg, file, line);
+            buff << LOG4CPLUS_TEXT("ENTER :") << msg;
+            //            logger.forcedLog(TRACE_LOG_LEVEL, LOG4CPLUS_TEXT("ENTER at ")<<_start<<LOG4CPLUS_TEXT(" ms: ")<<msg, file, line);
             logger.forcedLog(TRACE_LOG_LEVEL, buff.str(), file, line);
         }
     }
 
-    OnceLogger()
-    {
+    OnceLogger() {
         using namespace log4cplus;
-		if( s_entered[id]>1 )
-			return;
+        if (s_entered[id] > 1) {
+            return;
+        }
 
-		s_entered[id]++;
-        if(logger.isEnabledFor(TRACE_LOG_LEVEL))
-        {
+        s_entered[id]++;
+        if (logger.isEnabledFor(TRACE_LOG_LEVEL)) {
             std::wostringstream buff;
-            buff<<LOG4CPLUS_TEXT("EXIT :")<<msg;
+            buff << LOG4CPLUS_TEXT("EXIT :") << msg;
             logger.forcedLog(TRACE_LOG_LEVEL, buff.str(),
-                file, line);
+                             file, line);
         }
     }
 private:
-	static int s_entered[256];
+    static int s_entered[256];
     int id;
 
     log4cplus::Logger logger;

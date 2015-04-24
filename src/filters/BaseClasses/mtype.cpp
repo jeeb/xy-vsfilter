@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 // File: MType.cpp
 //
-// Desc: DirectShow base classes - implements a class that holds and 
+// Desc: DirectShow base classes - implements a class that holds and
 //       manages media type information.
 //
 // Copyright (c) 1992-2002 Microsoft Corporation.  All rights reserved.
@@ -15,7 +15,8 @@
 #include <streams.h>
 #include <mmreg.h>
 
-CMediaType::~CMediaType(){
+CMediaType::~CMediaType()
+{
     FreeMediaType(*this);
 }
 
@@ -26,7 +27,7 @@ CMediaType::CMediaType()
 }
 
 
-CMediaType::CMediaType(const GUID * type)
+CMediaType::CMediaType(const GUID* type)
 {
     InitMediaType();
     majortype = *type;
@@ -68,7 +69,7 @@ CMediaType::operator=(const AM_MEDIA_TYPE& rt)
 CMediaType&
 CMediaType::operator=(const CMediaType& rt)
 {
-    *this = (AM_MEDIA_TYPE &) rt;
+    *this = (AM_MEDIA_TYPE&) rt;
     return *this;
 }
 
@@ -82,12 +83,12 @@ CMediaType::operator == (const CMediaType& rt) const
     // the particular format representation can still see them, but
     // they should duplicate information in the format block.
 
-    return ((IsEqualGUID(majortype,rt.majortype) == TRUE) &&
-        (IsEqualGUID(subtype,rt.subtype) == TRUE) &&
-        (IsEqualGUID(formattype,rt.formattype) == TRUE) &&
-        (cbFormat == rt.cbFormat) &&
-        ( (cbFormat == 0) ||
-          (memcmp(pbFormat, rt.pbFormat, cbFormat) == 0)));
+    return ((IsEqualGUID(majortype, rt.majortype) == TRUE) &&
+            (IsEqualGUID(subtype, rt.subtype) == TRUE) &&
+            (IsEqualGUID(formattype, rt.formattype) == TRUE) &&
+            (cbFormat == rt.cbFormat) &&
+            ((cbFormat == 0) ||
+             (memcmp(pbFormat, rt.pbFormat, cbFormat) == 0)));
 }
 
 
@@ -106,7 +107,7 @@ CMediaType::operator != (const CMediaType& rt) const
 HRESULT
 CMediaType::Set(const CMediaType& rt)
 {
-    return Set((AM_MEDIA_TYPE &) rt);
+    return Set((AM_MEDIA_TYPE&) rt);
 }
 
 
@@ -121,14 +122,14 @@ CMediaType::Set(const AM_MEDIA_TYPE& rt)
         }
     }
 
-    return S_OK;    
+    return S_OK;
 }
 
 
 BOOL
 CMediaType::IsValid() const
 {
-    return (!IsEqualGUID(majortype,GUID_NULL));
+    return (!IsEqualGUID(majortype, GUID_NULL));
 }
 
 
@@ -147,7 +148,8 @@ CMediaType::SetSubtype(const GUID* ptype)
 
 
 ULONG
-CMediaType::GetSampleSize() const {
+CMediaType::GetSampleSize() const
+{
     if (IsFixedSize()) {
         return lSampleSize;
     } else {
@@ -157,7 +159,8 @@ CMediaType::GetSampleSize() const {
 
 
 void
-CMediaType::SetSampleSize(ULONG sz) {
+CMediaType::SetSampleSize(ULONG sz)
+{
     if (sz == 0) {
         SetVariableSize();
     } else {
@@ -168,25 +171,28 @@ CMediaType::SetSampleSize(ULONG sz) {
 
 
 void
-CMediaType::SetVariableSize() {
+CMediaType::SetVariableSize()
+{
     bFixedSizeSamples = FALSE;
 }
 
 
 void
-CMediaType::SetTemporalCompression(BOOL bCompressed) {
+CMediaType::SetTemporalCompression(BOOL bCompressed)
+{
     bTemporalCompression = bCompressed;
 }
 
 BOOL
-CMediaType::SetFormat(BYTE * pformat, ULONG cb)
+CMediaType::SetFormat(BYTE* pformat, ULONG cb)
 {
-    if (NULL == AllocFormatBuffer(cb))
-	return(FALSE);
+    if (NULL == AllocFormatBuffer(cb)) {
+        return (FALSE);
+    }
 
     ASSERT(pbFormat);
     memcpy(pbFormat, pformat, cb);
-    return(TRUE);
+    return (TRUE);
 }
 
 
@@ -196,7 +202,7 @@ CMediaType::SetFormat(BYTE * pformat, ULONG cb)
 // property set. Before sending out media types this should be filled in.
 
 void
-CMediaType::SetFormatType(const GUID *pformattype)
+CMediaType::SetFormatType(const GUID* pformattype)
 {
     formattype = *pformattype;
 }
@@ -231,9 +237,9 @@ CMediaType::AllocFormatBuffer(ULONG length)
 
     // allocate the new format buffer
 
-    BYTE *pNewFormat = (PBYTE)CoTaskMemAlloc(length);
+    BYTE* pNewFormat = (PBYTE)CoTaskMemAlloc(length);
     if (pNewFormat == NULL) {
-        if (length <= cbFormat) return pbFormat; //reuse the old block anyway.
+        if (length <= cbFormat) { return pbFormat; } //reuse the old block anyway.
         return NULL;
     }
 
@@ -268,9 +274,9 @@ CMediaType::ReallocFormatBuffer(ULONG length)
 
     // allocate the new format buffer
 
-    BYTE *pNewFormat = (PBYTE)CoTaskMemAlloc(length);
+    BYTE* pNewFormat = (PBYTE)CoTaskMemAlloc(length);
     if (pNewFormat == NULL) {
-        if (length <= cbFormat) return pbFormat; //reuse the old block anyway.
+        if (length <= cbFormat) { return pbFormat; } //reuse the old block anyway.
         return NULL;
     }
 
@@ -279,7 +285,7 @@ CMediaType::ReallocFormatBuffer(ULONG length)
 
     if (cbFormat != 0) {
         ASSERT(pbFormat);
-        memcpy(pNewFormat,pbFormat,min(length,cbFormat));
+        memcpy(pNewFormat, pbFormat, min(length, cbFormat));
         CoTaskMemFree((PVOID)pbFormat);
     }
 
@@ -305,8 +311,8 @@ BOOL
 CMediaType::IsPartiallySpecified(void) const
 {
     if ((majortype == GUID_NULL) ||
-        (formattype == GUID_NULL)) {
-            return TRUE;
+            (formattype == GUID_NULL)) {
+        return TRUE;
     } else {
         return FALSE;
     }
@@ -316,12 +322,12 @@ BOOL
 CMediaType::MatchesPartial(const CMediaType* ppartial) const
 {
     if ((ppartial->majortype != GUID_NULL) &&
-        (majortype != ppartial->majortype)) {
-            return FALSE;
+            (majortype != ppartial->majortype)) {
+        return FALSE;
     }
     if ((ppartial->subtype != GUID_NULL) &&
-        (subtype != ppartial->subtype)) {
-            return FALSE;
+            (subtype != ppartial->subtype)) {
+        return FALSE;
     }
 
     if (ppartial->formattype != GUID_NULL) {
@@ -333,8 +339,8 @@ CMediaType::MatchesPartial(const CMediaType* ppartial) const
             return FALSE;
         }
         if ((cbFormat != 0) &&
-            (memcmp(pbFormat, ppartial->pbFormat, cbFormat) != 0)) {
-                return FALSE;
+                (memcmp(pbFormat, ppartial->pbFormat, cbFormat) != 0)) {
+            return FALSE;
         }
     }
 
@@ -349,7 +355,7 @@ CMediaType::MatchesPartial(const CMediaType* ppartial) const
 // implementation allocates the structures which you must later delete
 // the format block may also be a pointer to an interface to release
 
-void WINAPI DeleteMediaType(AM_MEDIA_TYPE *pmt)
+void WINAPI DeleteMediaType(AM_MEDIA_TYPE* pmt)
 {
     // allow NULL pointers for coding simplicity
 
@@ -367,21 +373,21 @@ void WINAPI DeleteMediaType(AM_MEDIA_TYPE *pmt)
 // a CMediaType object but as soon as it goes out of scope the destructor
 // will delete the memory it allocated (this takes a copy of the memory)
 
-AM_MEDIA_TYPE * WINAPI CreateMediaType(AM_MEDIA_TYPE const *pSrc)
+AM_MEDIA_TYPE* WINAPI CreateMediaType(AM_MEDIA_TYPE const* pSrc)
 {
     ASSERT(pSrc);
 
     // Allocate a block of memory for the media type
 
-    AM_MEDIA_TYPE *pMediaType =
-        (AM_MEDIA_TYPE *)CoTaskMemAlloc(sizeof(AM_MEDIA_TYPE));
+    AM_MEDIA_TYPE* pMediaType =
+        (AM_MEDIA_TYPE*)CoTaskMemAlloc(sizeof(AM_MEDIA_TYPE));
 
     if (pMediaType == NULL) {
         return NULL;
     }
     // Copy the variable length format block
 
-    HRESULT hr = CopyMediaType(pMediaType,pSrc);
+    HRESULT hr = CopyMediaType(pMediaType, pSrc);
     if (FAILED(hr)) {
         CoTaskMemFree((PVOID)pMediaType);
         return NULL;
@@ -393,7 +399,7 @@ AM_MEDIA_TYPE * WINAPI CreateMediaType(AM_MEDIA_TYPE const *pSrc)
 
 //  Copy 1 media type to another
 
-HRESULT WINAPI CopyMediaType(AM_MEDIA_TYPE *pmtTarget, const AM_MEDIA_TYPE *pmtSource)
+HRESULT WINAPI CopyMediaType(AM_MEDIA_TYPE* pmtTarget, const AM_MEDIA_TYPE* pmtSource)
 {
     //  We'll leak if we copy onto one that already exists - there's one
     //  case we can check like that - copying to itself.
@@ -437,8 +443,8 @@ void WINAPI FreeMediaType(AM_MEDIA_TYPE& mt)
 //  Initialize a media type from a WAVEFORMATEX
 
 STDAPI CreateAudioMediaType(
-    const WAVEFORMATEX *pwfx,
-    AM_MEDIA_TYPE *pmt,
+    const WAVEFORMATEX* pwfx,
+    AM_MEDIA_TYPE* pmt,
     BOOL bSetFormat
 )
 {
@@ -465,7 +471,7 @@ STDAPI CreateAudioMediaType(
         }
         if (pwfx->wFormatTag == WAVE_FORMAT_PCM) {
             CopyMemory(pmt->pbFormat, pwfx, sizeof(PCMWAVEFORMAT));
-            ((WAVEFORMATEX *)pmt->pbFormat)->cbSize = 0;
+            ((WAVEFORMATEX*)pmt->pbFormat)->cbSize = 0;
         } else {
             CopyMemory(pmt->pbFormat, pwfx, pmt->cbFormat);
         }

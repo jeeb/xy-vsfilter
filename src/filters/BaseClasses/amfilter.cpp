@@ -34,13 +34,13 @@
 //=====================================================================
 // Helpers
 //=====================================================================
-STDAPI CreateMemoryAllocator(IMemAllocator **ppAllocator)
+STDAPI CreateMemoryAllocator(IMemAllocator** ppAllocator)
 {
     return CoCreateInstance(CLSID_MemoryAllocator,
                             0,
                             CLSCTX_INPROC_SERVER,
                             IID_IMemAllocator,
-                            (void **)ppAllocator);
+                            (void**)ppAllocator);
 }
 
 //  Put this one here rather than in ctlutil.cpp to avoid linking
@@ -48,23 +48,23 @@ STDAPI CreateMemoryAllocator(IMemAllocator **ppAllocator)
 STDAPI CreatePosPassThru(
     LPUNKNOWN pAgg,
     BOOL bRenderer,
-    IPin *pPin,
-    IUnknown **ppPassThru
+    IPin* pPin,
+    IUnknown** ppPassThru
 )
 {
     *ppPassThru = NULL;
-    IUnknown *pUnkSeek;
+    IUnknown* pUnkSeek;
     HRESULT hr = CoCreateInstance(CLSID_SeekingPassThru,
                                   pAgg,
                                   CLSCTX_INPROC_SERVER,
                                   IID_IUnknown,
-                                  (void **)&pUnkSeek
+                                  (void**)&pUnkSeek
                                  );
     if (FAILED(hr)) {
         return hr;
     }
 
-    ISeekingPassThru *pPassThru;
+    ISeekingPassThru* pPassThru;
     hr = pUnkSeek->QueryInterface(IID_ISeekingPassThru, (void**)&pPassThru);
     if (FAILED(hr)) {
         pUnkSeek->Release();
@@ -93,10 +93,10 @@ STDAPI CreatePosPassThru(
 
 /* Constructor */
 
-CBaseMediaFilter::CBaseMediaFilter(const TCHAR  *pName,
-                   LPUNKNOWN    pUnk,
-                   CCritSec *pLock,
-                   REFCLSID clsid) :
+CBaseMediaFilter::CBaseMediaFilter(const TCHAR*  pName,
+                                   LPUNKNOWN    pUnk,
+                                   CCritSec* pLock,
+                                   REFCLSID clsid) :
     CUnknown(pName, pUnk),
     m_pLock(pLock),
     m_clsid(clsid),
@@ -127,12 +127,12 @@ CBaseMediaFilter::~CBaseMediaFilter()
 STDMETHODIMP
 CBaseMediaFilter::NonDelegatingQueryInterface(
     REFIID riid,
-    void ** ppv)
+    void** ppv)
 {
     if (riid == IID_IMediaFilter) {
-        return GetInterface((IMediaFilter *) this, ppv);
+        return GetInterface((IMediaFilter*) this, ppv);
     } else if (riid == IID_IPersist) {
-        return GetInterface((IPersist *) this, ppv);
+        return GetInterface((IPersist*) this, ppv);
     } else {
         return CUnknown::NonDelegatingQueryInterface(riid, ppv);
     }
@@ -140,10 +140,10 @@ CBaseMediaFilter::NonDelegatingQueryInterface(
 
 /* Return the filter's clsid */
 STDMETHODIMP
-CBaseMediaFilter::GetClassID(CLSID *pClsID)
+CBaseMediaFilter::GetClassID(CLSID* pClsID)
 {
-    CheckPointer(pClsID,E_POINTER);
-    ValidateReadWritePtr(pClsID,sizeof(CLSID));
+    CheckPointer(pClsID, E_POINTER);
+    ValidateReadWritePtr(pClsID, sizeof(CLSID));
     *pClsID = m_clsid;
     return NOERROR;
 }
@@ -151,11 +151,11 @@ CBaseMediaFilter::GetClassID(CLSID *pClsID)
 /* Override this if your state changes are not done synchronously */
 
 STDMETHODIMP
-CBaseMediaFilter::GetState(DWORD dwMSecs, FILTER_STATE *State)
+CBaseMediaFilter::GetState(DWORD dwMSecs, FILTER_STATE* State)
 {
     UNREFERENCED_PARAMETER(dwMSecs);
-    CheckPointer(State,E_POINTER);
-    ValidateReadWritePtr(State,sizeof(FILTER_STATE));
+    CheckPointer(State, E_POINTER);
+    ValidateReadWritePtr(State, sizeof(FILTER_STATE));
 
     *State = m_State;
     return S_OK;
@@ -165,7 +165,7 @@ CBaseMediaFilter::GetState(DWORD dwMSecs, FILTER_STATE *State)
 /* Set the clock we will use for synchronisation */
 
 STDMETHODIMP
-CBaseMediaFilter::SetSyncSource(IReferenceClock *pClock)
+CBaseMediaFilter::SetSyncSource(IReferenceClock* pClock)
 {
     CAutoLock cObjectLock(m_pLock);
 
@@ -188,10 +188,10 @@ CBaseMediaFilter::SetSyncSource(IReferenceClock *pClock)
 
 /* Return the clock we are using for synchronisation */
 STDMETHODIMP
-CBaseMediaFilter::GetSyncSource(IReferenceClock **pClock)
+CBaseMediaFilter::GetSyncSource(IReferenceClock** pClock)
 {
-    CheckPointer(pClock,E_POINTER);
-    ValidateReadWritePtr(pClock,sizeof(IReferenceClock *));
+    CheckPointer(pClock, E_POINTER);
+    ValidateReadWritePtr(pClock, sizeof(IReferenceClock*));
     CAutoLock cObjectLock(m_pLock);
 
     if (m_pClock) {
@@ -244,7 +244,7 @@ CBaseMediaFilter::Run(REFERENCE_TIME tStart)
     // remember the stream time offset
     m_tStart = tStart;
 
-    if (m_State == State_Stopped){
+    if (m_State == State_Stopped) {
         HRESULT hr = Pause();
 
         if (FAILED(hr)) {
@@ -293,18 +293,18 @@ CBaseMediaFilter::StreamTime(CRefTime& rtStream)
 /* Override this to say what interfaces we support and where */
 
 STDMETHODIMP CBaseFilter::NonDelegatingQueryInterface(REFIID riid,
-                                                      void **ppv)
+                                                      void** ppv)
 {
     /* Do we have this interface */
 
     if (riid == IID_IBaseFilter) {
-        return GetInterface((IBaseFilter *) this, ppv);
+        return GetInterface((IBaseFilter*) this, ppv);
     } else if (riid == IID_IMediaFilter) {
-        return GetInterface((IMediaFilter *) this, ppv);
+        return GetInterface((IMediaFilter*) this, ppv);
     } else if (riid == IID_IPersist) {
-        return GetInterface((IPersist *) this, ppv);
+        return GetInterface((IPersist*) this, ppv);
     } else if (riid == IID_IAMovieSetup) {
-        return GetInterface((IAMovieSetup *) this, ppv);
+        return GetInterface((IAMovieSetup*) this, ppv);
     } else {
         return CUnknown::NonDelegatingQueryInterface(riid, ppv);
     }
@@ -323,11 +323,11 @@ STDMETHODIMP_(ULONG) CBaseFilter::NonDelegatingRelease()
 
 /* Constructor */
 
-CBaseFilter::CBaseFilter(const TCHAR    *pName,
-             LPUNKNOWN  pUnk,
-             CCritSec   *pLock,
-             REFCLSID   clsid) :
-    CUnknown( pName, pUnk ),
+CBaseFilter::CBaseFilter(const TCHAR*    pName,
+                         LPUNKNOWN  pUnk,
+                         CCritSec*   pLock,
+                         REFCLSID   clsid) :
+    CUnknown(pName, pUnk),
     m_pLock(pLock),
     m_clsid(clsid),
     m_State(State_Stopped),
@@ -343,12 +343,12 @@ CBaseFilter::CBaseFilter(const TCHAR    *pName,
 
 /* Passes in a redundant HRESULT argument */
 
-CBaseFilter::CBaseFilter(TCHAR     *pName,
+CBaseFilter::CBaseFilter(TCHAR*     pName,
                          LPUNKNOWN  pUnk,
-                         CCritSec  *pLock,
+                         CCritSec*  pLock,
                          REFCLSID   clsid,
-                         HRESULT   *phr) :
-    CUnknown( pName, pUnk ),
+                         HRESULT*   phr) :
+    CUnknown(pName, pUnk),
     m_pLock(pLock),
     m_clsid(clsid),
     m_State(State_Stopped),
@@ -364,11 +364,11 @@ CBaseFilter::CBaseFilter(TCHAR     *pName,
 }
 
 #ifdef UNICODE
-CBaseFilter::CBaseFilter(const CHAR *pName,
-             LPUNKNOWN  pUnk,
-             CCritSec   *pLock,
-             REFCLSID   clsid) :
-    CUnknown( pName, pUnk ),
+CBaseFilter::CBaseFilter(const CHAR* pName,
+                         LPUNKNOWN  pUnk,
+                         CCritSec*   pLock,
+                         REFCLSID   clsid) :
+    CUnknown(pName, pUnk),
     m_pLock(pLock),
     m_clsid(clsid),
     m_State(State_Stopped),
@@ -381,12 +381,12 @@ CBaseFilter::CBaseFilter(const CHAR *pName,
 
     ASSERT(pLock != NULL);
 }
-CBaseFilter::CBaseFilter(CHAR     *pName,
+CBaseFilter::CBaseFilter(CHAR*     pName,
                          LPUNKNOWN  pUnk,
-                         CCritSec  *pLock,
+                         CCritSec*  pLock,
                          REFCLSID   clsid,
-                         HRESULT   *phr) :
-    CUnknown( pName, pUnk ),
+                         HRESULT*   phr) :
+    CUnknown(pName, pUnk),
     m_pLock(pLock),
     m_clsid(clsid),
     m_State(State_Stopped),
@@ -424,21 +424,21 @@ CBaseFilter::~CBaseFilter()
 
 /* Return the filter's clsid */
 STDMETHODIMP
-CBaseFilter::GetClassID(CLSID *pClsID)
+CBaseFilter::GetClassID(CLSID* pClsID)
 {
-    CheckPointer(pClsID,E_POINTER);
-    ValidateReadWritePtr(pClsID,sizeof(CLSID));
+    CheckPointer(pClsID, E_POINTER);
+    ValidateReadWritePtr(pClsID, sizeof(CLSID));
     *pClsID = m_clsid;
     return NOERROR;
 }
 
 /* Override this if your state changes are not done synchronously */
 STDMETHODIMP
-CBaseFilter::GetState(DWORD dwMSecs, FILTER_STATE *State)
+CBaseFilter::GetState(DWORD dwMSecs, FILTER_STATE* State)
 {
     UNREFERENCED_PARAMETER(dwMSecs);
-    CheckPointer(State,E_POINTER);
-    ValidateReadWritePtr(State,sizeof(FILTER_STATE));
+    CheckPointer(State, E_POINTER);
+    ValidateReadWritePtr(State, sizeof(FILTER_STATE));
 
     *State = m_State;
     return S_OK;
@@ -448,7 +448,7 @@ CBaseFilter::GetState(DWORD dwMSecs, FILTER_STATE *State)
 /* Set the clock we will use for synchronisation */
 
 STDMETHODIMP
-CBaseFilter::SetSyncSource(IReferenceClock *pClock)
+CBaseFilter::SetSyncSource(IReferenceClock* pClock)
 {
     CAutoLock cObjectLock(m_pLock);
 
@@ -471,10 +471,10 @@ CBaseFilter::SetSyncSource(IReferenceClock *pClock)
 
 /* Return the clock we are using for synchronisation */
 STDMETHODIMP
-CBaseFilter::GetSyncSource(IReferenceClock **pClock)
+CBaseFilter::GetSyncSource(IReferenceClock** pClock)
 {
-    CheckPointer(pClock,E_POINTER);
-    ValidateReadWritePtr(pClock,sizeof(IReferenceClock *));
+    CheckPointer(pClock, E_POINTER);
+    ValidateReadWritePtr(pClock, sizeof(IReferenceClock*));
     CAutoLock cObjectLock(m_pLock);
 
     if (m_pClock) {
@@ -500,7 +500,7 @@ CBaseFilter::Stop()
         int cPins = GetPinCount();
         for (int c = 0; c < cPins; c++) {
 
-            CBasePin *pPin = GetPin(c);
+            CBasePin* pPin = GetPin(c);
 
             // Disconnected pins are not activated - this saves pins worrying
             // about this state themselves. We ignore the return code to make
@@ -536,7 +536,7 @@ CBaseFilter::Pause()
         int cPins = GetPinCount();
         for (int c = 0; c < cPins; c++) {
 
-            CBasePin *pPin = GetPin(c);
+            CBasePin* pPin = GetPin(c);
 
             // Disconnected pins are not activated - this saves pins
             // worrying about this state themselves
@@ -573,19 +573,19 @@ CBaseFilter::Run(REFERENCE_TIME tStart)
     // remember the stream time offset
     m_tStart = tStart;
 
-    if (m_State == State_Stopped){
-    HRESULT hr = Pause();
+    if (m_State == State_Stopped) {
+        HRESULT hr = Pause();
 
-    if (FAILED(hr)) {
-        return hr;
-    }
+        if (FAILED(hr)) {
+            return hr;
+        }
     }
     // notify all pins of the change to active state
     if (m_State != State_Running) {
         int cPins = GetPinCount();
         for (int c = 0; c < cPins; c++) {
 
-            CBasePin *pPin = GetPin(c);
+            CBasePin* pPin = GetPin(c);
 
             // Disconnected pins are not activated - this saves pins
             // worrying about this state themselves
@@ -634,15 +634,15 @@ CBaseFilter::StreamTime(CRefTime& rtStream)
 /* Create an enumerator for the pins attached to this filter */
 
 STDMETHODIMP
-CBaseFilter::EnumPins(IEnumPins **ppEnum)
+CBaseFilter::EnumPins(IEnumPins** ppEnum)
 {
-    CheckPointer(ppEnum,E_POINTER);
-    ValidateReadWritePtr(ppEnum,sizeof(IEnumPins *));
+    CheckPointer(ppEnum, E_POINTER);
+    ValidateReadWritePtr(ppEnum, sizeof(IEnumPins*));
 
     /* Create a new ref counted enumerator */
 
     *ppEnum = new CEnumPins(this,
-                        NULL);
+                            NULL);
 
     return *ppEnum == NULL ? E_OUTOFMEMORY : NOERROR;
 }
@@ -653,17 +653,17 @@ CBaseFilter::EnumPins(IEnumPins **ppEnum)
 STDMETHODIMP
 CBaseFilter::FindPin(
     LPCWSTR Id,
-    IPin ** ppPin
+    IPin** ppPin
 )
 {
-    CheckPointer(ppPin,E_POINTER);
-    ValidateReadWritePtr(ppPin,sizeof(IPin *));
+    CheckPointer(ppPin, E_POINTER);
+    ValidateReadWritePtr(ppPin, sizeof(IPin*));
 
     //  We're going to search the pin list so maintain integrity
     CAutoLock lck(m_pLock);
     int iCount = GetPinCount();
     for (int i = 0; i < iCount; i++) {
-        CBasePin *pPin = GetPin(i);
+        CBasePin* pPin = GetPin(i);
         ASSERT(pPin != NULL);
 
         if (0 == lstrcmpW(pPin->Name(), Id)) {
@@ -682,19 +682,20 @@ CBaseFilter::FindPin(
 /* Return information about this filter */
 
 STDMETHODIMP
-CBaseFilter::QueryFilterInfo(FILTER_INFO * pInfo)
+CBaseFilter::QueryFilterInfo(FILTER_INFO* pInfo)
 {
-    CheckPointer(pInfo,E_POINTER);
-    ValidateReadWritePtr(pInfo,sizeof(FILTER_INFO));
+    CheckPointer(pInfo, E_POINTER);
+    ValidateReadWritePtr(pInfo, sizeof(FILTER_INFO));
 
     if (m_pName) {
-        lstrcpynW(pInfo->achName, m_pName, sizeof(pInfo->achName)/sizeof(WCHAR));
+        lstrcpynW(pInfo->achName, m_pName, sizeof(pInfo->achName) / sizeof(WCHAR));
     } else {
         pInfo->achName[0] = L'\0';
     }
     pInfo->pGraph = m_pGraph;
-    if (m_pGraph)
+    if (m_pGraph) {
         m_pGraph->AddRef();
+    }
     return NOERROR;
 }
 
@@ -703,7 +704,7 @@ CBaseFilter::QueryFilterInfo(FILTER_INFO * pInfo)
 
 STDMETHODIMP
 CBaseFilter::JoinFilterGraph(
-    IFilterGraph * pGraph,
+    IFilterGraph* pGraph,
     LPCWSTR pName)
 {
     CAutoLock cObjectLock(m_pLock);
@@ -713,11 +714,10 @@ CBaseFilter::JoinFilterGraph(
     m_pGraph = pGraph;
     if (m_pGraph) {
         HRESULT hr = m_pGraph->QueryInterface(IID_IMediaEventSink,
-                        (void**) &m_pSink);
+                                              (void**) &m_pSink);
         if (FAILED(hr)) {
             ASSERT(m_pSink == NULL);
-        }
-        else m_pSink->Release();        // we do NOT keep a reference on it.
+        } else { m_pSink->Release(); }      // we do NOT keep a reference on it.
     } else {
         // if graph pointer is null, then we should
         // also release the IMediaEventSink on the same object - we don't
@@ -732,10 +732,10 @@ CBaseFilter::JoinFilterGraph(
     }
 
     if (pName) {
-        DWORD nameLen = lstrlenW(pName)+1;
+        DWORD nameLen = lstrlenW(pName) + 1;
         m_pName = new WCHAR[nameLen];
         if (m_pName) {
-            CopyMemory(m_pName, pName, nameLen*sizeof(WCHAR));
+            CopyMemory(m_pName, pName, nameLen * sizeof(WCHAR));
         } else {
             // !!! error here?
             ASSERT(FALSE);
@@ -769,7 +769,7 @@ CBaseFilter::NotifyEvent(
     LONG_PTR EventParam2)
 {
     // Snapshot so we don't have to lock up
-    IMediaEventSink *pSink = m_pSink;
+    IMediaEventSink* pSink = m_pSink;
     if (pSink) {
         if (EC_COMPLETE == EventCode) {
             EventParam2 = (LONG_PTR)(IBaseFilter*)this;
@@ -787,13 +787,13 @@ CBaseFilter::NotifyEvent(
 // Calls ReconnectEx on the filter graph
 HRESULT
 CBaseFilter::ReconnectPin(
-    IPin *pPin,
-    AM_MEDIA_TYPE const *pmt
+    IPin* pPin,
+    AM_MEDIA_TYPE const* pmt
 )
 {
-    IFilterGraph2 *pGraph2;
+    IFilterGraph2* pGraph2;
     if (m_pGraph != NULL) {
-        HRESULT hr = m_pGraph->QueryInterface(IID_IFilterGraph2, (void **)&pGraph2);
+        HRESULT hr = m_pGraph->QueryInterface(IID_IFilterGraph2, (void**)&pGraph2);
         if (SUCCEEDED(hr)) {
             hr = pGraph2->ReconnectEx(pPin, pmt);
             pGraph2->Release();
@@ -836,25 +836,24 @@ STDMETHODIMP CBaseFilter::Register()
 
     // check we've got data
     //
-    if( NULL == psetupdata ) return S_FALSE;
+    if (NULL == psetupdata) { return S_FALSE; }
 
     // init is ref counted so call just in case
     // we're being called cold.
     //
-    HRESULT hr = CoInitialize( (LPVOID)NULL );
-    ASSERT( SUCCEEDED(hr) );
+    HRESULT hr = CoInitialize((LPVOID)NULL);
+    ASSERT(SUCCEEDED(hr));
 
     // get hold of IFilterMapper
     //
-    IFilterMapper *pIFM;
-    hr = CoCreateInstance( CLSID_FilterMapper
-                             , NULL
-                             , CLSCTX_INPROC_SERVER
-                             , IID_IFilterMapper
-                             , (void **)&pIFM       );
-    if( SUCCEEDED(hr) )
-    {
-        hr = AMovieSetupRegisterFilter( psetupdata, pIFM, TRUE );
+    IFilterMapper* pIFM;
+    hr = CoCreateInstance(CLSID_FilterMapper
+                          , NULL
+                          , CLSCTX_INPROC_SERVER
+                          , IID_IFilterMapper
+                          , (void**)&pIFM);
+    if (SUCCEEDED(hr)) {
+        hr = AMovieSetupRegisterFilter(psetupdata, pIFM, TRUE);
         pIFM->Release();
     }
 
@@ -877,25 +876,24 @@ STDMETHODIMP CBaseFilter::Unregister()
 
     // check we've got data
     //
-    if( NULL == psetupdata ) return S_FALSE;
+    if (NULL == psetupdata) { return S_FALSE; }
 
     // OLE init is ref counted so call
     // just in case we're being called cold.
     //
-    HRESULT hr = CoInitialize( (LPVOID)NULL );
-    ASSERT( SUCCEEDED(hr) );
+    HRESULT hr = CoInitialize((LPVOID)NULL);
+    ASSERT(SUCCEEDED(hr));
 
     // get hold of IFilterMapper
     //
-    IFilterMapper *pIFM;
-    hr = CoCreateInstance( CLSID_FilterMapper
-                             , NULL
-                             , CLSCTX_INPROC_SERVER
-                             , IID_IFilterMapper
-                             , (void **)&pIFM       );
-    if( SUCCEEDED(hr) )
-    {
-        hr = AMovieSetupRegisterFilter( psetupdata, pIFM, FALSE );
+    IFilterMapper* pIFM;
+    hr = CoCreateInstance(CLSID_FilterMapper
+                          , NULL
+                          , CLSCTX_INPROC_SERVER
+                          , IID_IFilterMapper
+                          , (void**)&pIFM);
+    if (SUCCEEDED(hr)) {
+        hr = AMovieSetupRegisterFilter(psetupdata, pIFM, FALSE);
 
         // release interface
         //
@@ -912,10 +910,11 @@ STDMETHODIMP CBaseFilter::Unregister()
     // (couldn't find a suitable #define'd
     // name for the error!)
     //
-    if( 0x80070002 == hr)
-      return NOERROR;
-    else
-      return hr;
+    if (0x80070002 == hr) {
+        return NOERROR;
+    } else {
+        return hr;
+    }
 }
 
 
@@ -926,8 +925,8 @@ STDMETHODIMP CBaseFilter::Unregister()
 //=====================================================================
 
 
-CEnumPins::CEnumPins(CBaseFilter *pFilter,
-             CEnumPins *pEnumPins) :
+CEnumPins::CEnumPins(CBaseFilter* pFilter,
+                     CEnumPins* pEnumPins) :
     m_Position(0),
     m_PinCount(0),
     m_pFilter(pFilter),
@@ -979,14 +978,14 @@ CEnumPins::~CEnumPins()
 /* Override this to say what interfaces we support where */
 
 STDMETHODIMP
-CEnumPins::QueryInterface(REFIID riid,void **ppv)
+CEnumPins::QueryInterface(REFIID riid, void** ppv)
 {
     CheckPointer(ppv, E_POINTER);
 
     /* Do we have this interface */
 
     if (riid == IID_IEnumPins || riid == IID_IUnknown) {
-        return GetInterface((IEnumPins *) this, ppv);
+        return GetInterface((IEnumPins*) this, ppv);
     } else {
         *ppv = NULL;
         return E_NOINTERFACE;
@@ -1014,10 +1013,10 @@ CEnumPins::Release()
    of an object (current position and all) we must lock access at the start */
 
 STDMETHODIMP
-CEnumPins::Clone(IEnumPins **ppEnum)
+CEnumPins::Clone(IEnumPins** ppEnum)
 {
-    CheckPointer(ppEnum,E_POINTER);
-    ValidateReadWritePtr(ppEnum,sizeof(IEnumPins *));
+    CheckPointer(ppEnum, E_POINTER);
+    ValidateReadWritePtr(ppEnum, sizeof(IEnumPins*));
     HRESULT hr = NOERROR;
 
     /* Check we are still in sync with the filter */
@@ -1040,30 +1039,30 @@ CEnumPins::Clone(IEnumPins **ppEnum)
 
 STDMETHODIMP
 CEnumPins::Next(ULONG cPins,        // place this many pins...
-        IPin **ppPins,      // ...in this array
-        ULONG *pcFetched)   // actual count passed returned here
+                IPin** ppPins,      // ...in this array
+                ULONG* pcFetched)   // actual count passed returned here
 {
-    CheckPointer(ppPins,E_POINTER);
-    ValidateReadWritePtr(ppPins,cPins * sizeof(IPin *));
+    CheckPointer(ppPins, E_POINTER);
+    ValidateReadWritePtr(ppPins, cPins * sizeof(IPin*));
 
     ASSERT(ppPins);
 
-    if (pcFetched!=NULL) {
+    if (pcFetched != NULL) {
         ValidateWritePtr(pcFetched, sizeof(ULONG));
         *pcFetched = 0;           // default unless we succeed
     }
     // now check that the parameter is valid
-    else if (cPins>1) {   // pcFetched == NULL
+    else if (cPins > 1) { // pcFetched == NULL
         return E_INVALIDARG;
     }
     ULONG cFetched = 0;           // increment as we get each one.
 
     /* Check we are still in sync with the filter */
     if (AreWeOutOfSync() == TRUE) {
-    // If we are out of sync, we should refresh the enumerator.
-    // This will reset the position and update the other members, but
-    // will not clear cache of pins we have already returned.
-    Refresh();
+        // If we are out of sync, we should refresh the enumerator.
+        // This will reset the position and update the other members, but
+        // will not clear cache of pins we have already returned.
+        Refresh();
     }
 
     /* Calculate the number of available pins */
@@ -1084,18 +1083,17 @@ CEnumPins::Next(ULONG cPins,        // place this many pins...
 
         /* Get the next pin object from the filter */
 
-        CBasePin *pPin = m_pFilter->GetPin(m_Position++);
+        CBasePin* pPin = m_pFilter->GetPin(m_Position++);
         if (pPin == NULL) {
             // If this happend, and it's not the first time through, then we've got a problem,
             // since we should really go back and release the iPins, which we have previously
             // AddRef'ed.
-            ASSERT( cFetched==0 );
+            ASSERT(cFetched == 0);
             return VFW_E_ENUM_OUT_OF_SYNC;
         }
 
         /* We only want to return this pin, if it is not in our cache */
-        if (0 == m_PinCache.Find(pPin))
-        {
+        if (0 == m_PinCache.Find(pPin)) {
             /* From the object get an IPin interface */
 
             *ppPins = pPin;
@@ -1111,11 +1109,11 @@ CEnumPins::Next(ULONG cPins,        // place this many pins...
         }
     }
 
-    if (pcFetched!=NULL) {
+    if (pcFetched != NULL) {
         *pcFetched = cFetched;
     }
 
-    return (cPins==cFetched ? NOERROR : S_FALSE);
+    return (cPins == cFetched ? NOERROR : S_FALSE);
 }
 
 
@@ -1192,8 +1190,8 @@ CEnumPins::Refresh()
 //=====================================================================
 
 
-CEnumMediaTypes::CEnumMediaTypes(CBasePin *pPin,
-                 CEnumMediaTypes *pEnumMediaTypes) :
+CEnumMediaTypes::CEnumMediaTypes(CBasePin* pPin,
+                                 CEnumMediaTypes* pEnumMediaTypes) :
     m_Position(0),
     m_pPin(pPin),
     m_cRef(1)
@@ -1239,14 +1237,14 @@ CEnumMediaTypes::~CEnumMediaTypes()
 /* Override this to say what interfaces we support where */
 
 STDMETHODIMP
-CEnumMediaTypes::QueryInterface(REFIID riid,void **ppv)
+CEnumMediaTypes::QueryInterface(REFIID riid, void** ppv)
 {
     CheckPointer(ppv, E_POINTER);
 
     /* Do we have this interface */
 
     if (riid == IID_IEnumMediaTypes || riid == IID_IUnknown) {
-        return GetInterface((IEnumMediaTypes *) this, ppv);
+        return GetInterface((IEnumMediaTypes*) this, ppv);
     } else {
         *ppv = NULL;
         return E_NOINTERFACE;
@@ -1274,10 +1272,10 @@ CEnumMediaTypes::Release()
    of an object (current position and all) we must lock access at the start */
 
 STDMETHODIMP
-CEnumMediaTypes::Clone(IEnumMediaTypes **ppEnum)
+CEnumMediaTypes::Clone(IEnumMediaTypes** ppEnum)
 {
-    CheckPointer(ppEnum,E_POINTER);
-    ValidateReadWritePtr(ppEnum,sizeof(IEnumMediaTypes *));
+    CheckPointer(ppEnum, E_POINTER);
+    ValidateReadWritePtr(ppEnum, sizeof(IEnumMediaTypes*));
     HRESULT hr = NOERROR;
 
     /* Check we are still in sync with the pin */
@@ -1309,22 +1307,22 @@ CEnumMediaTypes::Clone(IEnumMediaTypes **ppEnum)
 
 STDMETHODIMP
 CEnumMediaTypes::Next(ULONG cMediaTypes,          // place this many types...
-              AM_MEDIA_TYPE **ppMediaTypes,   // ...in this array
-              ULONG *pcFetched)           // actual count passed
+                      AM_MEDIA_TYPE** ppMediaTypes,   // ...in this array
+                      ULONG* pcFetched)           // actual count passed
 {
-    CheckPointer(ppMediaTypes,E_POINTER);
-    ValidateReadWritePtr(ppMediaTypes,cMediaTypes * sizeof(AM_MEDIA_TYPE *));
+    CheckPointer(ppMediaTypes, E_POINTER);
+    ValidateReadWritePtr(ppMediaTypes, cMediaTypes * sizeof(AM_MEDIA_TYPE*));
     /* Check we are still in sync with the pin */
     if (AreWeOutOfSync() == TRUE) {
         return VFW_E_ENUM_OUT_OF_SYNC;
     }
 
-    if (pcFetched!=NULL) {
+    if (pcFetched != NULL) {
         ValidateWritePtr(pcFetched, sizeof(ULONG));
         *pcFetched = 0;           // default unless we succeed
     }
     // now check that the parameter is valid
-    else if (cMediaTypes>1) {     // pcFetched == NULL
+    else if (cMediaTypes > 1) {   // pcFetched == NULL
         return E_INVALIDARG;
     }
     ULONG cFetched = 0;           // increment as we get each one.
@@ -1353,7 +1351,7 @@ CEnumMediaTypes::Next(ULONG cMediaTypes,          // place this many types...
         /*  Transfer across the format block manually to save an allocate
             and free on the format block and generally go faster */
 
-        *ppMediaTypes = (AM_MEDIA_TYPE *)CoTaskMemAlloc(sizeof(AM_MEDIA_TYPE));
+        *ppMediaTypes = (AM_MEDIA_TYPE*)CoTaskMemAlloc(sizeof(AM_MEDIA_TYPE));
         if (*ppMediaTypes == NULL) {
             break;
         }
@@ -1372,11 +1370,11 @@ CEnumMediaTypes::Next(ULONG cMediaTypes,          // place this many types...
         cMediaTypes--;
     }
 
-    if (pcFetched!=NULL) {
+    if (pcFetched != NULL) {
         *pcFetched = cFetched;
     }
 
-    return ( cMediaTypes==0 ? NOERROR : S_FALSE );
+    return (cMediaTypes == 0 ? NOERROR : S_FALSE);
 }
 
 
@@ -1444,13 +1442,13 @@ CEnumMediaTypes::Reset()
 
 /* Constructor */
 
-CBasePin::CBasePin(TCHAR *pObjectName,
-           CBaseFilter *pFilter,
-           CCritSec *pLock,
-           HRESULT *phr,
-           LPCWSTR pName,
-           PIN_DIRECTION dir) :
-    CUnknown( pObjectName, NULL ),
+CBasePin::CBasePin(TCHAR* pObjectName,
+                   CBaseFilter* pFilter,
+                   CCritSec* pLock,
+                   HRESULT* phr,
+                   LPCWSTR pName,
+                   PIN_DIRECTION dir) :
+    CUnknown(pObjectName, NULL),
     m_pFilter(pFilter),
     m_pLock(pLock),
     m_pName(NULL),
@@ -1477,10 +1475,10 @@ CBasePin::CBasePin(TCHAR *pObjectName,
     ASSERT(pLock != NULL);
 
     if (pName) {
-        DWORD nameLen = lstrlenW(pName)+1;
+        DWORD nameLen = lstrlenW(pName) + 1;
         m_pName = new WCHAR[nameLen];
         if (m_pName) {
-            CopyMemory(m_pName, pName, nameLen*sizeof(WCHAR));
+            CopyMemory(m_pName, pName, nameLen * sizeof(WCHAR));
         }
     }
 
@@ -1490,13 +1488,13 @@ CBasePin::CBasePin(TCHAR *pObjectName,
 }
 
 #ifdef UNICODE
-CBasePin::CBasePin(CHAR *pObjectName,
-           CBaseFilter *pFilter,
-           CCritSec *pLock,
-           HRESULT *phr,
-           LPCWSTR pName,
-           PIN_DIRECTION dir) :
-    CUnknown( pObjectName, NULL ),
+CBasePin::CBasePin(CHAR* pObjectName,
+                   CBaseFilter* pFilter,
+                   CCritSec* pLock,
+                   HRESULT* phr,
+                   LPCWSTR pName,
+                   PIN_DIRECTION dir) :
+    CUnknown(pObjectName, NULL),
     m_pFilter(pFilter),
     m_pLock(pLock),
     m_pName(NULL),
@@ -1523,10 +1521,10 @@ CBasePin::CBasePin(CHAR *pObjectName,
     ASSERT(pLock != NULL);
 
     if (pName) {
-        DWORD nameLen = lstrlenW(pName)+1;
+        DWORD nameLen = lstrlenW(pName) + 1;
         m_pName = new WCHAR[nameLen];
         if (m_pName) {
-            CopyMemory(m_pName, pName, nameLen*sizeof(WCHAR));
+            CopyMemory(m_pName, pName, nameLen * sizeof(WCHAR));
         }
     }
 
@@ -1557,14 +1555,14 @@ CBasePin::~CBasePin()
 /* Override this to say what interfaces we support and where */
 
 STDMETHODIMP
-CBasePin::NonDelegatingQueryInterface(REFIID riid, void ** ppv)
+CBasePin::NonDelegatingQueryInterface(REFIID riid, void** ppv)
 {
     /* Do we have this interface */
 
     if (riid == IID_IPin) {
-        return GetInterface((IPin *) this, ppv);
+        return GetInterface((IPin*) this, ppv);
     } else if (riid == IID_IQualityControl) {
-        return GetInterface((IQualityControl *) this, ppv);
+        return GetInterface((IQualityControl*) this, ppv);
     } else {
         return CUnknown::NonDelegatingQueryInterface(riid, ppv);
     }
@@ -1595,7 +1593,7 @@ CBasePin::NonDelegatingRelease()
 
 #ifdef DEBUG
 void
-CBasePin::DisplayPinInfo(IPin *pReceivePin)
+CBasePin::DisplayPinInfo(IPin* pReceivePin)
 {
 
     if (DbgCheckModuleLevel(LOG_TRACE, CONNECT_TRACE_LEVEL)) {
@@ -1625,15 +1623,15 @@ CBasePin::DisplayPinInfo(IPin *pReceivePin)
 /* Displays general information on the pin media type */
 
 #ifdef DEBUG
-void CBasePin::DisplayTypeInfo(IPin *pPin, const CMediaType *pmt)
+void CBasePin::DisplayTypeInfo(IPin* pPin, const CMediaType* pmt)
 {
     UNREFERENCED_PARAMETER(pPin);
     if (DbgCheckModuleLevel(LOG_TRACE, CONNECT_TRACE_LEVEL)) {
         DbgLog((LOG_TRACE, CONNECT_TRACE_LEVEL, TEXT("Trying media type:")));
         DbgLog((LOG_TRACE, CONNECT_TRACE_LEVEL, TEXT("    major type:  %hs"),
-               GuidNames[*pmt->Type()]));
+                GuidNames[*pmt->Type()]));
         DbgLog((LOG_TRACE, CONNECT_TRACE_LEVEL, TEXT("    sub type  :  %hs"),
-               GuidNames[*pmt->Subtype()]));
+                GuidNames[*pmt->Subtype()]));
     }
 }
 #endif
@@ -1646,12 +1644,12 @@ void CBasePin::DisplayTypeInfo(IPin *pPin, const CMediaType *pmt)
 
 STDMETHODIMP
 CBasePin::Connect(
-    IPin * pReceivePin,
-    const AM_MEDIA_TYPE *pmt   // optional media type
+    IPin* pReceivePin,
+    const AM_MEDIA_TYPE* pmt   // optional media type
 )
 {
-    CheckPointer(pReceivePin,E_POINTER);
-    ValidateReadPtr(pReceivePin,sizeof(IPin));
+    CheckPointer(pReceivePin, E_POINTER);
+    ValidateReadPtr(pReceivePin, sizeof(IPin));
     CAutoLock cObjectLock(m_pLock);
     DisplayPinInfo(pReceivePin);
 
@@ -1674,14 +1672,14 @@ CBasePin::Connect(
     // it. If it is non-null and fully specified, we will just try to connect
     // with this.
 
-    const CMediaType * ptype = (CMediaType*)pmt;
+    const CMediaType* ptype = (CMediaType*)pmt;
     HRESULT hr = AgreeMediaType(pReceivePin, ptype);
     if (FAILED(hr)) {
         DbgLog((LOG_TRACE, CONNECT_TRACE_LEVEL, TEXT("Failed to agree type")));
 
         // Since the procedure is already returning an error code, there
         // is nothing else this function can do to report the error.
-        EXECUTE_ASSERT( SUCCEEDED( BreakConnect() ) );
+        EXECUTE_ASSERT(SUCCEEDED(BreakConnect()));
 
 
         return hr;
@@ -1715,7 +1713,7 @@ CBasePin::AttemptConnection(
 
         // Since the procedure is already returning an error code, there
         // is nothing else this function can do to report the error.
-        EXECUTE_ASSERT( SUCCEEDED( BreakConnect() ) );
+        EXECUTE_ASSERT(SUCCEEDED(BreakConnect()));
 
         return hr;
     }
@@ -1736,7 +1734,7 @@ CBasePin::AttemptConnection(
         if (SUCCEEDED(hr)) {
             /* See if the other pin will accept this type */
 
-            hr = pReceivePin->ReceiveConnection((IPin *)this, pmt);
+            hr = pReceivePin->ReceiveConnection((IPin*)this, pmt);
             if (SUCCEEDED(hr)) {
                 /* Complete the connection */
 
@@ -1758,8 +1756,8 @@ CBasePin::AttemptConnection(
         // or map a general failure code to something more helpful
         // (in particular S_FALSE gets changed to an error code)
         if (SUCCEEDED(hr) ||
-            (hr == E_FAIL) ||
-            (hr == E_INVALIDARG)) {
+                (hr == E_FAIL) ||
+                (hr == E_INVALIDARG)) {
             hr = VFW_E_TYPE_NOT_ACCEPTED;
         }
     }
@@ -1770,7 +1768,7 @@ CBasePin::AttemptConnection(
 
     // Since the procedure is already returning an error code, there
     // is nothing else this function can do to report the error.
-    EXECUTE_ASSERT( SUCCEEDED( BreakConnect() ) );
+    EXECUTE_ASSERT(SUCCEEDED(BreakConnect()));
 
     /*  If failed then undo our state */
     if (m_Connected) {
@@ -1789,9 +1787,9 @@ CBasePin::AttemptConnection(
    media types even if some of them are not really currently available */
 
 HRESULT CBasePin::TryMediaTypes(
-    IPin *pReceivePin,
-    const CMediaType *pmt,
-    IEnumMediaTypes *pEnum)
+    IPin* pReceivePin,
+    const CMediaType* pmt,
+    IEnumMediaTypes* pEnum)
 {
     /* Reset the current enumerator position */
 
@@ -1800,7 +1798,7 @@ HRESULT CBasePin::TryMediaTypes(
         return hr;
     }
 
-    CMediaType *pMediaType = NULL;
+    CMediaType* pMediaType = NULL;
     ULONG ulMediaCount = 0;
 
     // attempt to remember a specific error code if there is one
@@ -1813,7 +1811,7 @@ HRESULT CBasePin::TryMediaTypes(
            If we are successful then we copy it into our output object, if
            not then we must delete the memory allocated before returning */
 
-        hr = pEnum->Next(1, (AM_MEDIA_TYPE**)&pMediaType,&ulMediaCount);
+        hr = pEnum->Next(1, (AM_MEDIA_TYPE**)&pMediaType, &ulMediaCount);
         if (hr != S_OK) {
             if (S_OK == hrFailure) {
                 hrFailure = VFW_E_NO_ACCEPTABLE_TYPES;
@@ -1828,16 +1826,16 @@ HRESULT CBasePin::TryMediaTypes(
         // check that this matches the partial type (if any)
 
         if ((pmt == NULL) ||
-            pMediaType->MatchesPartial(pmt)) {
+                pMediaType->MatchesPartial(pmt)) {
 
             hr = AttemptConnection(pReceivePin, pMediaType);
 
             // attempt to remember a specific error code
             if (FAILED(hr) &&
-            SUCCEEDED(hrFailure) &&
-            (hr != E_FAIL) &&
-            (hr != E_INVALIDARG) &&
-            (hr != VFW_E_TYPE_NOT_ACCEPTED)) {
+                    SUCCEEDED(hrFailure) &&
+                    (hr != E_FAIL) &&
+                    (hr != E_INVALIDARG) &&
+                    (hr != VFW_E_TYPE_NOT_ACCEPTED)) {
                 hrFailure = hr;
             }
         } else {
@@ -1863,14 +1861,14 @@ HRESULT CBasePin::TryMediaTypes(
  */
 
 HRESULT CBasePin::AgreeMediaType(
-    IPin *pReceivePin,
-    const CMediaType *pmt)
+    IPin* pReceivePin,
+    const CMediaType* pmt)
 {
     ASSERT(pReceivePin);
-    IEnumMediaTypes *pEnumMediaTypes = NULL;
+    IEnumMediaTypes* pEnumMediaTypes = NULL;
 
     // if the media type is fully specified then use that
-    if ( (pmt != NULL) && (!pmt->IsPartiallySpecified())) {
+    if ((pmt != NULL) && (!pmt->IsPartiallySpecified())) {
 
         // if this media type fails, then we must fail the connection
         // since if pmt is nonnull we are only allowed to connect
@@ -1893,15 +1891,15 @@ HRESULT CBasePin::AgreeMediaType(
         }
         if (SUCCEEDED(hr)) {
             ASSERT(pEnumMediaTypes);
-            hr = TryMediaTypes(pReceivePin,pmt,pEnumMediaTypes);
+            hr = TryMediaTypes(pReceivePin, pmt, pEnumMediaTypes);
             pEnumMediaTypes->Release();
             if (SUCCEEDED(hr)) {
                 return NOERROR;
             } else {
                 // try to remember specific error codes if there are any
                 if ((hr != E_FAIL) &&
-                    (hr != E_INVALIDARG) &&
-                    (hr != VFW_E_TYPE_NOT_ACCEPTED)) {
+                        (hr != E_INVALIDARG) &&
+                        (hr != VFW_E_TYPE_NOT_ACCEPTED)) {
                     hrFailure = hr;
                 }
             }
@@ -1916,7 +1914,7 @@ HRESULT CBasePin::AgreeMediaType(
    this will also fail the connection and disconnect the other pin as well */
 
 HRESULT
-CBasePin::CompleteConnect(IPin *pReceivePin)
+CBasePin::CompleteConnect(IPin* pReceivePin)
 {
     UNREFERENCED_PARAMETER(pReceivePin);
     return NOERROR;
@@ -1928,7 +1926,7 @@ CBasePin::CompleteConnect(IPin *pReceivePin)
    return an error code then this (virtual) function will be invoked */
 
 HRESULT
-CBasePin::SetMediaType(const CMediaType *pmt)
+CBasePin::SetMediaType(const CMediaType* pmt)
 {
     HRESULT hr = m_mt.Set(*pmt);
     if (FAILED(hr)) {
@@ -1944,7 +1942,7 @@ CBasePin::SetMediaType(const CMediaType *pmt)
    base class method just checks that the pin directions don't match */
 
 HRESULT
-CBasePin::CheckConnect(IPin * pPin)
+CBasePin::CheckConnect(IPin* pPin)
 {
     /* Check that pin directions DONT match */
 
@@ -1978,14 +1976,14 @@ CBasePin::BreakConnect()
 
 STDMETHODIMP
 CBasePin::ReceiveConnection(
-    IPin * pConnector,      // this is the pin who we will connect to
-    const AM_MEDIA_TYPE *pmt    // this is the media type we will exchange
+    IPin* pConnector,       // this is the pin who we will connect to
+    const AM_MEDIA_TYPE* pmt    // this is the media type we will exchange
 )
 {
-    CheckPointer(pConnector,E_POINTER);
-    CheckPointer(pmt,E_POINTER);
-    ValidateReadPtr(pConnector,sizeof(IPin));
-    ValidateReadPtr(pmt,sizeof(AM_MEDIA_TYPE));
+    CheckPointer(pConnector, E_POINTER);
+    CheckPointer(pmt, E_POINTER);
+    ValidateReadPtr(pConnector, sizeof(IPin));
+    ValidateReadPtr(pmt, sizeof(AM_MEDIA_TYPE));
     CAutoLock cObjectLock(m_pLock);
 
     /* Are we already connected */
@@ -2002,7 +2000,7 @@ CBasePin::ReceiveConnection(
     if (FAILED(hr)) {
         // Since the procedure is already returning an error code, there
         // is nothing else this function can do to report the error.
-        EXECUTE_ASSERT( SUCCEEDED( BreakConnect() ) );
+        EXECUTE_ASSERT(SUCCEEDED(BreakConnect()));
 
 
         return hr;
@@ -2010,21 +2008,21 @@ CBasePin::ReceiveConnection(
 
     /* Ask derived class if this media type is ok */
 
-    CMediaType * pcmt = (CMediaType*) pmt;
+    CMediaType* pcmt = (CMediaType*) pmt;
     hr = CheckMediaType(pcmt);
     if (hr != NOERROR) {
         // no -we don't support this media type
 
         // Since the procedure is already returning an error code, there
         // is nothing else this function can do to report the error.
-        EXECUTE_ASSERT( SUCCEEDED( BreakConnect() ) );
+        EXECUTE_ASSERT(SUCCEEDED(BreakConnect()));
 
         // return a specific media type error if there is one
         // or map a general failure code to something more helpful
         // (in particular S_FALSE gets changed to an error code)
         if (SUCCEEDED(hr) ||
-            (hr == E_FAIL) ||
-            (hr == E_INVALIDARG)) {
+                (hr == E_FAIL) ||
+                (hr == E_INVALIDARG)) {
             hr = VFW_E_TYPE_NOT_ACCEPTED;
         }
 
@@ -2052,7 +2050,7 @@ CBasePin::ReceiveConnection(
 
     // Since the procedure is already returning an error code, there
     // is nothing else this function can do to report the error.
-    EXECUTE_ASSERT( SUCCEEDED( BreakConnect() ) );
+    EXECUTE_ASSERT(SUCCEEDED(BreakConnect()));
 
 
     return hr;
@@ -2081,11 +2079,11 @@ CBasePin::DisconnectInternal()
 
     if (m_Connected) {
         HRESULT hr = BreakConnect();
-        if( FAILED( hr ) ) {
+        if (FAILED(hr)) {
 
 
             // There is usually a bug in the program if BreakConnect() fails.
-            DbgBreak( "WARNING: BreakConnect() failed in CBasePin::Disconnect()." );
+            DbgBreak("WARNING: BreakConnect() failed in CBasePin::Disconnect().");
             return hr;
         }
 
@@ -2106,17 +2104,17 @@ CBasePin::DisconnectInternal()
 /* Return an AddRef()'d pointer to the connected pin if there is one */
 STDMETHODIMP
 CBasePin::ConnectedTo(
-    IPin **ppPin
+    IPin** ppPin
 )
 {
-    CheckPointer(ppPin,E_POINTER);
-    ValidateReadWritePtr(ppPin,sizeof(IPin *));
+    CheckPointer(ppPin, E_POINTER);
+    ValidateReadWritePtr(ppPin, sizeof(IPin*));
     //
     //  It's pointless to lock here.
     //  The caller should ensure integrity.
     //
 
-    IPin *pPin = m_Connected;
+    IPin* pPin = m_Connected;
     *ppPin = pPin;
     if (pPin != NULL) {
         pPin->AddRef();
@@ -2130,19 +2128,19 @@ CBasePin::ConnectedTo(
 /* Return the media type of the connection */
 STDMETHODIMP
 CBasePin::ConnectionMediaType(
-    AM_MEDIA_TYPE *pmt
+    AM_MEDIA_TYPE* pmt
 )
 {
-    CheckPointer(pmt,E_POINTER);
-    ValidateReadWritePtr(pmt,sizeof(AM_MEDIA_TYPE));
+    CheckPointer(pmt, E_POINTER);
+    ValidateReadWritePtr(pmt, sizeof(AM_MEDIA_TYPE));
     CAutoLock cObjectLock(m_pLock);
 
     /*  Copy constructor of m_mt allocates the memory */
     if (IsConnected()) {
-        CopyMediaType( pmt, &m_mt );
+        CopyMediaType(pmt, &m_mt);
         return S_OK;
     } else {
-        ((CMediaType *)pmt)->InitMediaType();
+        ((CMediaType*)pmt)->InitMediaType();
         return VFW_E_NOT_CONNECTED;
     }
 }
@@ -2151,11 +2149,11 @@ CBasePin::ConnectionMediaType(
 
 STDMETHODIMP
 CBasePin::QueryPinInfo(
-    PIN_INFO * pInfo
+    PIN_INFO* pInfo
 )
 {
-    CheckPointer(pInfo,E_POINTER);
-    ValidateReadWritePtr(pInfo,sizeof(PIN_INFO));
+    CheckPointer(pInfo, E_POINTER);
+    ValidateReadWritePtr(pInfo, sizeof(PIN_INFO));
 
     pInfo->pFilter = m_pFilter;
     if (m_pFilter) {
@@ -2163,7 +2161,7 @@ CBasePin::QueryPinInfo(
     }
 
     if (m_pName) {
-        lstrcpynW(pInfo->achName, m_pName, sizeof(pInfo->achName)/sizeof(WCHAR));
+        lstrcpynW(pInfo->achName, m_pName, sizeof(pInfo->achName) / sizeof(WCHAR));
     } else {
         pInfo->achName[0] = L'\0';
     }
@@ -2175,11 +2173,11 @@ CBasePin::QueryPinInfo(
 
 STDMETHODIMP
 CBasePin::QueryDirection(
-    PIN_DIRECTION * pPinDir
+    PIN_DIRECTION* pPinDir
 )
 {
-    CheckPointer(pPinDir,E_POINTER);
-    ValidateReadWritePtr(pPinDir,sizeof(PIN_DIRECTION));
+    CheckPointer(pPinDir, E_POINTER);
+    ValidateReadWritePtr(pPinDir, sizeof(PIN_DIRECTION));
 
     *pPinDir = m_dir;
     return NOERROR;
@@ -2188,7 +2186,7 @@ CBasePin::QueryDirection(
 // Default QueryId to return the pin's name
 STDMETHODIMP
 CBasePin::QueryId(
-    LPWSTR * Id
+    LPWSTR* Id
 )
 {
     //  We're not going away because someone's got a pointer to us
@@ -2204,11 +2202,11 @@ CBasePin::QueryId(
 
 STDMETHODIMP
 CBasePin::QueryAccept(
-    const AM_MEDIA_TYPE *pmt
+    const AM_MEDIA_TYPE* pmt
 )
 {
-    CheckPointer(pmt,E_POINTER);
-    ValidateReadPtr(pmt,sizeof(AM_MEDIA_TYPE));
+    CheckPointer(pmt, E_POINTER);
+    ValidateReadPtr(pmt, sizeof(AM_MEDIA_TYPE));
 
     /* The CheckMediaType method is valid to return error codes if the media
        type is horrible, an example might be E_INVALIDARG. What we do here
@@ -2232,16 +2230,16 @@ CBasePin::QueryAccept(
 
 STDMETHODIMP
 CBasePin::EnumMediaTypes(
-    IEnumMediaTypes **ppEnum
+    IEnumMediaTypes** ppEnum
 )
 {
-    CheckPointer(ppEnum,E_POINTER);
-    ValidateReadWritePtr(ppEnum,sizeof(IEnumMediaTypes *));
+    CheckPointer(ppEnum, E_POINTER);
+    ValidateReadWritePtr(ppEnum, sizeof(IEnumMediaTypes*));
 
     /* Create a new ref counted enumerator */
 
     *ppEnum = new CEnumMediaTypes(this,
-                              NULL);
+                                  NULL);
 
     if (*ppEnum == NULL) {
         return E_OUTOFMEMORY;
@@ -2256,7 +2254,7 @@ CBasePin::EnumMediaTypes(
    place iPosition in the list. This base class simply returns an error as
    we support no media types by default but derived classes should override */
 
-HRESULT CBasePin::GetMediaType(int iPosition, CMediaType *pMediaType)
+HRESULT CBasePin::GetMediaType(int iPosition, CMediaType* pMediaType)
 {
     UNREFERENCED_PARAMETER(iPosition);
     UNREFERENCED_PARAMETER(pMediaType);
@@ -2329,17 +2327,17 @@ CBasePin::EndOfStream(void)
 
 
 STDMETHODIMP
-CBasePin::SetSink(IQualityControl * piqc)
+CBasePin::SetSink(IQualityControl* piqc)
 {
     CAutoLock cObjectLock(m_pLock);
-    if (piqc) ValidateReadPtr(piqc,sizeof(IQualityControl));
+    if (piqc) { ValidateReadPtr(piqc, sizeof(IQualityControl)); }
     m_pQSink = piqc;
     return NOERROR;
 } // SetSink
 
 
 STDMETHODIMP
-CBasePin::Notify(IBaseFilter * pSender, Quality q)
+CBasePin::Notify(IBaseFilter* pSender, Quality q)
 {
     UNREFERENCED_PARAMETER(q);
     UNREFERENCED_PARAMETER(pSender);
@@ -2354,9 +2352,9 @@ CBasePin::Notify(IBaseFilter * pSender, Quality q)
 // Override this to pass downstream.
 STDMETHODIMP
 CBasePin::NewSegment(
-                REFERENCE_TIME tStart,
-                REFERENCE_TIME tStop,
-                double dRate)
+    REFERENCE_TIME tStart,
+    REFERENCE_TIME tStop,
+    double dRate)
 {
     m_tStart = tStart;
     m_tStop = tStop;
@@ -2373,11 +2371,11 @@ CBasePin::NewSegment(
 //=====================================================================
 
 
-CBaseOutputPin::CBaseOutputPin(TCHAR *pObjectName,
-                   CBaseFilter *pFilter,
-                   CCritSec *pLock,
-                   HRESULT *phr,
-                   LPCWSTR pName) :
+CBaseOutputPin::CBaseOutputPin(TCHAR* pObjectName,
+                               CBaseFilter* pFilter,
+                               CCritSec* pLock,
+                               HRESULT* phr,
+                               LPCWSTR pName) :
     CBasePin(pObjectName, pFilter, pLock, phr, pName, PINDIR_OUTPUT),
     m_pAllocator(NULL),
     m_pInputPin(NULL)
@@ -2386,11 +2384,11 @@ CBaseOutputPin::CBaseOutputPin(TCHAR *pObjectName,
 }
 
 #ifdef UNICODE
-CBaseOutputPin::CBaseOutputPin(CHAR *pObjectName,
-                   CBaseFilter *pFilter,
-                   CCritSec *pLock,
-                   HRESULT *phr,
-                   LPCWSTR pName) :
+CBaseOutputPin::CBaseOutputPin(CHAR* pObjectName,
+                               CBaseFilter* pFilter,
+                               CCritSec* pLock,
+                               HRESULT* phr,
+                               LPCWSTR pName) :
     CBasePin(pObjectName, pFilter, pLock, phr, pName, PINDIR_OUTPUT),
     m_pAllocator(NULL),
     m_pInputPin(NULL)
@@ -2404,7 +2402,7 @@ CBaseOutputPin::CBaseOutputPin(CHAR *pObjectName,
      Try to complete the connection by agreeing the allocator
 */
 HRESULT
-CBaseOutputPin::CompleteConnect(IPin *pReceivePin)
+CBaseOutputPin::CompleteConnect(IPin* pReceivePin)
 {
     UNREFERENCED_PARAMETER(pReceivePin);
     return DecideAllocator(m_pInputPin, &m_pAllocator);
@@ -2422,15 +2420,15 @@ CBaseOutputPin::CompleteConnect(IPin *pReceivePin)
 /* Overriden from CBasePin */
 
 HRESULT
-CBaseOutputPin::CheckConnect(IPin * pPin)
+CBaseOutputPin::CheckConnect(IPin* pPin)
 {
     HRESULT hr = CBasePin::CheckConnect(pPin);
     if (FAILED(hr)) {
-    return hr;
+        return hr;
     }
 
     // get an input pin and an allocator interface
-    hr = pPin->QueryInterface(IID_IMemInputPin, (void **) &m_pInputPin);
+    hr = pPin->QueryInterface(IID_IMemInputPin, (void**) &m_pInputPin);
     if (FAILED(hr)) {
         return hr;
     }
@@ -2450,7 +2448,7 @@ CBaseOutputPin::BreakConnect()
         // may not decommit the connection's allocator.  A memory leak could
         // occur if the allocator is not decommited when a connection is broken.
         HRESULT hr = m_pAllocator->Decommit();
-        if( FAILED( hr ) ) {
+        if (FAILED(hr)) {
             return hr;
         }
 
@@ -2471,7 +2469,7 @@ CBaseOutputPin::BreakConnect()
 /* This is called when the input pin didn't give us a valid allocator */
 
 HRESULT
-CBaseOutputPin::InitAllocator(IMemAllocator **ppAlloc)
+CBaseOutputPin::InitAllocator(IMemAllocator** ppAlloc)
 {
     return CreateMemoryAllocator(ppAlloc);
 }
@@ -2491,7 +2489,7 @@ CBaseOutputPin::InitAllocator(IMemAllocator **ppAlloc)
 // use the downstream pin's alignment request).
 
 HRESULT
-CBaseOutputPin::DecideAllocator(IMemInputPin *pPin, IMemAllocator **ppAlloc)
+CBaseOutputPin::DecideAllocator(IMemInputPin* pPin, IMemAllocator** ppAlloc)
 {
     HRESULT hr = NOERROR;
     *ppAlloc = NULL;
@@ -2564,13 +2562,13 @@ CBaseOutputPin::DecideAllocator(IMemInputPin *pPin, IMemAllocator **ppAlloc)
    dangers and restrictions apply here as described below for Deliver() */
 
 HRESULT
-CBaseOutputPin::GetDeliveryBuffer(IMediaSample ** ppSample,
-                                  REFERENCE_TIME * pStartTime,
-                                  REFERENCE_TIME * pEndTime,
+CBaseOutputPin::GetDeliveryBuffer(IMediaSample** ppSample,
+                                  REFERENCE_TIME* pStartTime,
+                                  REFERENCE_TIME* pEndTime,
                                   DWORD dwFlags)
 {
     if (m_pAllocator != NULL) {
-        return m_pAllocator->GetBuffer(ppSample,pStartTime,pEndTime,dwFlags);
+        return m_pAllocator->GetBuffer(ppSample, pStartTime, pEndTime, dwFlags);
     } else {
         return E_NOINTERFACE;
     }
@@ -2601,7 +2599,7 @@ CBaseOutputPin::GetDeliveryBuffer(IMediaSample ** ppSample,
 // next. You cannot reuse it directly.
 
 HRESULT
-CBaseOutputPin::Deliver(IMediaSample * pSample)
+CBaseOutputPin::Deliver(IMediaSample* pSample)
 {
     if (m_pInputPin == NULL) {
         return VFW_E_NOT_CONNECTED;
@@ -2718,11 +2716,11 @@ CBaseOutputPin::DeliverNewSegment(
 
 /* Constructor creates a default allocator object */
 
-CBaseInputPin::CBaseInputPin(TCHAR *pObjectName,
-                 CBaseFilter *pFilter,
-                 CCritSec *pLock,
-                 HRESULT *phr,
-                 LPCWSTR pPinName) :
+CBaseInputPin::CBaseInputPin(TCHAR* pObjectName,
+                             CBaseFilter* pFilter,
+                             CCritSec* pLock,
+                             HRESULT* phr,
+                             LPCWSTR pPinName) :
     CBasePin(pObjectName, pFilter, pLock, phr, pPinName, PINDIR_INPUT),
     m_pAllocator(NULL),
     m_bReadOnly(FALSE),
@@ -2732,11 +2730,11 @@ CBaseInputPin::CBaseInputPin(TCHAR *pObjectName,
 }
 
 #ifdef UNICODE
-CBaseInputPin::CBaseInputPin(CHAR *pObjectName,
-                 CBaseFilter *pFilter,
-                 CCritSec *pLock,
-                 HRESULT *phr,
-                 LPCWSTR pPinName) :
+CBaseInputPin::CBaseInputPin(CHAR* pObjectName,
+                             CBaseFilter* pFilter,
+                             CCritSec* pLock,
+                             HRESULT* phr,
+                             LPCWSTR pPinName) :
     CBasePin(pObjectName, pFilter, pLock, phr, pPinName, PINDIR_INPUT),
     m_pAllocator(NULL),
     m_bReadOnly(FALSE),
@@ -2751,20 +2749,20 @@ CBaseInputPin::CBaseInputPin(CHAR *pObjectName,
 CBaseInputPin::~CBaseInputPin()
 {
     if (m_pAllocator != NULL) {
-    m_pAllocator->Release();
-    m_pAllocator = NULL;
+        m_pAllocator->Release();
+        m_pAllocator = NULL;
     }
 }
 
 
 // override this to publicise our interfaces
 STDMETHODIMP
-CBaseInputPin::NonDelegatingQueryInterface(REFIID riid, void **ppv)
+CBaseInputPin::NonDelegatingQueryInterface(REFIID riid, void** ppv)
 {
     /* Do we know about this interface */
 
     if (riid == IID_IMemInputPin) {
-        return GetInterface((IMemInputPin *) this, ppv);
+        return GetInterface((IMemInputPin*) this, ppv);
     } else {
         return CBasePin::NonDelegatingQueryInterface(riid, ppv);
     }
@@ -2784,10 +2782,10 @@ CBaseInputPin::NonDelegatingQueryInterface(REFIID riid, void **ppv)
 
 STDMETHODIMP
 CBaseInputPin::GetAllocator(
-    IMemAllocator **ppAllocator)
+    IMemAllocator** ppAllocator)
 {
-    CheckPointer(ppAllocator,E_POINTER);
-    ValidateReadWritePtr(ppAllocator,sizeof(IMemAllocator *));
+    CheckPointer(ppAllocator, E_POINTER);
+    ValidateReadWritePtr(ppAllocator, sizeof(IMemAllocator*));
     CAutoLock cObjectLock(m_pLock);
 
     if (m_pAllocator == NULL) {
@@ -2810,14 +2808,14 @@ CBaseInputPin::GetAllocator(
 
 STDMETHODIMP
 CBaseInputPin::NotifyAllocator(
-    IMemAllocator * pAllocator,
+    IMemAllocator* pAllocator,
     BOOL bReadOnly)
 {
-    CheckPointer(pAllocator,E_POINTER);
-    ValidateReadPtr(pAllocator,sizeof(IMemAllocator));
+    CheckPointer(pAllocator, E_POINTER);
+    ValidateReadPtr(pAllocator, sizeof(IMemAllocator));
     CAutoLock cObjectLock(m_pLock);
 
-    IMemAllocator *pOldAllocator = m_pAllocator;
+    IMemAllocator* pOldAllocator = m_pAllocator;
     pAllocator->AddRef();
     m_pAllocator = pAllocator;
 
@@ -2842,7 +2840,7 @@ CBaseInputPin::BreakConnect()
         // may not decommit the connection's allocator.  A memory leak could
         // occur if the allocator is not decommited when a pin is disconnected.
         HRESULT hr = m_pAllocator->Decommit();
-        if( FAILED( hr ) ) {
+        if (FAILED(hr)) {
             return hr;
         }
 
@@ -2865,10 +2863,10 @@ CBaseInputPin::BreakConnect()
 */
 
 STDMETHODIMP
-CBaseInputPin::Receive(IMediaSample *pSample)
+CBaseInputPin::Receive(IMediaSample* pSample)
 {
-    CheckPointer(pSample,E_POINTER);
-    ValidateReadPtr(pSample,sizeof(IMediaSample));
+    CheckPointer(pSample, E_POINTER);
+    ValidateReadPtr(pSample, sizeof(IMediaSample));
     ASSERT(pSample);
 
     HRESULT hr = CheckStreaming();
@@ -2879,8 +2877,8 @@ CBaseInputPin::Receive(IMediaSample *pSample)
 
 
     /* Check for IMediaSample2 */
-    IMediaSample2 *pSample2;
-    if (SUCCEEDED(pSample->QueryInterface(IID_IMediaSample2, (void **)&pSample2))) {
+    IMediaSample2* pSample2;
+    if (SUCCEEDED(pSample->QueryInterface(IID_IMediaSample2, (void**)&pSample2))) {
         hr = pSample2->GetProperties(sizeof(m_SampleProps), (PBYTE)&m_SampleProps);
         pSample2->Release();
         if (FAILED(hr)) {
@@ -2923,7 +2921,7 @@ CBaseInputPin::Receive(IMediaSample *pSample)
     /* Check the derived class accepts this format */
     /* This shouldn't fail as the source must call QueryAccept first */
 
-    hr = CheckMediaType((CMediaType *)m_SampleProps.pMediaType);
+    hr = CheckMediaType((CMediaType*)m_SampleProps.pMediaType);
 
     if (hr == NOERROR) {
         return NOERROR;
@@ -2933,31 +2931,31 @@ CBaseInputPin::Receive(IMediaSample *pSample)
 
     m_bRunTimeError = TRUE;
     EndOfStream();
-    m_pFilter->NotifyEvent(EC_ERRORABORT,VFW_E_TYPE_NOT_ACCEPTED,0);
+    m_pFilter->NotifyEvent(EC_ERRORABORT, VFW_E_TYPE_NOT_ACCEPTED, 0);
     return VFW_E_INVALIDMEDIATYPE;
 }
 
 
 /*  Receive multiple samples */
 STDMETHODIMP
-CBaseInputPin::ReceiveMultiple (
-    IMediaSample **pSamples,
+CBaseInputPin::ReceiveMultiple(
+    IMediaSample** pSamples,
     long nSamples,
-    long *nSamplesProcessed)
+    long* nSamplesProcessed)
 {
-    CheckPointer(pSamples,E_POINTER);
-    ValidateReadPtr(pSamples,nSamples * sizeof(IMediaSample *));
+    CheckPointer(pSamples, E_POINTER);
+    ValidateReadPtr(pSamples, nSamples * sizeof(IMediaSample*));
 
     HRESULT hr = S_OK;
     *nSamplesProcessed = 0;
     while (nSamples-- > 0) {
-         hr = Receive(pSamples[*nSamplesProcessed]);
+        hr = Receive(pSamples[*nSamplesProcessed]);
 
-         /*  S_FALSE means don't send any more */
-         if (hr != S_OK) {
-             break;
-         }
-         (*nSamplesProcessed)++;
+        /*  S_FALSE means don't send any more */
+        if (hr != S_OK) {
+            break;
+        }
+        (*nSamplesProcessed)++;
     }
     return hr;
 }
@@ -2972,7 +2970,7 @@ CBaseInputPin::ReceiveCanBlock()
     int cPins = m_pFilter->GetPinCount();
     int cOutputPins = 0;
     for (int c = 0; c < cPins; c++) {
-        CBasePin *pPin = m_pFilter->GetPin(c);
+        CBasePin* pPin = m_pFilter->GetPin(c);
         PIN_DIRECTION pd;
         HRESULT hr = pPin->QueryDirection(&pd);
         if (FAILED(hr)) {
@@ -2981,15 +2979,15 @@ CBaseInputPin::ReceiveCanBlock()
 
         if (pd == PINDIR_OUTPUT) {
 
-            IPin *pConnected;
+            IPin* pConnected;
             hr = pPin->ConnectedTo(&pConnected);
             if (SUCCEEDED(hr)) {
                 ASSERT(pConnected != NULL);
                 cOutputPins++;
-                IMemInputPin *pInputPin;
+                IMemInputPin* pInputPin;
                 hr = pConnected->QueryInterface(
-                                              IID_IMemInputPin,
-                                              (void **)&pInputPin);
+                         IID_IMemInputPin,
+                         (void**)&pInputPin);
                 pConnected->Release();
                 if (SUCCEEDED(hr)) {
                     hr = pInputPin->ReceiveCanBlock();
@@ -3060,11 +3058,11 @@ CBaseInputPin::EndFlush(void)
 
 
 STDMETHODIMP
-CBaseInputPin::Notify(IBaseFilter * pSender, Quality q)
+CBaseInputPin::Notify(IBaseFilter* pSender, Quality q)
 {
     UNREFERENCED_PARAMETER(q);
-    CheckPointer(pSender,E_POINTER);
-    ValidateReadPtr(pSender,sizeof(IBaseFilter));
+    CheckPointer(pSender, E_POINTER);
+    ValidateReadPtr(pSender, sizeof(IBaseFilter));
     DbgBreak("IQuality::Notify called on an input pin");
     return NOERROR;
 } // Notify
@@ -3089,7 +3087,7 @@ CBaseInputPin::Inactive(void)
 // to support other people's allocators but need a specific alignment
 // or prefix.
 STDMETHODIMP
-CBaseInputPin::GetAllocatorRequirements(ALLOCATOR_PROPERTIES*pProps)
+CBaseInputPin::GetAllocatorRequirements(ALLOCATOR_PROPERTIES* pProps)
 {
     UNREFERENCED_PARAMETER(pProps);
     return E_NOTIMPL;
@@ -3126,19 +3124,19 @@ CBaseInputPin::PassNotify(Quality& q)
     // We pass the message on, which means that we find the quality sink
     // for our input pin and send it there
 
-    DbgLog((LOG_TRACE,3,TEXT("Passing Quality notification through transform")));
-    if (m_pQSink!=NULL) {
+    DbgLog((LOG_TRACE, 3, TEXT("Passing Quality notification through transform")));
+    if (m_pQSink != NULL) {
         return m_pQSink->Notify(m_pFilter, q);
     } else {
         // no sink set, so pass it upstream
         HRESULT hr;
-        IQualityControl * pIQC;
+        IQualityControl* pIQC;
 
         hr = VFW_E_NOT_FOUND;                   // default
         if (m_Connected) {
             m_Connected->QueryInterface(IID_IQualityControl, (void**)&pIQC);
 
-            if (pIQC!=NULL) {
+            if (pIQC != NULL) {
                 hr = pIQC->Notify(m_pFilter, q);
                 pIQC->Release();
             }
@@ -3166,11 +3164,11 @@ CBaseInputPin::PassNotify(Quality& q)
 
 /* The last two parameters have default values of NULL and zero */
 
-CMediaSample::CMediaSample(TCHAR *pName,
-               CBaseAllocator *pAllocator,
-               HRESULT *phr,
-               LPBYTE pBuffer,
-               LONG length) :
+CMediaSample::CMediaSample(TCHAR* pName,
+                           CBaseAllocator* pAllocator,
+                           HRESULT* phr,
+                           LPBYTE pBuffer,
+                           LONG length) :
     m_pBuffer(pBuffer),             // Initialise the buffer
     m_cbBuffer(length),             // And it's length
     m_lActual(length),              // By default, actual = length
@@ -3189,11 +3187,11 @@ CMediaSample::CMediaSample(TCHAR *pName,
 }
 
 #ifdef UNICODE
-CMediaSample::CMediaSample(CHAR *pName,
-               CBaseAllocator *pAllocator,
-               HRESULT *phr,
-               LPBYTE pBuffer,
-               LONG length) :
+CMediaSample::CMediaSample(CHAR* pName,
+                           CBaseAllocator* pAllocator,
+                           HRESULT* phr,
+                           LPBYTE pBuffer,
+                           LONG length) :
     m_pBuffer(pBuffer),             // Initialise the buffer
     m_cbBuffer(length),             // And it's length
     m_lActual(length),              // By default, actual = length
@@ -3218,19 +3216,19 @@ CMediaSample::~CMediaSample()
 {
 
     if (m_pMediaType) {
-    DeleteMediaType(m_pMediaType);
+        DeleteMediaType(m_pMediaType);
     }
 }
 
 /* Override this to publicise our interfaces */
 
 STDMETHODIMP
-CMediaSample::QueryInterface(REFIID riid, void **ppv)
+CMediaSample::QueryInterface(REFIID riid, void** ppv)
 {
     if (riid == IID_IMediaSample ||
-        riid == IID_IMediaSample2 ||
-        riid == IID_IUnknown) {
-        return GetInterface((IMediaSample *) this, ppv);
+            riid == IID_IMediaSample2 ||
+            riid == IID_IUnknown) {
+        return GetInterface((IMediaSample*) this, ppv);
     } else {
         return E_NOINTERFACE;
     }
@@ -3273,8 +3271,8 @@ CMediaSample::Release()
     }
     ASSERT(lRef >= 0);
 
-    DbgLog((LOG_MEMORY,3,TEXT("    Unknown %X ref-- = %d"),
-        this, m_cRef));
+    DbgLog((LOG_MEMORY, 3, TEXT("    Unknown %X ref-- = %d"),
+            this, m_cRef));
 
     /* Did we release our final reference count */
     if (lRef == 0) {
@@ -3300,7 +3298,7 @@ CMediaSample::Release()
 // This is only available through a CMediaSample* not an IMediaSample*
 // and so cannot be changed by clients.
 HRESULT
-CMediaSample::SetPointer(BYTE * ptr, LONG cBytes)
+CMediaSample::SetPointer(BYTE* ptr, LONG cBytes)
 {
     m_pBuffer = ptr;            // new buffer area (could be null)
     m_cbBuffer = cBytes;        // length of buffer
@@ -3313,9 +3311,9 @@ CMediaSample::SetPointer(BYTE * ptr, LONG cBytes)
 // get me a read/write pointer to this buffer's memory. I will actually
 // want to use sizeUsed bytes.
 STDMETHODIMP
-CMediaSample::GetPointer(BYTE ** ppBuffer)
+CMediaSample::GetPointer(BYTE** ppBuffer)
 {
-    ValidateReadWritePtr(ppBuffer,sizeof(BYTE *));
+    ValidateReadWritePtr(ppBuffer, sizeof(BYTE*));
 
     // creator must have set pointer either during
     // constructor or by SetPointer
@@ -3337,12 +3335,12 @@ CMediaSample::GetSize(void)
 // get the stream time at which this sample should start and finish.
 STDMETHODIMP
 CMediaSample::GetTime(
-    REFERENCE_TIME * pTimeStart,     // put time here
-    REFERENCE_TIME * pTimeEnd
+    REFERENCE_TIME* pTimeStart,      // put time here
+    REFERENCE_TIME* pTimeEnd
 )
 {
-    ValidateReadWritePtr(pTimeStart,sizeof(REFERENCE_TIME));
-    ValidateReadWritePtr(pTimeEnd,sizeof(REFERENCE_TIME));
+    ValidateReadWritePtr(pTimeStart, sizeof(REFERENCE_TIME));
+    ValidateReadWritePtr(pTimeEnd, sizeof(REFERENCE_TIME));
 
     if (!(m_dwFlags & Sample_StopValid)) {
         if (!(m_dwFlags & Sample_TimeValid)) {
@@ -3366,8 +3364,8 @@ CMediaSample::GetTime(
 // NULL pointers means the time is reset
 STDMETHODIMP
 CMediaSample::SetTime(
-    REFERENCE_TIME * pTimeStart,
-    REFERENCE_TIME * pTimeEnd
+    REFERENCE_TIME* pTimeStart,
+    REFERENCE_TIME* pTimeEnd
 )
 {
     if (pTimeStart == NULL) {
@@ -3379,8 +3377,8 @@ CMediaSample::SetTime(
             m_dwFlags |= Sample_TimeValid;
             m_dwFlags &= ~Sample_StopValid;
         } else {
-            ValidateReadPtr(pTimeStart,sizeof(REFERENCE_TIME));
-            ValidateReadPtr(pTimeEnd,sizeof(REFERENCE_TIME));
+            ValidateReadPtr(pTimeStart, sizeof(REFERENCE_TIME));
+            ValidateReadPtr(pTimeEnd, sizeof(REFERENCE_TIME));
             ASSERT(*pTimeEnd >= *pTimeStart);
 
             m_Start = *pTimeStart;
@@ -3395,12 +3393,12 @@ CMediaSample::SetTime(
 // get the media times (eg bytes) for this sample
 STDMETHODIMP
 CMediaSample::GetMediaTime(
-    LONGLONG * pTimeStart,
-    LONGLONG * pTimeEnd
+    LONGLONG* pTimeStart,
+    LONGLONG* pTimeEnd
 )
 {
-    ValidateReadWritePtr(pTimeStart,sizeof(LONGLONG));
-    ValidateReadWritePtr(pTimeEnd,sizeof(LONGLONG));
+    ValidateReadWritePtr(pTimeStart, sizeof(LONGLONG));
+    ValidateReadWritePtr(pTimeEnd, sizeof(LONGLONG));
 
     if (!(m_dwFlags & Sample_MediaTimeValid)) {
         return VFW_E_MEDIA_TIME_NOT_SET;
@@ -3415,16 +3413,16 @@ CMediaSample::GetMediaTime(
 // Set the media times for this sample
 STDMETHODIMP
 CMediaSample::SetMediaTime(
-    LONGLONG * pTimeStart,
-    LONGLONG * pTimeEnd
+    LONGLONG* pTimeStart,
+    LONGLONG* pTimeEnd
 )
 {
     if (pTimeStart == NULL) {
         ASSERT(pTimeEnd == NULL);
         m_dwFlags &= ~Sample_MediaTimeValid;
     } else {
-        ValidateReadPtr(pTimeStart,sizeof(LONGLONG));
-        ValidateReadPtr(pTimeEnd,sizeof(LONGLONG));
+        ValidateReadPtr(pTimeStart, sizeof(LONGLONG));
+        ValidateReadPtr(pTimeEnd, sizeof(LONGLONG));
         ASSERT(*pTimeEnd >= *pTimeStart);
 
         m_MediaStart = *pTimeStart;
@@ -3528,9 +3526,9 @@ CMediaSample::SetActualDataLength(LONG lActual)
 /* These allow for limited format changes in band */
 
 STDMETHODIMP
-CMediaSample::GetMediaType(AM_MEDIA_TYPE **ppMediaType)
+CMediaSample::GetMediaType(AM_MEDIA_TYPE** ppMediaType)
 {
-    ValidateReadWritePtr(ppMediaType,sizeof(AM_MEDIA_TYPE *));
+    ValidateReadWritePtr(ppMediaType, sizeof(AM_MEDIA_TYPE*));
     ASSERT(ppMediaType);
 
     /* Do we have a new media type for them */
@@ -3556,7 +3554,7 @@ CMediaSample::GetMediaType(AM_MEDIA_TYPE **ppMediaType)
 /* Mark this sample as having a different format type */
 
 STDMETHODIMP
-CMediaSample::SetMediaType(AM_MEDIA_TYPE *pMediaType)
+CMediaSample::SetMediaType(AM_MEDIA_TYPE* pMediaType)
 {
     /* Delete the current media type */
 
@@ -3573,7 +3571,7 @@ CMediaSample::SetMediaType(AM_MEDIA_TYPE *pMediaType)
     }
 
     ASSERT(pMediaType);
-    ValidateReadPtr(pMediaType,sizeof(AM_MEDIA_TYPE));
+    ValidateReadPtr(pMediaType, sizeof(AM_MEDIA_TYPE));
 
     /* Take a copy of the media type */
 
@@ -3590,14 +3588,14 @@ CMediaSample::SetMediaType(AM_MEDIA_TYPE *pMediaType)
 // Set and get properties (IMediaSample2)
 STDMETHODIMP CMediaSample::GetProperties(
     DWORD cbProperties,
-    BYTE * pbProperties
+    BYTE* pbProperties
 )
 {
     if (0 != cbProperties) {
         CheckPointer(pbProperties, E_POINTER);
         //  Return generic stuff up to the length
         AM_SAMPLE2_PROPERTIES Props;
-        Props.cbData     = (DWORD) (min(cbProperties, sizeof(Props)));
+        Props.cbData     = (DWORD)(min(cbProperties, sizeof(Props)));
         Props.dwSampleFlags = m_dwFlags & ~Sample_MediaTimeValid;
         Props.dwTypeSpecificFlags = m_dwTypeSpecificFlags;
         Props.pbBuffer   = m_pBuffer;
@@ -3621,17 +3619,17 @@ STDMETHODIMP CMediaSample::GetProperties(
 
 HRESULT CMediaSample::SetProperties(
     DWORD cbProperties,
-    const BYTE * pbProperties
+    const BYTE* pbProperties
 )
 {
 
     /*  Generic properties */
-    AM_MEDIA_TYPE *pMediaType = NULL;
+    AM_MEDIA_TYPE* pMediaType = NULL;
 
     if (CONTAINS_FIELD(AM_SAMPLE2_PROPERTIES, cbData, cbProperties)) {
         CheckPointer(pbProperties, E_POINTER);
-        AM_SAMPLE2_PROPERTIES *pProps =
-            (AM_SAMPLE2_PROPERTIES *)pbProperties;
+        AM_SAMPLE2_PROPERTIES* pProps =
+            (AM_SAMPLE2_PROPERTIES*)pbProperties;
 
         /*  Don't use more data than is actually there */
         if (pProps->cbData < cbProperties) {
@@ -3639,7 +3637,7 @@ HRESULT CMediaSample::SetProperties(
         }
         /*  We only handle IMediaSample2 */
         if (cbProperties > sizeof(*pProps) ||
-            pProps->cbData > sizeof(*pProps)) {
+                pProps->cbData > sizeof(*pProps)) {
             return E_INVALIDARG;
         }
         /*  Do checks first, the assignments (for backout) */
@@ -3653,9 +3651,9 @@ HRESULT CMediaSample::SetProperties(
                 not being provided
             */
             if ((pProps->dwSampleFlags & AM_SAMPLE_TIMEVALID) &&
-                 !(m_dwFlags & AM_SAMPLE_TIMEVALID) &&
-                 !CONTAINS_FIELD(AM_SAMPLE2_PROPERTIES, tStop, cbProperties)) {
-                 return E_INVALIDARG;
+                    !(m_dwFlags & AM_SAMPLE_TIMEVALID) &&
+                    !CONTAINS_FIELD(AM_SAMPLE2_PROPERTIES, tStop, cbProperties)) {
+                return E_INVALIDARG;
             }
         }
         /*  NB - can't SET the pointer or size */
@@ -3674,7 +3672,7 @@ HRESULT CMediaSample::SetProperties(
             }
         }
         if (CONTAINS_FIELD(AM_SAMPLE2_PROPERTIES, cbBuffer, cbProperties) &&
-            CONTAINS_FIELD(AM_SAMPLE2_PROPERTIES, lActual, cbProperties)) {
+                CONTAINS_FIELD(AM_SAMPLE2_PROPERTIES, lActual, cbProperties)) {
 
             /*  Check lActual */
             if (pProps->cbBuffer < pProps->lActual) {
@@ -3701,7 +3699,7 @@ HRESULT CMediaSample::SetProperties(
         if (CONTAINS_FIELD(AM_SAMPLE2_PROPERTIES, dwSampleFlags, cbProperties)) {
             /*  Set the flags */
             m_dwFlags = pProps->dwSampleFlags |
-                                (m_dwFlags & Sample_MediaTimeValid);
+                        (m_dwFlags & Sample_MediaTimeValid);
             m_dwTypeSpecificFlags = pProps->dwTypeSpecificFlags;
         } else {
             if (CONTAINS_FIELD(AM_SAMPLE2_PROPERTIES, dwTypeSpecificFlags, cbProperties)) {
@@ -3773,23 +3771,23 @@ HRESULT CMediaSample::SetProperties(
 //
 
 CDynamicOutputPin::CDynamicOutputPin(
-    TCHAR *pObjectName,
-    CBaseFilter *pFilter,
-    CCritSec *pLock,
-    HRESULT *phr,
+    TCHAR* pObjectName,
+    CBaseFilter* pFilter,
+    CCritSec* pLock,
+    HRESULT* phr,
     LPCWSTR pName) :
-        CBaseOutputPin(pObjectName, pFilter, pLock, phr, pName),
-        m_hStopEvent(NULL),
-        m_pGraphConfig(NULL),
-        m_bPinUsesReadOnlyAllocator(FALSE),
-        m_BlockState(NOT_BLOCKED),
-        m_hUnblockOutputPinEvent(NULL),
-        m_hNotifyCallerPinBlockedEvent(NULL),
-        m_dwBlockCallerThreadID(0),
-        m_dwNumOutstandingOutputPinUsers(0)
+    CBaseOutputPin(pObjectName, pFilter, pLock, phr, pName),
+    m_hStopEvent(NULL),
+    m_pGraphConfig(NULL),
+    m_bPinUsesReadOnlyAllocator(FALSE),
+    m_BlockState(NOT_BLOCKED),
+    m_hUnblockOutputPinEvent(NULL),
+    m_hNotifyCallerPinBlockedEvent(NULL),
+    m_dwBlockCallerThreadID(0),
+    m_dwNumOutstandingOutputPinUsers(0)
 {
     HRESULT hr = Initialize();
-    if( FAILED( hr ) ) {
+    if (FAILED(hr)) {
         *phr = hr;
         return;
     }
@@ -3797,23 +3795,23 @@ CDynamicOutputPin::CDynamicOutputPin(
 
 #ifdef UNICODE
 CDynamicOutputPin::CDynamicOutputPin(
-    CHAR *pObjectName,
-    CBaseFilter *pFilter,
-    CCritSec *pLock,
-    HRESULT *phr,
+    CHAR* pObjectName,
+    CBaseFilter* pFilter,
+    CCritSec* pLock,
+    HRESULT* phr,
     LPCWSTR pName) :
-        CBaseOutputPin(pObjectName, pFilter, pLock, phr, pName),
-        m_hStopEvent(NULL),
-        m_pGraphConfig(NULL),
-        m_bPinUsesReadOnlyAllocator(FALSE),
-        m_BlockState(NOT_BLOCKED),
-        m_hUnblockOutputPinEvent(NULL),
-        m_hNotifyCallerPinBlockedEvent(NULL),
-        m_dwBlockCallerThreadID(0),
-        m_dwNumOutstandingOutputPinUsers(0)
+    CBaseOutputPin(pObjectName, pFilter, pLock, phr, pName),
+    m_hStopEvent(NULL),
+    m_pGraphConfig(NULL),
+    m_bPinUsesReadOnlyAllocator(FALSE),
+    m_BlockState(NOT_BLOCKED),
+    m_hUnblockOutputPinEvent(NULL),
+    m_hNotifyCallerPinBlockedEvent(NULL),
+    m_dwBlockCallerThreadID(0),
+    m_dwNumOutstandingOutputPinUsers(0)
 {
     HRESULT hr = Initialize();
-    if( FAILED( hr ) ) {
+    if (FAILED(hr)) {
         *phr = hr;
         return;
     }
@@ -3822,13 +3820,13 @@ CDynamicOutputPin::CDynamicOutputPin(
 
 CDynamicOutputPin::~CDynamicOutputPin()
 {
-    if(NULL != m_hUnblockOutputPinEvent) {
+    if (NULL != m_hUnblockOutputPinEvent) {
         // This call should not fail because we have access to m_hUnblockOutputPinEvent
         // and m_hUnblockOutputPinEvent is a valid event.
         EXECUTE_ASSERT(::CloseHandle(m_hUnblockOutputPinEvent));
     }
 
-    if(NULL != m_hNotifyCallerPinBlockedEvent) {
+    if (NULL != m_hNotifyCallerPinBlockedEvent) {
         // This call should not fail because we have access to m_hNotifyCallerPinBlockedEvent
         // and m_hNotifyCallerPinBlockedEvent is a valid event.
         EXECUTE_ASSERT(::CloseHandle(m_hNotifyCallerPinBlockedEvent));
@@ -3837,13 +3835,13 @@ CDynamicOutputPin::~CDynamicOutputPin()
 
 HRESULT CDynamicOutputPin::Initialize(void)
 {
-    m_hUnblockOutputPinEvent = ::CreateEvent( NULL,   // The event will have the default security descriptor.
-                                              TRUE,   // This is a manual reset event.
-                                              TRUE,   // The event is initially signaled.
-                                              NULL ); // The event is not named.
+    m_hUnblockOutputPinEvent = ::CreateEvent(NULL,    // The event will have the default security descriptor.
+                                             TRUE,   // This is a manual reset event.
+                                             TRUE,   // The event is initially signaled.
+                                             NULL);  // The event is not named.
 
     // CreateEvent() returns NULL if an error occurs.
-    if(NULL == m_hUnblockOutputPinEvent) {
+    if (NULL == m_hUnblockOutputPinEvent) {
         return AmGetLastErrorToHResult();
     }
 
@@ -3853,9 +3851,9 @@ HRESULT CDynamicOutputPin::Initialize(void)
     return S_OK;
 }
 
-STDMETHODIMP CDynamicOutputPin::NonDelegatingQueryInterface(REFIID riid, void **ppv)
+STDMETHODIMP CDynamicOutputPin::NonDelegatingQueryInterface(REFIID riid, void** ppv)
 {
-    if(riid == IID_IPinFlowControl) {
+    if (riid == IID_IPinFlowControl) {
         return GetInterface(static_cast<IPinFlowControl*>(this), ppv);
     } else {
         return CBaseOutputPin::NonDelegatingQueryInterface(riid, ppv);
@@ -3873,37 +3871,37 @@ STDMETHODIMP CDynamicOutputPin::Block(DWORD dwBlockFlags, HANDLE hEvent)
     const DWORD VALID_FLAGS = AM_PIN_FLOW_CONTROL_BLOCK;
 
     // Check for illegal flags.
-    if(dwBlockFlags & ~VALID_FLAGS) {
+    if (dwBlockFlags & ~VALID_FLAGS) {
         return E_INVALIDARG;
     }
 
     // Make sure the event is unsignaled.
-    if((dwBlockFlags & AM_PIN_FLOW_CONTROL_BLOCK) && (NULL != hEvent)) {
-        if( !::ResetEvent( hEvent ) ) {
+    if ((dwBlockFlags & AM_PIN_FLOW_CONTROL_BLOCK) && (NULL != hEvent)) {
+        if (!::ResetEvent(hEvent)) {
             return AmGetLastErrorToHResult();
         }
     }
 
     // No flags are set if we are unblocking the output pin.
-    if(0 == dwBlockFlags) {
+    if (0 == dwBlockFlags) {
 
         // This parameter should be NULL because unblock operations are always synchronous.
         // There is no need to notify the caller when the event is done.
-        if(NULL != hEvent) {
+        if (NULL != hEvent) {
             return E_INVALIDARG;
         }
     }
 
-    #ifdef DEBUG
+#ifdef DEBUG
     AssertValid();
-    #endif // DEBUG
+#endif // DEBUG
 
     HRESULT hr;
 
-    if(dwBlockFlags & AM_PIN_FLOW_CONTROL_BLOCK) {
+    if (dwBlockFlags & AM_PIN_FLOW_CONTROL_BLOCK) {
         // IPinFlowControl::Block()'s hEvent parameter is NULL if the block is synchronous.
         // If hEvent is not NULL, the block is asynchronous.
-        if(NULL == hEvent) {
+        if (NULL == hEvent) {
             hr = SynchronousBlockOutputPin();
         } else {
             hr = AsynchronousBlockOutputPin(hEvent);
@@ -3912,11 +3910,11 @@ STDMETHODIMP CDynamicOutputPin::Block(DWORD dwBlockFlags, HANDLE hEvent)
         hr = UnblockOutputPin();
     }
 
-    #ifdef DEBUG
+#ifdef DEBUG
     AssertValid();
-    #endif // DEBUG
+#endif // DEBUG
 
-    if(FAILED(hr)) {
+    if (FAILED(hr)) {
         return hr;
     }
 
@@ -3925,18 +3923,18 @@ STDMETHODIMP CDynamicOutputPin::Block(DWORD dwBlockFlags, HANDLE hEvent)
 
 HRESULT CDynamicOutputPin::SynchronousBlockOutputPin(void)
 {
-    HANDLE hNotifyCallerPinBlockedEvent = :: CreateEvent( NULL,   // The event will have the default security attributes.
-                                                          FALSE,  // This is an automatic reset event.
-                                                          FALSE,  // The event is initially unsignaled.
-                                                          NULL ); // The event is not named.
+    HANDLE hNotifyCallerPinBlockedEvent = :: CreateEvent(NULL,    // The event will have the default security attributes.
+                                                         FALSE,  // This is an automatic reset event.
+                                                         FALSE,  // The event is initially unsignaled.
+                                                         NULL);  // The event is not named.
 
     // CreateEvent() returns NULL if an error occurs.
-    if(NULL == hNotifyCallerPinBlockedEvent) {
+    if (NULL == hNotifyCallerPinBlockedEvent) {
         return AmGetLastErrorToHResult();
     }
 
     HRESULT hr = AsynchronousBlockOutputPin(hNotifyCallerPinBlockedEvent);
-    if(FAILED(hr)) {
+    if (FAILED(hr)) {
         // This call should not fail because we have access to hNotifyCallerPinBlockedEvent
         // and hNotifyCallerPinBlockedEvent is a valid event.
         EXECUTE_ASSERT(::CloseHandle(hNotifyCallerPinBlockedEvent));
@@ -3950,7 +3948,7 @@ HRESULT CDynamicOutputPin::SynchronousBlockOutputPin(void)
     // and hNotifyCallerPinBlockedEvent is a valid event.
     EXECUTE_ASSERT(::CloseHandle(hNotifyCallerPinBlockedEvent));
 
-    if(FAILED(hr)) {
+    if (FAILED(hr)) {
         return hr;
     }
 
@@ -3964,22 +3962,22 @@ HRESULT CDynamicOutputPin::AsynchronousBlockOutputPin(HANDLE hNotifyCallerPinBlo
     // m_hNotifyCallerPinBlockedEvent.
     CAutoLock alBlockStateLock(&m_BlockStateLock);
 
-    if(NOT_BLOCKED != m_BlockState) {
-        if(m_dwBlockCallerThreadID == ::GetCurrentThreadId()) {
+    if (NOT_BLOCKED != m_BlockState) {
+        if (m_dwBlockCallerThreadID == ::GetCurrentThreadId()) {
             return VFW_E_PIN_ALREADY_BLOCKED_ON_THIS_THREAD;
         } else {
             return VFW_E_PIN_ALREADY_BLOCKED;
         }
     }
 
-    BOOL fSuccess = ::DuplicateHandle( ::GetCurrentProcess(),
-                                       hNotifyCallerPinBlockedEvent,
-                                       ::GetCurrentProcess(),
-                                       &m_hNotifyCallerPinBlockedEvent,
-                                       EVENT_MODIFY_STATE,
-                                       FALSE,
-                                       0 );
-    if( !fSuccess ) {
+    BOOL fSuccess = ::DuplicateHandle(::GetCurrentProcess(),
+                                      hNotifyCallerPinBlockedEvent,
+                                      ::GetCurrentProcess(),
+                                      &m_hNotifyCallerPinBlockedEvent,
+                                      EVENT_MODIFY_STATE,
+                                      FALSE,
+                                      0);
+    if (!fSuccess) {
         return AmGetLastErrorToHResult();
     }
 
@@ -3991,7 +3989,7 @@ HRESULT CDynamicOutputPin::AsynchronousBlockOutputPin(HANDLE hNotifyCallerPinBlo
     // or IMemInputPin::ReceiveMultiple() on the connected input pin.  Also, it
     // cannot be blocked if the streaming thread is calling DynamicReconnect(),
     // ChangeMediaType() or ChangeOutputFormat().
-    if(!StreamingThreadUsingOutputPin()) {
+    if (!StreamingThreadUsingOutputPin()) {
 
         // The output pin can be immediately blocked.
         BlockOutputPin();
@@ -4030,7 +4028,7 @@ HRESULT CDynamicOutputPin::UnblockOutputPin(void)
     // m_hNotifyCallerPinBlockedEvent.
     CAutoLock alBlockStateLock(&m_BlockStateLock);
 
-    if(NOT_BLOCKED == m_BlockState) {
+    if (NOT_BLOCKED == m_BlockState) {
         return S_FALSE;
     }
 
@@ -4039,7 +4037,7 @@ HRESULT CDynamicOutputPin::UnblockOutputPin(void)
     EXECUTE_ASSERT(::SetEvent(m_hUnblockOutputPinEvent));
 
     // Cancel the block operation if it's still pending.
-    if(NULL != m_hNotifyCallerPinBlockedEvent) {
+    if (NULL != m_hNotifyCallerPinBlockedEvent) {
         // This event should not fail because AsynchronousBlockOutputPin() successfully
         // duplicated this handle and we have the appropriate security permissions.
         EXECUTE_ASSERT(::SetEvent(m_hNotifyCallerPinBlockedEvent));
@@ -4061,17 +4059,17 @@ HRESULT CDynamicOutputPin::StartUsingOutputPin(void)
 
     CAutoLock alBlockStateLock(&m_BlockStateLock);
 
-    #ifdef DEBUG
+#ifdef DEBUG
     AssertValid();
-    #endif // DEBUG
+#endif // DEBUG
 
     // Are we in the middle of a block operation?
-    while(BLOCKED == m_BlockState) {
+    while (BLOCKED == m_BlockState) {
         m_BlockStateLock.Unlock();
 
         // If this ASSERT fires, a deadlock could occur.  The caller should make sure
         // that this thread never acquires the Block State lock more than once.
-        ASSERT(CritCheckOut( &m_BlockStateLock ));
+        ASSERT(CritCheckOut(&m_BlockStateLock));
 
         // WaitForMultipleObjects() returns WAIT_OBJECT_0 if the unblock event
         // is fired.  It returns WAIT_OBJECT_0 + 1 if the stop event if fired.
@@ -4081,37 +4079,37 @@ HRESULT CDynamicOutputPin::StartUsingOutputPin(void)
         const DWORD STOP = WAIT_OBJECT_0 + 1;
 
         HANDLE ahWaitEvents[] = { m_hUnblockOutputPinEvent, m_hStopEvent };
-        DWORD dwNumWaitEvents = sizeof(ahWaitEvents)/sizeof(HANDLE);
+        DWORD dwNumWaitEvents = sizeof(ahWaitEvents) / sizeof(HANDLE);
 
-        DWORD dwReturnValue = ::WaitForMultipleObjects( dwNumWaitEvents, ahWaitEvents, FALSE, INFINITE );
+        DWORD dwReturnValue = ::WaitForMultipleObjects(dwNumWaitEvents, ahWaitEvents, FALSE, INFINITE);
 
         m_BlockStateLock.Lock();
 
-        #ifdef DEBUG
+#ifdef DEBUG
         AssertValid();
-        #endif // DEBUG
+#endif // DEBUG
 
-        switch( dwReturnValue ) {
-        case UNBLOCK:
-            break;
+        switch (dwReturnValue) {
+            case UNBLOCK:
+                break;
 
-        case STOP:
-            return VFW_E_STATE_CHANGED;
+            case STOP:
+                return VFW_E_STATE_CHANGED;
 
-        case WAIT_FAILED:
-            return AmGetLastErrorToHResult();
+            case WAIT_FAILED:
+                return AmGetLastErrorToHResult();
 
-        default:
-            DbgBreak( "An Unexpected case occured in CDynamicOutputPin::StartUsingOutputPin()." );
-            return E_UNEXPECTED;
+            default:
+                DbgBreak("An Unexpected case occured in CDynamicOutputPin::StartUsingOutputPin().");
+                return E_UNEXPECTED;
         }
     }
 
     m_dwNumOutstandingOutputPinUsers++;
 
-    #ifdef DEBUG
+#ifdef DEBUG
     AssertValid();
-    #endif // DEBUG
+#endif // DEBUG
 
     return S_OK;
 }
@@ -4120,19 +4118,19 @@ void CDynamicOutputPin::StopUsingOutputPin(void)
 {
     CAutoLock alBlockStateLock(&m_BlockStateLock);
 
-    #ifdef DEBUG
+#ifdef DEBUG
     AssertValid();
-    #endif // DEBUG
+#endif // DEBUG
 
     m_dwNumOutstandingOutputPinUsers--;
 
-    if((m_dwNumOutstandingOutputPinUsers == 0) && (NOT_BLOCKED != m_BlockState)) {
+    if ((m_dwNumOutstandingOutputPinUsers == 0) && (NOT_BLOCKED != m_BlockState)) {
         BlockOutputPin();
     }
 
-    #ifdef DEBUG
+#ifdef DEBUG
     AssertValid();
-    #endif // DEBUG
+#endif // DEBUG
 }
 
 bool CDynamicOutputPin::StreamingThreadUsingOutputPin(void)
@@ -4142,7 +4140,7 @@ bool CDynamicOutputPin::StreamingThreadUsingOutputPin(void)
     return (m_dwNumOutstandingOutputPinUsers > 0);
 }
 
-void CDynamicOutputPin::SetConfigInfo(IGraphConfig *pGraphConfig, HANDLE hStopEvent)
+void CDynamicOutputPin::SetConfigInfo(IGraphConfig* pGraphConfig, HANDLE hStopEvent)
 {
     // This pointer is not addrefed because filters are not allowed to
     // hold references to the filter graph manager.  See the documentation for
@@ -4155,8 +4153,8 @@ void CDynamicOutputPin::SetConfigInfo(IGraphConfig *pGraphConfig, HANDLE hStopEv
 HRESULT CDynamicOutputPin::Active(void)
 {
     // Make sure the user initialized the object by calling SetConfigInfo().
-    if((NULL == m_hStopEvent) || (NULL == m_pGraphConfig)) {
-        DbgBreak( ERROR: CDynamicOutputPin::Active() failed because m_pGraphConfig and m_hStopEvent were not initialized.  Call SetConfigInfo() to initialize them. );
+    if ((NULL == m_hStopEvent) || (NULL == m_pGraphConfig)) {
+        DbgBreak(ERROR: CDynamicOutputPin::Active() failed because m_pGraphConfig and m_hStopEvent were not initialized.  Call SetConfigInfo() to initialize them.);
         return E_FAIL;
     }
 
@@ -4206,12 +4204,12 @@ HRESULT CDynamicOutputPin::DeliverEndFlush(void)
 // ChangeOutputFormat() either dynamicly changes the connection's format type or it dynamicly
 // reconnects the output pin.
 HRESULT CDynamicOutputPin::ChangeOutputFormat
-    (
-    const AM_MEDIA_TYPE *pmt,
+(
+    const AM_MEDIA_TYPE* pmt,
     REFERENCE_TIME tSegmentStart,
     REFERENCE_TIME tSegmentStop,
     double dSegmentRate
-    )
+)
 {
     // The caller should call StartUsingOutputPin() before calling this
     // method.
@@ -4227,14 +4225,14 @@ HRESULT CDynamicOutputPin::ChangeOutputFormat
     }
 
     hr = DeliverNewSegment(tSegmentStart, tSegmentStop, dSegmentRate);
-    if( FAILED( hr ) ) {
+    if (FAILED(hr)) {
         return hr;
     }
 
     return S_OK;
 }
 
-HRESULT CDynamicOutputPin::ChangeMediaType(const CMediaType *pmt)
+HRESULT CDynamicOutputPin::ChangeMediaType(const CMediaType* pmt)
 {
     // The caller should call StartUsingOutputPin() before calling this
     // method.
@@ -4243,7 +4241,7 @@ HRESULT CDynamicOutputPin::ChangeMediaType(const CMediaType *pmt)
     // This function assumes the filter graph is running.
     ASSERT(!IsStopped());
 
-    if(!IsConnected()) {
+    if (!IsConnected()) {
         return VFW_E_NOT_CONNECTED;
     }
 
@@ -4252,13 +4250,13 @@ HRESULT CDynamicOutputPin::ChangeMediaType(const CMediaType *pmt)
     */
     QzCComPtr<IPinConnection> pConnection;
 
-    m_Connected->QueryInterface(IID_IPinConnection, (void **)&pConnection);
-    if(pConnection != NULL) {
+    m_Connected->QueryInterface(IID_IPinConnection, (void**)&pConnection);
+    if (pConnection != NULL) {
 
-        if(S_OK == pConnection->DynamicQueryAccept(pmt)) {
+        if (S_OK == pConnection->DynamicQueryAccept(pmt)) {
 
             HRESULT hr = ChangeMediaTypeHelper(pmt);
-            if(FAILED(hr)) {
+            if (FAILED(hr)) {
                 return hr;
             }
 
@@ -4270,24 +4268,24 @@ HRESULT CDynamicOutputPin::ChangeMediaType(const CMediaType *pmt)
     return DynamicReconnect(pmt);
 }
 
-HRESULT CDynamicOutputPin::ChangeMediaTypeHelper(const CMediaType *pmt)
+HRESULT CDynamicOutputPin::ChangeMediaTypeHelper(const CMediaType* pmt)
 {
     // The caller should call StartUsingOutputPin() before calling this
     // method.
     ASSERT(StreamingThreadUsingOutputPin());
 
     HRESULT hr = m_Connected->ReceiveConnection(this, pmt);
-    if(FAILED(hr)) {
+    if (FAILED(hr)) {
         return hr;
     }
 
     hr = SetMediaType(pmt);
-    if(FAILED(hr)) {
+    if (FAILED(hr)) {
         return hr;
     }
 
     // Does this pin use the local memory transport?
-    if(NULL != m_pInputPin) {
+    if (NULL != m_pInputPin) {
         // This function assumes that m_pInputPin and m_Connected are
         // two different interfaces to the same object.
         ASSERT(::IsEqualObject(m_Connected, m_pInputPin));
@@ -4301,27 +4299,27 @@ HRESULT CDynamicOutputPin::ChangeMediaTypeHelper(const CMediaType *pmt)
         m_pInputPin->GetAllocatorRequirements(&apInputPinRequirements);
 
         // A zero allignment does not make any sense.
-        if(0 == apInputPinRequirements.cbAlign) {
+        if (0 == apInputPinRequirements.cbAlign) {
             apInputPinRequirements.cbAlign = 1;
         }
 
         hr = m_pAllocator->Decommit();
-        if(FAILED(hr)) {
+        if (FAILED(hr)) {
             return hr;
         }
 
         hr = DecideBufferSize(m_pAllocator,  &apInputPinRequirements);
-        if(FAILED(hr)) {
+        if (FAILED(hr)) {
             return hr;
         }
 
         hr = m_pAllocator->Commit();
-        if(FAILED(hr)) {
+        if (FAILED(hr)) {
             return hr;
         }
 
         hr = m_pInputPin->NotifyAllocator(m_pAllocator, m_bPinUsesReadOnlyAllocator);
-        if(FAILED(hr)) {
+        if (FAILED(hr)) {
             return hr;
         }
     }
@@ -4334,32 +4332,32 @@ HRESULT CDynamicOutputPin::ChangeMediaTypeHelper(const CMediaType *pmt)
 // has no outstand samples because they cannot be delivered after a
 // reconnect
 //
-HRESULT CDynamicOutputPin::DynamicReconnect( const CMediaType* pmt )
+HRESULT CDynamicOutputPin::DynamicReconnect(const CMediaType* pmt)
 {
     // The caller should call StartUsingOutputPin() before calling this
     // method.
     ASSERT(StreamingThreadUsingOutputPin());
 
-    if((m_pGraphConfig == NULL) || (NULL == m_hStopEvent)) {
+    if ((m_pGraphConfig == NULL) || (NULL == m_hStopEvent)) {
         return E_FAIL;
     }
 
     HRESULT hr = m_pGraphConfig->Reconnect(
-        this,
-        NULL,
-        pmt,
-        NULL,
-        m_hStopEvent,
-        AM_GRAPH_CONFIG_RECONNECT_CACHE_REMOVED_FILTERS );
+                     this,
+                     NULL,
+                     pmt,
+                     NULL,
+                     m_hStopEvent,
+                     AM_GRAPH_CONFIG_RECONNECT_CACHE_REMOVED_FILTERS);
 
     return hr;
 }
 
-HRESULT CDynamicOutputPin::CompleteConnect(IPin *pReceivePin)
+HRESULT CDynamicOutputPin::CompleteConnect(IPin* pReceivePin)
 {
     HRESULT hr = CBaseOutputPin::CompleteConnect(pReceivePin);
-    if(SUCCEEDED(hr)) {
-        if(!IsStopped() && m_pAllocator) {
+    if (SUCCEEDED(hr)) {
+        if (!IsStopped() && m_pAllocator) {
             hr = m_pAllocator->Commit();
             ASSERT(hr != VFW_E_ALREADY_COMMITTED);
         }
@@ -4392,7 +4390,7 @@ void CDynamicOutputPin::AssertValid(void)
     // m_hNotifyCallerPinBlockedEvent is only needed when a block operation cannot complete
     // immediately.
     ASSERT(((NULL == m_hNotifyCallerPinBlockedEvent) && (PENDING != m_BlockState)) ||
-           ((NULL != m_hNotifyCallerPinBlockedEvent) && (PENDING == m_BlockState)) );
+           ((NULL != m_hNotifyCallerPinBlockedEvent) && (PENDING == m_BlockState)));
 
     // m_dwBlockCallerThreadID should always be 0 if the pin is not blocked and
     // the user is not trying to block the pin.
@@ -4402,7 +4400,7 @@ void CDynamicOutputPin::AssertValid(void)
     // output pin is blocked.
     ASSERT(((0 != m_dwNumOutstandingOutputPinUsers) && (BLOCKED != m_BlockState)) ||
            ((0 == m_dwNumOutstandingOutputPinUsers) && (NOT_BLOCKED != m_BlockState)) ||
-           ((0 == m_dwNumOutstandingOutputPinUsers) && (NOT_BLOCKED == m_BlockState)) );
+           ((0 == m_dwNumOutstandingOutputPinUsers) && (NOT_BLOCKED == m_BlockState)));
 }
 #endif // DEBUG
 
@@ -4412,16 +4410,16 @@ HRESULT CDynamicOutputPin::WaitEvent(HANDLE hEvent)
 
     DWORD dwReturnValue = ::WaitForSingleObject(hEvent, INFINITE);
 
-    switch( dwReturnValue ) {
-    case EVENT_SIGNALED:
-        return S_OK;
+    switch (dwReturnValue) {
+        case EVENT_SIGNALED:
+            return S_OK;
 
-    case WAIT_FAILED:
-        return AmGetLastErrorToHResult();
+        case WAIT_FAILED:
+            return AmGetLastErrorToHResult();
 
-    default:
-        DbgBreak( "An Unexpected case occured in CDynamicOutputPin::WaitEvent()." );
-        return E_UNEXPECTED;
+        default:
+            DbgBreak("An Unexpected case occured in CDynamicOutputPin::WaitEvent().");
+            return E_UNEXPECTED;
     }
 }
 
@@ -4438,12 +4436,12 @@ HRESULT CDynamicOutputPin::WaitEvent(HANDLE hEvent)
    object locking, the all list matches the object default settings but I
    have included them here just so it is obvious what kind of list it is */
 
-CBaseAllocator::CBaseAllocator(TCHAR *pName,
+CBaseAllocator::CBaseAllocator(TCHAR* pName,
                                LPUNKNOWN pUnk,
-                               HRESULT *phr,
+                               HRESULT* phr,
                                BOOL bEvent,
                                BOOL fEnableReleaseCallback
-                               ) :
+                              ) :
     CUnknown(pName, pUnk),
     m_lAllocated(0),
     m_bChanged(FALSE),
@@ -4469,9 +4467,9 @@ CBaseAllocator::CBaseAllocator(TCHAR *pName,
 }
 
 #ifdef UNICODE
-CBaseAllocator::CBaseAllocator(CHAR *pName,
+CBaseAllocator::CBaseAllocator(CHAR* pName,
                                LPUNKNOWN pUnk,
-                               HRESULT *phr,
+                               HRESULT* phr,
                                BOOL bEvent,
                                BOOL fEnableReleaseCallback) :
     CUnknown(pName, pUnk),
@@ -4521,13 +4519,13 @@ CBaseAllocator::~CBaseAllocator()
 /* Override this to publicise our interfaces */
 
 STDMETHODIMP
-CBaseAllocator::NonDelegatingQueryInterface(REFIID riid, void **ppv)
+CBaseAllocator::NonDelegatingQueryInterface(REFIID riid, void** ppv)
 {
     /* Do we know about this interface */
 
     if (riid == IID_IMemAllocator ||
-        riid == IID_IMemAllocatorCallbackTemp && m_fEnableReleaseCallback) {
-        return GetInterface((IMemAllocatorCallbackTemp *) this, ppv);
+            riid == IID_IMemAllocatorCallbackTemp && m_fEnableReleaseCallback) {
+        return GetInterface((IMemAllocatorCallbackTemp*) this, ppv);
     } else {
         return CUnknown::NonDelegatingQueryInterface(riid, ppv);
     }
@@ -4541,8 +4539,8 @@ CBaseAllocator::NonDelegatingQueryInterface(REFIID riid, void **ppv)
 
 STDMETHODIMP
 CBaseAllocator::SetProperties(
-                ALLOCATOR_PROPERTIES* pRequest,
-                ALLOCATOR_PROPERTIES* pActual)
+    ALLOCATOR_PROPERTIES* pRequest,
+    ALLOCATOR_PROPERTIES* pActual)
 {
     CheckPointer(pRequest, E_POINTER);
     CheckPointer(pActual, E_POINTER);
@@ -4556,7 +4554,7 @@ CBaseAllocator::SetProperties(
     /*  Check the alignment requested */
     if (pRequest->cbAlign != 1) {
         DbgLog((LOG_ERROR, 2, TEXT("Alignment requested was 0x%x, not 1"),
-               pRequest->cbAlign));
+                pRequest->cbAlign));
         return VFW_E_BADALIGN;
     }
 
@@ -4590,10 +4588,10 @@ CBaseAllocator::SetProperties(
 
 STDMETHODIMP
 CBaseAllocator::GetProperties(
-    ALLOCATOR_PROPERTIES * pActual)
+    ALLOCATOR_PROPERTIES* pActual)
 {
-    CheckPointer(pActual,E_POINTER);
-    ValidateReadWritePtr(pActual,sizeof(ALLOCATOR_PROPERTIES));
+    CheckPointer(pActual, E_POINTER);
+    ValidateReadWritePtr(pActual, sizeof(ALLOCATOR_PROPERTIES));
 
     CAutoLock cObjectLock(this);
     pActual->cbBuffer = m_lSize;
@@ -4608,28 +4606,28 @@ CBaseAllocator::GetProperties(
 // on return, the time etc properties will be invalid, but the buffer
 // pointer and size will be correct.
 
-HRESULT CBaseAllocator::GetBuffer(IMediaSample **ppBuffer,
-                                  REFERENCE_TIME *pStartTime,
-                                  REFERENCE_TIME *pEndTime,
+HRESULT CBaseAllocator::GetBuffer(IMediaSample** ppBuffer,
+                                  REFERENCE_TIME* pStartTime,
+                                  REFERENCE_TIME* pEndTime,
                                   DWORD dwFlags
-                                  )
+                                 )
 {
     UNREFERENCED_PARAMETER(pStartTime);
     UNREFERENCED_PARAMETER(pEndTime);
     UNREFERENCED_PARAMETER(dwFlags);
-    CMediaSample *pSample;
+    CMediaSample* pSample;
 
     *ppBuffer = NULL;
-    for (;;)
-    {
-        {  // scope for lock
+    for (;;) {
+        {
+            // scope for lock
             CAutoLock cObjectLock(this);
 
             /* Check we are committed */
             if (!m_bCommitted) {
                 return VFW_E_NOT_COMMITTED;
             }
-            pSample = (CMediaSample *) m_lFree.RemoveHead();
+            pSample = (CMediaSample*) m_lFree.RemoveHead();
             if (pSample == NULL) {
                 SetWaiting();
             }
@@ -4665,10 +4663,10 @@ HRESULT CBaseAllocator::GetBuffer(IMediaSample **ppBuffer,
 /* Final release of a CMediaSample will call this */
 
 STDMETHODIMP
-CBaseAllocator::ReleaseBuffer(IMediaSample * pSample)
+CBaseAllocator::ReleaseBuffer(IMediaSample* pSample)
 {
-    CheckPointer(pSample,E_POINTER);
-    ValidateReadPtr(pSample,sizeof(IMediaSample));
+    CheckPointer(pSample, E_POINTER);
+    ValidateReadPtr(pSample, sizeof(IMediaSample));
 
 
 
@@ -4678,7 +4676,7 @@ CBaseAllocator::ReleaseBuffer(IMediaSample * pSample)
 
         /* Put back on the free list */
 
-        m_lFree.Add((CMediaSample *)pSample);
+        m_lFree.Add((CMediaSample*)pSample);
         if (m_lWaiting != 0) {
             NotifySample();
         }
@@ -4717,7 +4715,7 @@ CBaseAllocator::ReleaseBuffer(IMediaSample * pSample)
 STDMETHODIMP
 CBaseAllocator::SetNotify(
     IMemAllocatorNotifyCallbackTemp* pNotify
-    )
+)
 {
     ASSERT(m_fEnableReleaseCallback);
     CAutoLock lck(this);
@@ -4734,7 +4732,7 @@ CBaseAllocator::SetNotify(
 STDMETHODIMP
 CBaseAllocator::GetFreeCount(
     LONG* plBuffersFree
-    )
+)
 {
     ASSERT(m_fEnableReleaseCallback);
     CAutoLock cObjectLock(this);
@@ -4859,18 +4857,18 @@ CBaseAllocator::Alloc(void)
     Removes pSample from the list
 */
 void
-CBaseAllocator::CSampleList::Remove(CMediaSample * pSample)
+CBaseAllocator::CSampleList::Remove(CMediaSample* pSample)
 {
-    CMediaSample **pSearch;
+    CMediaSample** pSearch;
     for (pSearch = &m_List;
-         *pSearch != NULL;
-         pSearch = &(CBaseAllocator::NextSample(*pSearch))) {
-       if (*pSearch == pSample) {
-           *pSearch = CBaseAllocator::NextSample(pSample);
-           CBaseAllocator::NextSample(pSample) = NULL;
-           m_nOnList--;
-           return;
-       }
+            *pSearch != NULL;
+            pSearch = &(CBaseAllocator::NextSample(*pSearch))) {
+        if (*pSearch == pSample) {
+            *pSearch = CBaseAllocator::NextSample(pSample);
+            CBaseAllocator::NextSample(pSample) = NULL;
+            m_nOnList--;
+            return;
+        }
     }
     DbgBreak("Couldn't find sample in list");
 }
@@ -4883,28 +4881,28 @@ CBaseAllocator::CSampleList::Remove(CMediaSample * pSample)
 
 
 /* This goes in the factory template table to create new instances */
-CUnknown *CMemAllocator::CreateInstance(LPUNKNOWN pUnk, HRESULT *phr)
+CUnknown* CMemAllocator::CreateInstance(LPUNKNOWN pUnk, HRESULT* phr)
 {
-    CUnknown *pUnkRet = new CMemAllocator(NAME("CMemAllocator"), pUnk, phr);
+    CUnknown* pUnkRet = new CMemAllocator(NAME("CMemAllocator"), pUnk, phr);
     return pUnkRet;
 }
 
 CMemAllocator::CMemAllocator(
-    TCHAR *pName,
+    TCHAR* pName,
     LPUNKNOWN pUnk,
-    HRESULT *phr)
+    HRESULT* phr)
     : CBaseAllocator(pName, pUnk, phr, TRUE, TRUE),
-    m_pBuffer(NULL)
+      m_pBuffer(NULL)
 {
 }
 
 #ifdef UNICODE
 CMemAllocator::CMemAllocator(
-    CHAR *pName,
+    CHAR* pName,
     LPUNKNOWN pUnk,
-    HRESULT *phr)
+    HRESULT* phr)
     : CBaseAllocator(pName, pUnk, phr, TRUE, TRUE),
-    m_pBuffer(NULL)
+      m_pBuffer(NULL)
 {
 }
 #endif
@@ -4915,11 +4913,11 @@ CMemAllocator::CMemAllocator(
    to change the buffering, the memory will be released in Commit() */
 STDMETHODIMP
 CMemAllocator::SetProperties(
-                ALLOCATOR_PROPERTIES* pRequest,
-                ALLOCATOR_PROPERTIES* pActual)
+    ALLOCATOR_PROPERTIES* pRequest,
+    ALLOCATOR_PROPERTIES* pActual)
 {
-    CheckPointer(pActual,E_POINTER);
-    ValidateReadWritePtr(pActual,sizeof(ALLOCATOR_PROPERTIES));
+    CheckPointer(pActual, E_POINTER);
+    ValidateReadWritePtr(pActual, sizeof(ALLOCATOR_PROPERTIES));
     CAutoLock cObjectLock(this);
 
     ZeroMemory(pActual, sizeof(ALLOCATOR_PROPERTIES));
@@ -4932,13 +4930,13 @@ CMemAllocator::SetProperties(
     /*  Check the alignment request is a power of 2 */
     if ((-pRequest->cbAlign & pRequest->cbAlign) != pRequest->cbAlign) {
         DbgLog((LOG_ERROR, 1, TEXT("Alignment requested 0x%x not a power of 2!"),
-               pRequest->cbAlign));
+                pRequest->cbAlign));
     }
     /*  Check the alignment requested */
     if (pRequest->cbAlign == 0 ||
-    (SysInfo.dwAllocationGranularity & (pRequest->cbAlign - 1)) != 0) {
+            (SysInfo.dwAllocationGranularity & (pRequest->cbAlign - 1)) != 0) {
         DbgLog((LOG_ERROR, 1, TEXT("Invalid alignment 0x%x requested - granularity = 0x%x"),
-               pRequest->cbAlign, SysInfo.dwAllocationGranularity));
+                pRequest->cbAlign, SysInfo.dwAllocationGranularity));
         return VFW_E_BADALIGN;
     }
 
@@ -5023,16 +5021,16 @@ CMemAllocator::Alloc(void)
     ASSERT(lAlignedSize % m_lAlignment == 0);
 
     m_pBuffer = (PBYTE)VirtualAlloc(NULL,
-                    m_lCount * lAlignedSize,
-                    MEM_COMMIT,
-                    PAGE_READWRITE);
+                                    m_lCount * lAlignedSize,
+                                    MEM_COMMIT,
+                                    PAGE_READWRITE);
 
     if (m_pBuffer == NULL) {
         return E_OUTOFMEMORY;
     }
 
     LPBYTE pNext = m_pBuffer;
-    CMediaSample *pSample;
+    CMediaSample* pSample;
 
     ASSERT(m_lAllocated == 0);
 
@@ -5044,13 +5042,13 @@ CMemAllocator::Alloc(void)
 
 
         pSample = new CMediaSample(
-                            NAME("Default memory media sample"),
-                this,
-                            &hr,
-                            pNext + m_lPrefix,      // GetPointer() value
-                            m_lSize);               // not including prefix
+            NAME("Default memory media sample"),
+            this,
+            &hr,
+            pNext + m_lPrefix,      // GetPointer() value
+            m_lSize);               // not including prefix
 
-            ASSERT(SUCCEEDED(hr));
+        ASSERT(SUCCEEDED(hr));
         if (pSample == NULL) {
             return E_OUTOFMEMORY;
         }
@@ -5091,7 +5089,7 @@ CMemAllocator::ReallyFree(void)
 
     /* Free up all the CMediaSamples */
 
-    CMediaSample *pSample;
+    CMediaSample* pSample;
     for (;;) {
         pSample = m_lFree.RemoveHead();
         if (pSample != NULL) {
@@ -5124,78 +5122,74 @@ CMemAllocator::~CMemAllocator()
 // not found (Quartz 1.0 install)
 
 STDAPI
-AMovieSetupRegisterFilter( const AMOVIESETUP_FILTER * const psetupdata
-                         , IFilterMapper *                  pIFM
-                         , BOOL                             bRegister  )
+AMovieSetupRegisterFilter(const AMOVIESETUP_FILTER* const psetupdata
+                          , IFilterMapper*                   pIFM
+                          , BOOL                             bRegister)
 {
-  DbgLog((LOG_TRACE, 3, TEXT("= AMovieSetupRegisterFilter")));
+    DbgLog((LOG_TRACE, 3, TEXT("= AMovieSetupRegisterFilter")));
 
-  // check we've got data
-  //
-  if( NULL == psetupdata ) return S_FALSE;
-
-
-  // unregister filter
-  // (as pins are subkeys of filter's CLSID key
-  // they do not need to be removed separately).
-  //
-  DbgLog((LOG_TRACE, 3, TEXT("= = unregister filter")));
-  HRESULT hr = pIFM->UnregisterFilter( *(psetupdata->clsID) );
-
-
-  if( bRegister )
-  {
-    // register filter
+    // check we've got data
     //
-    DbgLog((LOG_TRACE, 3, TEXT("= = register filter")));
-    hr = pIFM->RegisterFilter( *(psetupdata->clsID)
-                             , psetupdata->strName
-                             , psetupdata->dwMerit    );
-    if( SUCCEEDED(hr) )
-    {
-      // all its pins
-      //
-      DbgLog((LOG_TRACE, 3, TEXT("= = register filter pins")));
-      for( UINT m1=0; m1 < psetupdata->nPins; m1++ )
-      {
-        hr = pIFM->RegisterPin( *(psetupdata->clsID)
-                              , psetupdata->lpPin[m1].strName
-                              , psetupdata->lpPin[m1].bRendered
-                              , psetupdata->lpPin[m1].bOutput
-                              , psetupdata->lpPin[m1].bZero
-                              , psetupdata->lpPin[m1].bMany
-                              , *(psetupdata->lpPin[m1].clsConnectsToFilter)
-                              , psetupdata->lpPin[m1].strConnectsToPin );
+    if (NULL == psetupdata) { return S_FALSE; }
 
-        if( SUCCEEDED(hr) )
-        {
-          // and each pin's media types
-          //
-          DbgLog((LOG_TRACE, 3, TEXT("= = register filter pin types")));
-          for( UINT m2=0; m2 < psetupdata->lpPin[m1].nMediaTypes; m2++ )
-          {
-            hr = pIFM->RegisterPinType( *(psetupdata->clsID)
-                                      , psetupdata->lpPin[m1].strName
-                                      , *(psetupdata->lpPin[m1].lpMediaType[m2].clsMajorType)
-                                      , *(psetupdata->lpPin[m1].lpMediaType[m2].clsMinorType) );
-            if( FAILED(hr) ) break;
-          }
-          if( FAILED(hr) ) break;
+
+    // unregister filter
+    // (as pins are subkeys of filter's CLSID key
+    // they do not need to be removed separately).
+    //
+    DbgLog((LOG_TRACE, 3, TEXT("= = unregister filter")));
+    HRESULT hr = pIFM->UnregisterFilter(*(psetupdata->clsID));
+
+
+    if (bRegister) {
+        // register filter
+        //
+        DbgLog((LOG_TRACE, 3, TEXT("= = register filter")));
+        hr = pIFM->RegisterFilter(*(psetupdata->clsID)
+                                  , psetupdata->strName
+                                  , psetupdata->dwMerit);
+        if (SUCCEEDED(hr)) {
+            // all its pins
+            //
+            DbgLog((LOG_TRACE, 3, TEXT("= = register filter pins")));
+            for (UINT m1 = 0; m1 < psetupdata->nPins; m1++) {
+                hr = pIFM->RegisterPin(*(psetupdata->clsID)
+                                       , psetupdata->lpPin[m1].strName
+                                       , psetupdata->lpPin[m1].bRendered
+                                       , psetupdata->lpPin[m1].bOutput
+                                       , psetupdata->lpPin[m1].bZero
+                                       , psetupdata->lpPin[m1].bMany
+                                       , *(psetupdata->lpPin[m1].clsConnectsToFilter)
+                                       , psetupdata->lpPin[m1].strConnectsToPin);
+
+                if (SUCCEEDED(hr)) {
+                    // and each pin's media types
+                    //
+                    DbgLog((LOG_TRACE, 3, TEXT("= = register filter pin types")));
+                    for (UINT m2 = 0; m2 < psetupdata->lpPin[m1].nMediaTypes; m2++) {
+                        hr = pIFM->RegisterPinType(*(psetupdata->clsID)
+                                                   , psetupdata->lpPin[m1].strName
+                                                   , *(psetupdata->lpPin[m1].lpMediaType[m2].clsMajorType)
+                                                   , *(psetupdata->lpPin[m1].lpMediaType[m2].clsMinorType));
+                        if (FAILED(hr)) { break; }
+                    }
+                    if (FAILED(hr)) { break; }
+                }
+                if (FAILED(hr)) { break; }
+            }
         }
-        if( FAILED(hr) ) break;
-      }
     }
-  }
 
-  // handle one acceptable "error" - that
-  // of filter not being registered!
-  // (couldn't find a suitable #define'd
-  // name for the error!)
-  //
-  if( 0x80070002 == hr)
-    return NOERROR;
-  else
-    return hr;
+    // handle one acceptable "error" - that
+    // of filter not being registered!
+    // (couldn't find a suitable #define'd
+    // name for the error!)
+    //
+    if (0x80070002 == hr) {
+        return NOERROR;
+    } else {
+        return hr;
+    }
 }
 
 //  Remove warnings about unreferenced inline functions

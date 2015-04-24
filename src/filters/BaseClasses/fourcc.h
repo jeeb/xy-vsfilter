@@ -34,12 +34,12 @@ class FOURCCMap : public GUID
 public:
     FOURCCMap();
     FOURCCMap(DWORD Fourcc);
-    FOURCCMap(const GUID *);
+    FOURCCMap(const GUID*);
 
 
     DWORD GetFOURCC(void);
     void SetFOURCC(DWORD fourcc);
-    void SetFOURCC(const GUID *);
+    void SetFOURCC(const GUID*);
 
 private:
     void InitGUID();
@@ -51,17 +51,19 @@ private:
 #define GUID_Data4_2   0x719b3800
 
 inline void
-FOURCCMap::InitGUID() {
+FOURCCMap::InitGUID()
+{
     Data2 = GUID_Data2;
     Data3 = GUID_Data3;
-    ((DWORD *)Data4)[0] = GUID_Data4_1;
-    ((DWORD *)Data4)[1] = GUID_Data4_2;
+    ((DWORD*)Data4)[0] = GUID_Data4_1;
+    ((DWORD*)Data4)[1] = GUID_Data4_2;
 }
 
 inline
-FOURCCMap::FOURCCMap() {
+FOURCCMap::FOURCCMap()
+{
     InitGUID();
-    SetFOURCC( DWORD(0));
+    SetFOURCC(DWORD(0));
 }
 
 inline
@@ -72,16 +74,16 @@ FOURCCMap::FOURCCMap(DWORD fourcc)
 }
 
 inline
-FOURCCMap::FOURCCMap(const GUID * pGuid)
+FOURCCMap::FOURCCMap(const GUID* pGuid)
 {
     InitGUID();
     SetFOURCC(pGuid);
 }
 
 inline void
-FOURCCMap::SetFOURCC(const GUID * pGuid)
+FOURCCMap::SetFOURCC(const GUID* pGuid)
 {
-    FOURCCMap * p = (FOURCCMap*) pGuid;
+    FOURCCMap* p = (FOURCCMap*) pGuid;
     SetFOURCC(p->GetFOURCC());
 }
 

@@ -25,7 +25,7 @@
 
 class CBaseDispatch
 {
-    ITypeInfo * m_pti;
+    ITypeInfo* m_pti;
 
 public:
 
@@ -33,20 +33,20 @@ public:
     ~CBaseDispatch();
 
     /* IDispatch methods */
-    STDMETHODIMP GetTypeInfoCount(UINT * pctinfo);
+    STDMETHODIMP GetTypeInfoCount(UINT* pctinfo);
 
     STDMETHODIMP GetTypeInfo(
-      REFIID riid,
-      UINT itinfo,
-      LCID lcid,
-      ITypeInfo ** pptinfo);
+        REFIID riid,
+        UINT itinfo,
+        LCID lcid,
+        ITypeInfo** pptinfo);
 
     STDMETHODIMP GetIDsOfNames(
-      REFIID riid,
-      OLECHAR  ** rgszNames,
-      UINT cNames,
-      LCID lcid,
-      DISPID * rgdispid);
+        REFIID riid,
+        OLECHAR**   rgszNames,
+        UINT cNames,
+        LCID lcid,
+        DISPID* rgdispid);
 };
 
 
@@ -58,37 +58,37 @@ class AM_NOVTABLE CMediaControl :
 
 public:
 
-    CMediaControl(const TCHAR *, LPUNKNOWN);
+    CMediaControl(const TCHAR*, LPUNKNOWN);
 
     DECLARE_IUNKNOWN
 
     // override this to publicise our interfaces
-    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void **ppv);
+    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
 
     /* IDispatch methods */
-    STDMETHODIMP GetTypeInfoCount(UINT * pctinfo);
+    STDMETHODIMP GetTypeInfoCount(UINT* pctinfo);
 
     STDMETHODIMP GetTypeInfo(
-      UINT itinfo,
-      LCID lcid,
-      ITypeInfo ** pptinfo);
+        UINT itinfo,
+        LCID lcid,
+        ITypeInfo** pptinfo);
 
     STDMETHODIMP GetIDsOfNames(
-      REFIID riid,
-      OLECHAR  ** rgszNames,
-      UINT cNames,
-      LCID lcid,
-      DISPID * rgdispid);
+        REFIID riid,
+        OLECHAR**   rgszNames,
+        UINT cNames,
+        LCID lcid,
+        DISPID* rgdispid);
 
     STDMETHODIMP Invoke(
-      DISPID dispidMember,
-      REFIID riid,
-      LCID lcid,
-      WORD wFlags,
-      DISPPARAMS * pdispparams,
-      VARIANT * pvarResult,
-      EXCEPINFO * pexcepinfo,
-      UINT * puArgErr);
+        DISPID dispidMember,
+        REFIID riid,
+        LCID lcid,
+        WORD wFlags,
+        DISPPARAMS* pdispparams,
+        VARIANT* pvarResult,
+        EXCEPINFO* pexcepinfo,
+        UINT* puArgErr);
 };
 
 
@@ -100,37 +100,37 @@ class AM_NOVTABLE CMediaEvent :
 
 public:
 
-    CMediaEvent(const TCHAR *, LPUNKNOWN);
+    CMediaEvent(const TCHAR*, LPUNKNOWN);
 
     DECLARE_IUNKNOWN
 
     // override this to publicise our interfaces
-    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void **ppv);
+    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
 
     /* IDispatch methods */
-    STDMETHODIMP GetTypeInfoCount(UINT * pctinfo);
+    STDMETHODIMP GetTypeInfoCount(UINT* pctinfo);
 
     STDMETHODIMP GetTypeInfo(
-      UINT itinfo,
-      LCID lcid,
-      ITypeInfo ** pptinfo);
+        UINT itinfo,
+        LCID lcid,
+        ITypeInfo** pptinfo);
 
     STDMETHODIMP GetIDsOfNames(
-      REFIID riid,
-      OLECHAR  ** rgszNames,
-      UINT cNames,
-      LCID lcid,
-      DISPID * rgdispid);
+        REFIID riid,
+        OLECHAR**   rgszNames,
+        UINT cNames,
+        LCID lcid,
+        DISPID* rgdispid);
 
     STDMETHODIMP Invoke(
-      DISPID dispidMember,
-      REFIID riid,
-      LCID lcid,
-      WORD wFlags,
-      DISPPARAMS * pdispparams,
-      VARIANT * pvarResult,
-      EXCEPINFO * pexcepinfo,
-      UINT * puArgErr);
+        DISPID dispidMember,
+        REFIID riid,
+        LCID lcid,
+        WORD wFlags,
+        DISPPARAMS* pdispparams,
+        VARIANT* pvarResult,
+        EXCEPINFO* pexcepinfo,
+        UINT* puArgErr);
 };
 
 
@@ -143,38 +143,38 @@ class AM_NOVTABLE CMediaPosition :
 
 public:
 
-    CMediaPosition(const TCHAR *, LPUNKNOWN);
-    CMediaPosition(const TCHAR *, LPUNKNOWN, HRESULT *phr);
+    CMediaPosition(const TCHAR*, LPUNKNOWN);
+    CMediaPosition(const TCHAR*, LPUNKNOWN, HRESULT* phr);
 
     DECLARE_IUNKNOWN
 
     // override this to publicise our interfaces
-    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void **ppv);
+    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
 
     /* IDispatch methods */
-    STDMETHODIMP GetTypeInfoCount(UINT * pctinfo);
+    STDMETHODIMP GetTypeInfoCount(UINT* pctinfo);
 
     STDMETHODIMP GetTypeInfo(
-      UINT itinfo,
-      LCID lcid,
-      ITypeInfo ** pptinfo);
+        UINT itinfo,
+        LCID lcid,
+        ITypeInfo** pptinfo);
 
     STDMETHODIMP GetIDsOfNames(
-      REFIID riid,
-      OLECHAR  ** rgszNames,
-      UINT cNames,
-      LCID lcid,
-      DISPID * rgdispid);
+        REFIID riid,
+        OLECHAR**   rgszNames,
+        UINT cNames,
+        LCID lcid,
+        DISPID* rgdispid);
 
     STDMETHODIMP Invoke(
-      DISPID dispidMember,
-      REFIID riid,
-      LCID lcid,
-      WORD wFlags,
-      DISPPARAMS * pdispparams,
-      VARIANT * pvarResult,
-      EXCEPINFO * pexcepinfo,
-      UINT * puArgErr);
+        DISPID dispidMember,
+        REFIID riid,
+        LCID lcid,
+        WORD wFlags,
+        DISPPARAMS* pdispparams,
+        VARIANT* pvarResult,
+        EXCEPINFO* pexcepinfo,
+        UINT* puArgErr);
 
 };
 
@@ -183,24 +183,23 @@ public:
 // and REFERENCE_TIME (essentially a LONGLONG) within filters.
 // this class converts between the two
 
-class COARefTime : public CRefTime {
+class COARefTime : public CRefTime
+{
 public:
 
     COARefTime() {
     };
 
     COARefTime(CRefTime t)
-        : CRefTime(t)
-    {
+        : CRefTime(t) {
     };
 
     COARefTime(REFERENCE_TIME t)
-        : CRefTime(t)
-    {
+        : CRefTime(t) {
     };
 
     COARefTime(double d) {
-        m_time = (LONGLONG) (d * 10000000);
+        m_time = (LONGLONG)(d * 10000000);
     };
 
     operator double() {
@@ -212,7 +211,7 @@ public:
     };
 
     COARefTime& operator=(const double& rd)  {
-        m_time = (LONGLONG) (rd * 10000000);
+        m_time = (LONGLONG)(rd * 10000000);
         return *this;
     }
 
@@ -221,53 +220,43 @@ public:
         return *this;
     }
 
-    inline BOOL operator==(const COARefTime& rt)
-    {
+    inline BOOL operator==(const COARefTime& rt) {
         return m_time == rt.m_time;
     };
 
-    inline BOOL operator!=(const COARefTime& rt)
-    {
+    inline BOOL operator!=(const COARefTime& rt) {
         return m_time != rt.m_time;
     };
 
-    inline BOOL operator < (const COARefTime& rt)
-    {
+    inline BOOL operator < (const COARefTime& rt) {
         return m_time < rt.m_time;
     };
 
-    inline BOOL operator > (const COARefTime& rt)
-    {
+    inline BOOL operator > (const COARefTime& rt) {
         return m_time > rt.m_time;
     };
 
-    inline BOOL operator >= (const COARefTime& rt)
-    {
+    inline BOOL operator >= (const COARefTime& rt) {
         return m_time >= rt.m_time;
     };
 
-    inline BOOL operator <= (const COARefTime& rt)
-    {
+    inline BOOL operator <= (const COARefTime& rt) {
         return m_time <= rt.m_time;
     };
 
-    inline COARefTime operator+(const COARefTime& rt)
-    {
+    inline COARefTime operator+(const COARefTime& rt) {
         return COARefTime(m_time + rt.m_time);
     };
 
-    inline COARefTime operator-(const COARefTime& rt)
-    {
+    inline COARefTime operator-(const COARefTime& rt) {
         return COARefTime(m_time - rt.m_time);
     };
 
-    inline COARefTime operator*(LONG l)
-    {
+    inline COARefTime operator*(LONG l) {
         return COARefTime(m_time * l);
     };
 
-    inline COARefTime operator/(LONG l)
-    {
+    inline COARefTime operator/(LONG l) {
         return COARefTime(m_time / l);
     };
 
@@ -298,14 +287,14 @@ private:
 
 class CPosPassThru : public IMediaSeeking, public CMediaPosition
 {
-    IPin *m_pPin;
+    IPin* m_pPin;
 
-    HRESULT GetPeer(IMediaPosition **ppMP);
-    HRESULT GetPeerSeeking(IMediaSeeking **ppMS);
+    HRESULT GetPeer(IMediaPosition** ppMP);
+    HRESULT GetPeerSeeking(IMediaSeeking** ppMS);
 
 public:
 
-    CPosPassThru(const TCHAR *, LPUNKNOWN, HRESULT*, IPin *);
+    CPosPassThru(const TCHAR*, LPUNKNOWN, HRESULT*, IPin*);
     DECLARE_IUNKNOWN
 
     HRESULT ForceRefresh() {
@@ -313,50 +302,50 @@ public:
     };
 
     // override to return an accurate current position
-    virtual HRESULT GetMediaTime(LONGLONG *pStartTime,LONGLONG *pEndTime) {
+    virtual HRESULT GetMediaTime(LONGLONG* pStartTime, LONGLONG* pEndTime) {
         return E_FAIL;
     }
 
-    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid,void **ppv);
+    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
 
     // IMediaSeeking methods
-    STDMETHODIMP GetCapabilities( DWORD * pCapabilities );
-    STDMETHODIMP CheckCapabilities( DWORD * pCapabilities );
-    STDMETHODIMP SetTimeFormat(const GUID * pFormat);
-    STDMETHODIMP GetTimeFormat(GUID *pFormat);
-    STDMETHODIMP IsUsingTimeFormat(const GUID * pFormat);
-    STDMETHODIMP IsFormatSupported( const GUID * pFormat);
-    STDMETHODIMP QueryPreferredFormat( GUID *pFormat);
-    STDMETHODIMP ConvertTimeFormat(LONGLONG * pTarget, const GUID * pTargetFormat,
-                                   LONGLONG    Source, const GUID * pSourceFormat );
-    STDMETHODIMP SetPositions( LONGLONG * pCurrent, DWORD CurrentFlags
-                             , LONGLONG * pStop, DWORD StopFlags );
+    STDMETHODIMP GetCapabilities(DWORD* pCapabilities);
+    STDMETHODIMP CheckCapabilities(DWORD* pCapabilities);
+    STDMETHODIMP SetTimeFormat(const GUID* pFormat);
+    STDMETHODIMP GetTimeFormat(GUID* pFormat);
+    STDMETHODIMP IsUsingTimeFormat(const GUID* pFormat);
+    STDMETHODIMP IsFormatSupported(const GUID* pFormat);
+    STDMETHODIMP QueryPreferredFormat(GUID* pFormat);
+    STDMETHODIMP ConvertTimeFormat(LONGLONG* pTarget, const GUID* pTargetFormat,
+                                   LONGLONG    Source, const GUID* pSourceFormat);
+    STDMETHODIMP SetPositions(LONGLONG* pCurrent, DWORD CurrentFlags
+                              , LONGLONG* pStop, DWORD StopFlags);
 
-    STDMETHODIMP GetPositions( LONGLONG * pCurrent, LONGLONG * pStop );
-    STDMETHODIMP GetCurrentPosition( LONGLONG * pCurrent );
-    STDMETHODIMP GetStopPosition( LONGLONG * pStop );
-    STDMETHODIMP SetRate( double dRate);
-    STDMETHODIMP GetRate( double * pdRate);
-    STDMETHODIMP GetDuration( LONGLONG *pDuration);
-    STDMETHODIMP GetAvailable( LONGLONG *pEarliest, LONGLONG *pLatest );
-    STDMETHODIMP GetPreroll( LONGLONG *pllPreroll );
+    STDMETHODIMP GetPositions(LONGLONG* pCurrent, LONGLONG* pStop);
+    STDMETHODIMP GetCurrentPosition(LONGLONG* pCurrent);
+    STDMETHODIMP GetStopPosition(LONGLONG* pStop);
+    STDMETHODIMP SetRate(double dRate);
+    STDMETHODIMP GetRate(double* pdRate);
+    STDMETHODIMP GetDuration(LONGLONG* pDuration);
+    STDMETHODIMP GetAvailable(LONGLONG* pEarliest, LONGLONG* pLatest);
+    STDMETHODIMP GetPreroll(LONGLONG* pllPreroll);
 
     // IMediaPosition properties
-    STDMETHODIMP get_Duration(REFTIME * plength);
+    STDMETHODIMP get_Duration(REFTIME* plength);
     STDMETHODIMP put_CurrentPosition(REFTIME llTime);
-    STDMETHODIMP get_StopTime(REFTIME * pllTime);
+    STDMETHODIMP get_StopTime(REFTIME* pllTime);
     STDMETHODIMP put_StopTime(REFTIME llTime);
-    STDMETHODIMP get_PrerollTime(REFTIME * pllTime);
+    STDMETHODIMP get_PrerollTime(REFTIME* pllTime);
     STDMETHODIMP put_PrerollTime(REFTIME llTime);
-    STDMETHODIMP get_Rate(double * pdRate);
+    STDMETHODIMP get_Rate(double* pdRate);
     STDMETHODIMP put_Rate(double dRate);
-    STDMETHODIMP get_CurrentPosition(REFTIME * pllTime);
-    STDMETHODIMP CanSeekForward(LONG *pCanSeekForward);
-    STDMETHODIMP CanSeekBackward(LONG *pCanSeekBackward);
+    STDMETHODIMP get_CurrentPosition(REFTIME* pllTime);
+    STDMETHODIMP CanSeekForward(LONG* pCanSeekForward);
+    STDMETHODIMP CanSeekBackward(LONG* pCanSeekBackward);
 
 private:
-    HRESULT GetSeekingLongLong( HRESULT (__stdcall IMediaSeeking::*pMethod)( LONGLONG * ),
-                                LONGLONG * pll );
+    HRESULT GetSeekingLongLong(HRESULT(__stdcall IMediaSeeking::*pMethod)(LONGLONG*),
+                               LONGLONG* pll);
 };
 
 
@@ -373,10 +362,10 @@ public:
 
     // Used to help with passing media times through graph
 
-    CRendererPosPassThru(const TCHAR *, LPUNKNOWN, HRESULT*, IPin *);
-    HRESULT RegisterMediaTime(IMediaSample *pMediaSample);
-    HRESULT RegisterMediaTime(LONGLONG StartTime,LONGLONG EndTime);
-    HRESULT GetMediaTime(LONGLONG *pStartTime,LONGLONG *pEndTime);
+    CRendererPosPassThru(const TCHAR*, LPUNKNOWN, HRESULT*, IPin*);
+    HRESULT RegisterMediaTime(IMediaSample* pMediaSample);
+    HRESULT RegisterMediaTime(LONGLONG StartTime, LONGLONG EndTime);
+    HRESULT GetMediaTime(LONGLONG* pStartTime, LONGLONG* pEndTime);
     HRESULT ResetMediaTime();
     HRESULT EOS();
 };
@@ -384,8 +373,8 @@ public:
 STDAPI CreatePosPassThru(
     LPUNKNOWN pAgg,
     BOOL bRenderer,
-    IPin *pPin,
-    IUnknown **ppPassThru
+    IPin* pPin,
+    IUnknown** ppPassThru
 );
 
 // A class that handles the IDispatch part of IBasicAudio and leaves the
@@ -397,37 +386,37 @@ class AM_NOVTABLE CBasicAudio : public IBasicAudio, public CUnknown
 
 public:
 
-    CBasicAudio(const TCHAR *, LPUNKNOWN);
+    CBasicAudio(const TCHAR*, LPUNKNOWN);
 
     DECLARE_IUNKNOWN
 
     // override this to publicise our interfaces
-    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void **ppv);
+    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
 
     /* IDispatch methods */
-    STDMETHODIMP GetTypeInfoCount(UINT * pctinfo);
+    STDMETHODIMP GetTypeInfoCount(UINT* pctinfo);
 
     STDMETHODIMP GetTypeInfo(
-      UINT itinfo,
-      LCID lcid,
-      ITypeInfo ** pptinfo);
+        UINT itinfo,
+        LCID lcid,
+        ITypeInfo** pptinfo);
 
     STDMETHODIMP GetIDsOfNames(
-      REFIID riid,
-      OLECHAR  ** rgszNames,
-      UINT cNames,
-      LCID lcid,
-      DISPID * rgdispid);
+        REFIID riid,
+        OLECHAR**   rgszNames,
+        UINT cNames,
+        LCID lcid,
+        DISPID* rgdispid);
 
     STDMETHODIMP Invoke(
-      DISPID dispidMember,
-      REFIID riid,
-      LCID lcid,
-      WORD wFlags,
-      DISPPARAMS * pdispparams,
-      VARIANT * pvarResult,
-      EXCEPINFO * pexcepinfo,
-      UINT * puArgErr);
+        DISPID dispidMember,
+        REFIID riid,
+        LCID lcid,
+        WORD wFlags,
+        DISPPARAMS* pdispparams,
+        VARIANT* pvarResult,
+        EXCEPINFO* pexcepinfo,
+        UINT* puArgErr);
 };
 
 
@@ -440,42 +429,41 @@ class AM_NOVTABLE CBaseBasicVideo : public IBasicVideo2, public CUnknown
 
 public:
 
-    CBaseBasicVideo(const TCHAR *, LPUNKNOWN);
+    CBaseBasicVideo(const TCHAR*, LPUNKNOWN);
 
     DECLARE_IUNKNOWN
 
     // override this to publicise our interfaces
-    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void **ppv);
+    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
 
     /* IDispatch methods */
-    STDMETHODIMP GetTypeInfoCount(UINT * pctinfo);
+    STDMETHODIMP GetTypeInfoCount(UINT* pctinfo);
 
     STDMETHODIMP GetTypeInfo(
-      UINT itinfo,
-      LCID lcid,
-      ITypeInfo ** pptinfo);
+        UINT itinfo,
+        LCID lcid,
+        ITypeInfo** pptinfo);
 
     STDMETHODIMP GetIDsOfNames(
-      REFIID riid,
-      OLECHAR  ** rgszNames,
-      UINT cNames,
-      LCID lcid,
-      DISPID * rgdispid);
+        REFIID riid,
+        OLECHAR**   rgszNames,
+        UINT cNames,
+        LCID lcid,
+        DISPID* rgdispid);
 
     STDMETHODIMP Invoke(
-      DISPID dispidMember,
-      REFIID riid,
-      LCID lcid,
-      WORD wFlags,
-      DISPPARAMS * pdispparams,
-      VARIANT * pvarResult,
-      EXCEPINFO * pexcepinfo,
-      UINT * puArgErr);
+        DISPID dispidMember,
+        REFIID riid,
+        LCID lcid,
+        WORD wFlags,
+        DISPPARAMS* pdispparams,
+        VARIANT* pvarResult,
+        EXCEPINFO* pexcepinfo,
+        UINT* puArgErr);
 
     STDMETHODIMP GetPreferredAspectRatio(
-      long *plAspectX,
-      long *plAspectY)
-    {
+        long* plAspectX,
+        long* plAspectY) {
         return E_NOTIMPL;
     }
 };
@@ -490,37 +478,37 @@ class AM_NOVTABLE CBaseVideoWindow : public IVideoWindow, public CUnknown
 
 public:
 
-    CBaseVideoWindow(const TCHAR *, LPUNKNOWN);
+    CBaseVideoWindow(const TCHAR*, LPUNKNOWN);
 
     DECLARE_IUNKNOWN
 
     // override this to publicise our interfaces
-    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void **ppv);
+    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
 
     /* IDispatch methods */
-    STDMETHODIMP GetTypeInfoCount(UINT * pctinfo);
+    STDMETHODIMP GetTypeInfoCount(UINT* pctinfo);
 
     STDMETHODIMP GetTypeInfo(
-      UINT itinfo,
-      LCID lcid,
-      ITypeInfo ** pptinfo);
+        UINT itinfo,
+        LCID lcid,
+        ITypeInfo** pptinfo);
 
     STDMETHODIMP GetIDsOfNames(
-      REFIID riid,
-      OLECHAR  ** rgszNames,
-      UINT cNames,
-      LCID lcid,
-      DISPID * rgdispid);
+        REFIID riid,
+        OLECHAR**   rgszNames,
+        UINT cNames,
+        LCID lcid,
+        DISPID* rgdispid);
 
     STDMETHODIMP Invoke(
-      DISPID dispidMember,
-      REFIID riid,
-      LCID lcid,
-      WORD wFlags,
-      DISPPARAMS * pdispparams,
-      VARIANT * pvarResult,
-      EXCEPINFO * pexcepinfo,
-      UINT * puArgErr);
+        DISPID dispidMember,
+        REFIID riid,
+        LCID lcid,
+        WORD wFlags,
+        DISPPARAMS* pdispparams,
+        VARIANT* pvarResult,
+        EXCEPINFO* pexcepinfo,
+        UINT* puArgErr);
 };
 
 
@@ -533,22 +521,22 @@ class AM_NOVTABLE CSourcePosition : public CMediaPosition
 {
 
 public:
-    CSourcePosition(const TCHAR *, LPUNKNOWN, HRESULT*, CCritSec *);
+    CSourcePosition(const TCHAR*, LPUNKNOWN, HRESULT*, CCritSec*);
 
     // IMediaPosition methods
-    STDMETHODIMP get_Duration(REFTIME * plength);
+    STDMETHODIMP get_Duration(REFTIME* plength);
     STDMETHODIMP put_CurrentPosition(REFTIME llTime);
-    STDMETHODIMP get_StopTime(REFTIME * pllTime);
+    STDMETHODIMP get_StopTime(REFTIME* pllTime);
     STDMETHODIMP put_StopTime(REFTIME llTime);
-    STDMETHODIMP get_PrerollTime(REFTIME * pllTime);
+    STDMETHODIMP get_PrerollTime(REFTIME* pllTime);
     STDMETHODIMP put_PrerollTime(REFTIME llTime);
-    STDMETHODIMP get_Rate(double * pdRate);
+    STDMETHODIMP get_Rate(double* pdRate);
     STDMETHODIMP put_Rate(double dRate);
-    STDMETHODIMP CanSeekForward(LONG *pCanSeekForward);
-    STDMETHODIMP CanSeekBackward(LONG *pCanSeekBackward);
+    STDMETHODIMP CanSeekForward(LONG* pCanSeekForward);
+    STDMETHODIMP CanSeekBackward(LONG* pCanSeekBackward);
 
     // override if you can return the data you are actually working on
-    STDMETHODIMP get_CurrentPosition(REFTIME * pllTime) {
+    STDMETHODIMP get_CurrentPosition(REFTIME* pllTime) {
         return E_NOTIMPL;
     };
 
@@ -564,7 +552,7 @@ protected:
     COARefTime m_Stop;
     double m_Rate;
 
-    CCritSec * m_pLock;
+    CCritSec* m_pLock;
 };
 
 class AM_NOVTABLE CSourceSeeking :
@@ -575,38 +563,38 @@ class AM_NOVTABLE CSourceSeeking :
 public:
 
     DECLARE_IUNKNOWN;
-    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void **ppv);
+    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
 
     // IMediaSeeking methods
 
-    STDMETHODIMP IsFormatSupported(const GUID * pFormat);
-    STDMETHODIMP QueryPreferredFormat(GUID *pFormat);
-    STDMETHODIMP SetTimeFormat(const GUID * pFormat);
-    STDMETHODIMP IsUsingTimeFormat(const GUID * pFormat);
-    STDMETHODIMP GetTimeFormat(GUID *pFormat);
-    STDMETHODIMP GetDuration(LONGLONG *pDuration);
-    STDMETHODIMP GetStopPosition(LONGLONG *pStop);
-    STDMETHODIMP GetCurrentPosition(LONGLONG *pCurrent);
-    STDMETHODIMP GetCapabilities( DWORD * pCapabilities );
-    STDMETHODIMP CheckCapabilities( DWORD * pCapabilities );
-    STDMETHODIMP ConvertTimeFormat( LONGLONG * pTarget, const GUID * pTargetFormat,
-                                    LONGLONG    Source, const GUID * pSourceFormat );
+    STDMETHODIMP IsFormatSupported(const GUID* pFormat);
+    STDMETHODIMP QueryPreferredFormat(GUID* pFormat);
+    STDMETHODIMP SetTimeFormat(const GUID* pFormat);
+    STDMETHODIMP IsUsingTimeFormat(const GUID* pFormat);
+    STDMETHODIMP GetTimeFormat(GUID* pFormat);
+    STDMETHODIMP GetDuration(LONGLONG* pDuration);
+    STDMETHODIMP GetStopPosition(LONGLONG* pStop);
+    STDMETHODIMP GetCurrentPosition(LONGLONG* pCurrent);
+    STDMETHODIMP GetCapabilities(DWORD* pCapabilities);
+    STDMETHODIMP CheckCapabilities(DWORD* pCapabilities);
+    STDMETHODIMP ConvertTimeFormat(LONGLONG* pTarget, const GUID* pTargetFormat,
+                                   LONGLONG    Source, const GUID* pSourceFormat);
 
-    STDMETHODIMP SetPositions( LONGLONG * pCurrent,  DWORD CurrentFlags
-			     , LONGLONG * pStop,  DWORD StopFlags );
+    STDMETHODIMP SetPositions(LONGLONG* pCurrent,  DWORD CurrentFlags
+                              , LONGLONG* pStop,  DWORD StopFlags);
 
-    STDMETHODIMP GetPositions( LONGLONG * pCurrent, LONGLONG * pStop );
+    STDMETHODIMP GetPositions(LONGLONG* pCurrent, LONGLONG* pStop);
 
-    STDMETHODIMP GetAvailable( LONGLONG * pEarliest, LONGLONG * pLatest );
-    STDMETHODIMP SetRate( double dRate);
-    STDMETHODIMP GetRate( double * pdRate);
-    STDMETHODIMP GetPreroll(LONGLONG *pPreroll);
+    STDMETHODIMP GetAvailable(LONGLONG* pEarliest, LONGLONG* pLatest);
+    STDMETHODIMP SetRate(double dRate);
+    STDMETHODIMP GetRate(double* pdRate);
+    STDMETHODIMP GetPreroll(LONGLONG* pPreroll);
 
 
 protected:
 
     // ctor
-    CSourceSeeking(const TCHAR *, LPUNKNOWN, HRESULT*, CCritSec *);
+    CSourceSeeking(const TCHAR*, LPUNKNOWN, HRESULT*, CCritSec*);
 
     // we call this to notify changes. Override to handle them
     virtual HRESULT ChangeStart() PURE;
@@ -621,7 +609,7 @@ protected:
     // seeking capabilities
     DWORD m_dwSeekingCaps;
 
-    CCritSec * m_pLock;
+    CCritSec* m_pLock;
 };
 
 
@@ -650,7 +638,7 @@ class CCmdQueue;
 class CDispParams : public DISPPARAMS
 {
 public:
-    CDispParams(UINT nArgs, VARIANT* pArgs, HRESULT *phr = NULL);
+    CDispParams(UINT nArgs, VARIANT* pArgs, HRESULT* phr = NULL);
     ~CDispParams();
 };
 
@@ -668,9 +656,9 @@ class CDeferredCommand
 public:
 
     CDeferredCommand(
-        CCmdQueue * pQ,
+        CCmdQueue* pQ,
         LPUNKNOWN   pUnk,               // aggregation outer unk
-        HRESULT *   phr,
+        HRESULT*    phr,
         LPUNKNOWN   pUnkExecutor,       // object that will execute this cmd
         REFTIME     time,
         GUID*       iid,
@@ -681,21 +669,21 @@ public:
         VARIANT*    pvarResult,
         short*      puArgErr,
         BOOL        bStream
-        );
+    );
 
     DECLARE_IUNKNOWN
 
     // override this to publicise our interfaces
-    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void **ppv);
+    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
 
     // IDeferredCommand methods
     STDMETHODIMP Cancel();
     STDMETHODIMP Confidence(
-                    LONG* pConfidence);
+        LONG* pConfidence);
     STDMETHODIMP Postpone(
-                    REFTIME newtime);
+        REFTIME newtime);
     STDMETHODIMP GetHResult(
-                    HRESULT* phrResult);
+        HRESULT* phrResult);
 
     // other public methods
 
@@ -705,7 +693,7 @@ public:
 
     // returns TRUE if streamtime, FALSE if presentation time
     BOOL IsStreamTime() {
-       return m_bStream;
+        return m_bStream;
     };
 
     CRefTime GetTime() {
@@ -772,7 +760,7 @@ public:
     // returns S_OK if successfully created otherwise an error and
     // no object has been queued.
     virtual HRESULT  New(
-        CDeferredCommand **ppCmd,
+        CDeferredCommand** ppCmd,
         LPUNKNOWN   pUnk,
         REFTIME     time,
         GUID*       iid,
@@ -841,7 +829,7 @@ public:
     // The command remains queued until invoked or cancelled.
     // Returns E_ABORT if timeout occurs, otherwise S_OK (or other error).
     // Returns an AddRef-ed object
-    virtual HRESULT GetDueCommand(CDeferredCommand ** ppCmd, long msTimeout);
+    virtual HRESULT GetDueCommand(CDeferredCommand** ppCmd, long msTimeout);
 
     // return the event handle that will be signalled whenever
     // there are deferred commands due for execution (when GetDueCommand
@@ -857,7 +845,7 @@ public:
     // This method will not block. It will report VFW_E_NOT_FOUND if there
     // are no commands due yet.
     // Returns an AddRef-ed object
-    virtual HRESULT GetCommandDueFor(REFERENCE_TIME tStream, CDeferredCommand**ppCmd);
+    virtual HRESULT GetCommandDueFor(REFERENCE_TIME tStream, CDeferredCommand** ppCmd);
 
     // check if a given time is due (TRUE if it is due yet)
     BOOL CheckTime(CRefTime time, BOOL bStream) {

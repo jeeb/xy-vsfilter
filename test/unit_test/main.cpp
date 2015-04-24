@@ -13,15 +13,14 @@
 #include "test_overall.h"
 
 
-int wmain(int argc, wchar_t ** argv)
+int wmain(int argc, wchar_t** argv)
 {
-    if (argc!=2)
-    {
-        std::wcout<<argv[0]<<L" script_name"<<std::endl;
+    if (argc != 2) {
+        std::wcout << argv[0] << L" script_name" << std::endl;
         return -1;
     }
     char namebuf[256];
-    WideCharToMultiByte(CP_UTF8, 0, argv[1], -1, namebuf, sizeof(namebuf)/sizeof(char), NULL, NULL);
+    WideCharToMultiByte(CP_UTF8, 0, argv[1], -1, namebuf, sizeof(namebuf) / sizeof(char), NULL, NULL);
     OpenTestScript(namebuf);
 
     testing::InitGoogleTest(&argc, argv);

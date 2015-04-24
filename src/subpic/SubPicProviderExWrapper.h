@@ -11,7 +11,7 @@ class CSubPicProviderExWrapper : public CUnknown, public ISubPicProviderEx
 {
 private:
     CSubPicProviderExWrapper(ISubPicProvider* const inner_provider);//disable inheriting
-    
+
     CComPtr<ISubPicProvider> _inner_provider;
 public:
     static CSubPicProviderExWrapper* GetSubPicProviderExWrapper(ISubPicProvider* const inner_provider);
@@ -29,12 +29,12 @@ public:
     STDMETHODIMP_(POSITION) GetNext(POSITION pos);
 
     STDMETHODIMP_(REFERENCE_TIME) GetStart(POSITION pos, double fps);
-    STDMETHODIMP_(REFERENCE_TIME) GetStop(POSITION pos, double fps);    
+    STDMETHODIMP_(REFERENCE_TIME) GetStop(POSITION pos, double fps);
 
-    STDMETHODIMP_(bool) IsAnimated (POSITION pos);
+    STDMETHODIMP_(bool) IsAnimated(POSITION pos);
 
     STDMETHODIMP Render(SubPicDesc& spd, REFERENCE_TIME rt, double fps, RECT& bbox);
-    STDMETHODIMP GetTextureSize (POSITION pos, SIZE& MaxTextureSize, SIZE& VirtualSize, POINT& VirtualTopLeft);
+    STDMETHODIMP GetTextureSize(POSITION pos, SIZE& MaxTextureSize, SIZE& VirtualSize, POINT& VirtualTopLeft);
 
     // ISubPicProviderEx
 
