@@ -40,7 +40,7 @@
 #ifdef LINUX
 #include <pmmintrin.h>
 #else
-#include<intrin.h>
+#include <intrin.h>
 #endif
 
 #include "xy_logger.h"
