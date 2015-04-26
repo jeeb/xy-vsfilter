@@ -1328,8 +1328,8 @@ void AlphaBlt(byte* pY,
         for (; h > 0; h--, pAlphaMask += src_stride, pY += dst_stride) {
             const BYTE* sa = pAlphaMask;
             BYTE* dy = pY;
-            const BYTE* dy_first_mod16 = reinterpret_cast<BYTE*>((reinterpret_cast<int>(pY) + 15) & ~15); //IMPORTANT! w must >= 15
-            const BYTE* dy_end_mod16 = reinterpret_cast<BYTE*>(reinterpret_cast<int>(pY + w) & ~15);
+            const BYTE* dy_first_mod16 = reinterpret_cast<BYTE*>((reinterpret_cast<uintptr_t>(pY) + 15) & ~(uintptr_t)15); //IMPORTANT! w must >= 15
+            const BYTE* dy_end_mod16 = reinterpret_cast<BYTE*>(reinterpret_cast<uintptr_t>(pY + w) & ~(uintptr_t)15);
             const BYTE* dy_end = pY + w;
 
             for (; dy < dy_first_mod16; sa++, dy++) {
@@ -1406,8 +1406,8 @@ void AlphaBlt(byte* pY,
         __m128i ia = _mm_set1_epi16(dstAlpha);
         for (; h > 0; h--, pY += dst_stride) {
             BYTE* dy = pY;
-            const BYTE* dy_first_mod16 = reinterpret_cast<BYTE*>((reinterpret_cast<int>(pY) + 15) & ~15); //IMPORTANT! w must >= 15
-            const BYTE* dy_end_mod16 = reinterpret_cast<BYTE*>(reinterpret_cast<int>(pY + w) & ~15);
+            const BYTE* dy_first_mod16 = reinterpret_cast<BYTE*>((reinterpret_cast<uintptr_t>(pY) + 15) & ~(uintptr_t)15); //IMPORTANT! w must >= 15
+            const BYTE* dy_end_mod16 = reinterpret_cast<BYTE*>(reinterpret_cast<uintptr_t>(pY + w) & ~(uintptr_t)15);
             const BYTE* dy_end = pY + w;
 
             for (; dy < dy_first_mod16; dy++) {
