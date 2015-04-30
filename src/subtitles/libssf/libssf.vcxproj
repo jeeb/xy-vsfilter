@@ -63,12 +63,8 @@
     <ClCompile Include="GlyphPath.cpp" />
     <ClCompile Include="Node.cpp" />
     <ClCompile Include="NodeFactory.cpp" />
-    <ClCompile Include="Rasterizer.cpp">
-      <AssemblerOutput>AssemblyAndSourceCode</AssemblerOutput>
-    </ClCompile>
-    <ClCompile Include="Renderer.cpp">
-      <AssemblerOutput>AssemblyAndSourceCode</AssemblerOutput>
-    </ClCompile>
+    <ClCompile Include="Rasterizer.cpp" />
+    <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="Split.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
