@@ -54,9 +54,6 @@
     <ClCompile Include="VobSubImage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="xy_malloc.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="cache_manager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
