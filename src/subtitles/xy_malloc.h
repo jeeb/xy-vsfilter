@@ -2,14 +2,38 @@
 /* author: xy                                                           */
 /* date: 20110514                                                       */
 /************************************************************************/
-#ifndef __XY_MALLOC_H_22FA5F7D_A5C3_4D8D_B4E6_5FB954770019__
-#define __XY_MALLOC_H_22FA5F7D_A5C3_4D8D_B4E6_5FB954770019__
+#ifndef SUBTITLES_XY_MALLOC_H_
+#define SUBTITLES_XY_MALLOC_H_
 
-/* xy_malloc : will do or emulate a memalign
- * you have to use xy_free for buffers allocated with xy_malloc */
-void* xy_malloc(size_t size, size_t align_shift = 0);
-void* xy_realloc(void* p, size_t i_size, size_t align_shift = 0);
-void  xy_free(void*);
+#include <malloc.h>
 
-#endif // end of __XY_MALLOC_H_22FA5F7D_A5C3_4D8D_B4E6_5FB954770019__
+const int kAlign = 16;
 
+inline void* xy_malloc(size_t size)
+{
+    return _aligned_malloc(size, kAlign);
+}
+
+inline void* xy_malloc(size_t size, size_t align_shift)
+{
+    return _aligned_offset_malloc(size, kAlign, align_shift);
+}
+
+inline void xy_free(void* p)
+{
+    _aligned_free(p);
+}
+
+// xy_realloc functions currently not used anywhere
+#if 0
+inline void* xy_realloc(void* p, size_t size)
+{
+    return _aligned_realloc(p, size, kAlign);
+}
+
+inline void* xy_realloc(void* p, size_t size, size_t align_shift)
+{
+    return _aligned_offset_realloc(p, size, kAlign, align_shift);
+}
+#endif
+#endif // SUBTITLES_XY_MALLOC_H_
